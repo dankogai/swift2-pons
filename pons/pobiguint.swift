@@ -6,7 +6,9 @@
 //  Copyright © 2016 Dan Kogai. All rights reserved.
 //
 
-/// Big Unsigned Integer
+///
+/// Arbitrary-precision Unsigned Integer
+///
 public struct BigUInt {
     public typealias IntType = Int
     public typealias DigitType = UInt32
@@ -38,6 +40,7 @@ public struct BigUInt {
     public var asUInt16:UInt16 { return UInt16(self.asUInt32) }
     public var asUInt8:UInt8    { return UInt8(self.asUInt32) }
     public var asUInt64:UInt64 {
+        if digits.count > 2 { fatalError("value too large for UInt64") }
         return UInt64(
             digits.count == 2 ? (digits[1] << 32 | digits[0]) : digits[0]
         )
@@ -46,6 +49,12 @@ public struct BigUInt {
     public var asUInt:UInt      { return UInt(self.asUInt64) }
     public var asDouble:Double  { return Double(self.asUInt64) }
     public var asFloat:Float    { return Float(self.asUInt64) }
+    public func toIntMax()->IntMax {
+        return IntMax(self.asInt)
+    }
+    public func toUIntMax()->UIntMax {
+        return UIntMax(self.asUInt)
+    }
 }
 // reverse conversions
 public extension Int    { public init(_ bu:BigUInt){ self.init(bu.asInt) } }
@@ -324,7 +333,6 @@ public func *=(inout lhs:BigUInt, rhs:BigUInt) {
 }
 // before we get down to division, let's define divmod32 and divmod8
 // and use it to make it conform to CustomStringConvertible
-// (and CustomDebugStringConvertible and  Hashable)
 extension BigUInt : CustomStringConvertible, CustomDebugStringConvertible {
     public static func divmod32(lhs:BigUInt, _ rhs:DigitType)->(BigUInt, DigitType) {
         var value = lhs.digits
@@ -341,7 +349,7 @@ extension BigUInt : CustomStringConvertible, CustomDebugStringConvertible {
         return (q, Int(r))
     }
 }
-// now let's go for the toughest one:division!
+// now let's get division done
 public extension BigUInt {
     public var msbAt:Int {
         return (self.digits.count-1) * 32 + self.digits.last!.msbAt
@@ -388,18 +396,5 @@ public func /(lhs:BigUInt, rhs:BigUInt)->BigUInt {
 public func %(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.divmod(lhs, rhs).1
 }
-// we are pretty much done.  Let's conform to remaining protocols.
-//
-// // makes Range<BigUInt> possible
-
-// and BigUInt is
-extension BigUInt : UnsignedIntegerType {
-    public func toIntMax()->IntMax {
-        return IntMax(self.asInt)
-    }
-    public func toUIntMax()->UIntMax {
-        return UIntMax(self.asUInt)
-    }
-}
-// and finally…
+// Now that we are done with all requirements, Let Swift know that!
 extension BigUInt: POUInt {}

@@ -7,9 +7,9 @@
 //
 
 ///
-/// Big Signed Integer
+/// Arbitrary-precision Signed Integer
 ///
-public struct BigInt  {
+public struct BigInt {
     public typealias UIntType = BigUInt
     public var unsignedValue = BigUInt()
     public var isSignMinus = false
@@ -45,12 +45,10 @@ public struct BigInt  {
     public func toString(base:Int = 10)-> String {
         return (self.isSignMinus ? "-" : "") + self.unsignedValue.toString(base)
     }
-    //  CustomStringConvertible by defalut
-    public var description:String {
+    public var description:String { // CustomStringConvertible
         return self.toString()
     }
-    // automagically CustomDebugStringConvertible
-    public var debugDescription:String {
+    public var debugDescription:String {    //  CustomDebugStringConvertible
         return (self.isSignMinus ? "-" : "+") + self.unsignedValue.debugDescription
     }
     // no overflow for BigInt, period.
@@ -137,8 +135,8 @@ public func ^=(inout lhs:BigInt, rhs:BigInt) {
 }
 public func <<(lhs:BigInt, rhs:BigInt)->BigInt {
     return BigInt(
-        unsignedValue:lhs.unsignedValue << rhs.unsignedValue,
-        isSignMinus: lhs.isSignMinus
+        unsignedValue:  lhs.unsignedValue << rhs.unsignedValue,
+        isSignMinus:    lhs.isSignMinus
     )
 }
 public func <<=(inout lhs:BigInt, rhs:BigInt) {
@@ -146,8 +144,8 @@ public func <<=(inout lhs:BigInt, rhs:BigInt) {
 }
 public func >>(lhs:BigInt, rhs:BigInt)->BigInt {
     return BigInt(
-        unsignedValue:lhs.unsignedValue >> rhs.unsignedValue,
-        isSignMinus: lhs.isSignMinus
+        unsignedValue:  lhs.unsignedValue >> rhs.unsignedValue,
+        isSignMinus:    lhs.isSignMinus
     )
 }
 public func >>=(inout lhs:BigInt, rhs:BigInt) {
