@@ -4,6 +4,7 @@ MODSRC=pons/*.swift
 BINSRC=$(MODSRC) test/*.swift
 MODULE=$(MOD).swiftmodule $(MOD).swiftdoc
 SWIFTC=swiftc
+SWIFTCFLAGS=-O
 SWIFT=swift
 ifdef SWIFTPATH
 	SWIFTC=$(SWIFTPATH)/swiftc
@@ -19,7 +20,7 @@ module: $(MODULE)
 clean:
 	-rm $(BIN) $(MODULE) lib$(MOD).*
 $(BIN): $(BINSRC)
-	$(SWIFTC) $(BINSRC)
+	$(SWIFTC) $(SWIFTCFLAGS) $(BINSRC)
 test: $(BIN)
 	prove ./$(BIN)
 $(MODULE): $(MODSRC)

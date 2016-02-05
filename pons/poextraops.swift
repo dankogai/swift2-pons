@@ -6,6 +6,18 @@
 //  Copyright © 2016 Dan Kogai. All rights reserved.
 //
 
+// To be consistent with bitwise xor
+
+infix operator ^^   { associativity left precedence 120 }   // Conjunctive, same as &&
+infix operator ^^=  { associativity right precedence 90 }   // Assignment, same as &&=
+
+public func ^^(lhs:Bool, rhs:Bool)->Bool {
+    return Bool.xor(lhs, rhs)
+}
+public func ^^=(inout lhs:Bool, rhs:Bool) {
+    lhs = lhs ^^ rhs
+}
+
 public extension POInteger {
     /// lhs to the rhs
     public static func pow(lhs: Self, _ rhs:Self)->Self {
@@ -27,8 +39,8 @@ public extension POInteger {
     }
 }
 
-infix operator ** { associativity right precedence 170 }
-infix operator **= { associativity right precedence 90 }
+infix operator **   { associativity right precedence 160 }    // Exponentiative, same as << and >>
+infix operator **=  { associativity right precedence  90 }    // Assignment, same as <<= and >>=
 
 public func **<T:POInteger>(lhs:T, rhs:T)->T {
     return T.pow(lhs, rhs)
