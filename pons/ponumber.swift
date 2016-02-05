@@ -6,7 +6,9 @@
 //  Copyright © 2016 Dan Kogai. All rights reserved.
 //
 
+///
 /// Minimum requirement for Protocol-Oriented Numbers
+///
 public protocol PONumber : Equatable {
     init(_:Self)
     init(_:Int)
@@ -18,6 +20,4 @@ public protocol PONumber : Equatable {
     func /(_:Self,_:Self)->Self
 }
 
-public protocol POSignedNumber : PONumber, SignedNumberType {
-    
-}
+public protocol POSignedNumber : PONumber, SignedNumberType {}
