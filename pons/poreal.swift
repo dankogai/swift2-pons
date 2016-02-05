@@ -18,6 +18,16 @@ public extension POReal {
     public init(_ f:Float)  { self.init(Double(f)) }
 }
 
+#if os(Linux)
+    import Glibc
+#else
+    import Darwin
+#endif
+
+public protocol POFloat : POReal {
+    static var EPSILON:Self { get }
+}
+
 public protocol POElementaryFunctional : POReal {}
 extension POElementaryFunctional {
     #if os(Linux)
@@ -59,17 +69,20 @@ extension POElementaryFunctional {
     public static func asinh(x:Self)->Self  { return Self(Darwin.asinh(x.toDouble())) }
     public static func atanh(x:Self)->Self  { return Self(Darwin.atanh(x.toDouble())) }
     #endif
+    public static var PI:Self       { return Self(M_PI) }
+    public static var E:Self        { return Self(M_E) }
+    public static var LN2:Self      { return Self(M_LN2) }
+    public static var LN10:Self     { return Self(M_LN10) }
+    public static var LOG2E:Self    { return Self(M_LOG2E) }
+    public static var LOG10E:Self   { return Self(M_LOG10E) }
+    public static var SQRT1_2:Self  { return Self(M_SQRT1_2) }
+    public static var SQRT2:Self    { return Self(M_SQRT2) }
 }
 
-#if os(Linux)
-    import Glibc
-#else
-    import Darwin
-#endif
-
-extension Double : POReal {
+extension Double : POFloat, POElementaryFunctional {
     public func toDouble()->Double { return self }
     public func toIntMax()->IntMax { return IntMax(self) }
+    public static var EPSILON = 0x1p-52
     #if os(Linux)
     public static func frexp(d:Double)->(Double, Int) {
         // return Glibc.frexp(d)
@@ -87,8 +100,9 @@ extension Double : POReal {
     #endif
 }
 
-extension Float : POReal {
+extension Float : POFloat, POElementaryFunctional {
     public func toDouble()->Double { return Double(self) }
     public func toIntMax()->IntMax { return IntMax(self) }
+    public static var EPSILON:Float = 0x1p-23
 }
 

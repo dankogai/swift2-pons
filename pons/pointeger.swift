@@ -12,7 +12,7 @@
 /// For the sake of protocol-oriented programming,
 /// consider extend this protocol first before extending each integer type.
 ///
-public protocol POInteger : PONumber, Comparable, IntegerArithmeticType, IntegerType, BitwiseOperationsType {
+public protocol POInteger : PONumber, IntegerArithmeticType, IntegerType, BitwiseOperationsType {
     func <<(_:Self,_:Self)->Self
     func <<=(inout _:Self, _:Self)
     func >>(_:Self,_:Self)->Self
@@ -30,7 +30,28 @@ public extension POInteger {
     public func advancedBy(n: Int) -> Self {
         return self + Self(n)
     }
+    //
     public init(_ d:Double) { self.init(IntMax(d)) }
+    ///
+    /// Integer power.  Note only `rhs` must be integer
+    ///
+    public static func pow<L:PONumber>(lhs: L, _ rhs:Self)->L {
+        guard 0 <= rhs else {
+            fatalError("negative exponent not supported")
+        }
+        if lhs == 0 { return 1 }
+        if rhs == 1 { return lhs }
+        // cf. https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+        var r = L(1)
+        var t = lhs, n = rhs
+        while n > Self(0) {
+            if n & 1 == 1 {
+                r = r * t
+            }
+            n >>= Self(1); t = t * t
+        }
+        return r
+    }
 }
 ///
 /// Placeholder for utility functions and values
