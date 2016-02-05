@@ -26,4 +26,8 @@ public extension Double {
     public static func frexp(d:Double)->(Double, Int)   { return Darwin.frexp(d) }
     public static func ldexp(m:Double, _ e:Int)->Double { return Darwin.ldexp(m, e) }
     #endif
+    ///
+    /// 
+    ///
+    public func toIntMax()->IntMax { return IntMax(self) }
 }

@@ -20,32 +20,6 @@ public protocol POInteger : PONumber, Comparable, IntegerArithmeticType, Integer
     // init?(_:String, radix:Int)
 }
 public extension POInteger {
-    public func toUIntMax()->UIntMax {
-        return UIntMax(self.toIntMax())
-    }
-    // initializer
-    public init(_ v:UInt64)   { self.init(UInt(v)) }
-    public init(_ v:UInt32)   { self.init(UInt(v)) }
-    public init(_ v:UInt16)   { self.init(UInt(v)) }
-    public init(_ v:UInt8)    { self.init(UInt(v)) }
-    public init(_ v:Int64)    { self.init(Int(v)) }
-    public init(_ v:Int32)    { self.init(Int(v)) }
-    public init(_ v:Int16)    { self.init(Int(v)) }
-    public init(_ v:Int8)     { self.init(Int(v)) }
-    public init(_ v:Float)    { self.init(Double(v)) }
-    // converters
-    public var asUInt64:UInt64  { return UInt64(self.toIntMax()) }
-    public var asUInt32:UInt32  { return UInt32(self.toIntMax()) }
-    public var asUInt16:UInt16  { return UInt16(self.toIntMax()) }
-    public var asUInt8:UInt8    { return UInt8(self.toIntMax()) }
-    public var asUInt:UInt      { return UInt(self.toIntMax()) }
-    public var asInt64:Int64    { return Int64(self.toIntMax()) }
-    public var asInt32:Int32    { return Int32(self.toIntMax()) }
-    public var asInt16:Int16    { return Int16(self.toIntMax()) }
-    public var asInt8:Int8      { return Int8(self.toIntMax()) }
-    public var asInt:Int        { return Int(self.toIntMax()) }
-    public var asDouble:Double  { return Double(self.toIntMax()) }
-    public var asFloat:Float    { return Float(self.toIntMax()) }
     // RandomAccessIndexType by default
     public func successor() -> Self {
         return self + 1
@@ -55,21 +29,6 @@ public extension POInteger {
     }
     public func advancedBy(n: Int) -> Self {
         return self + Self(n)
-    }
-    public func distanceTo(end: Self) -> Int {
-        return end.toIntMax() - self.toIntMax()
-    }
-    // IntegerLiteralConvertible by Default
-    public init(integerLiteral:Int) {
-        self.init(integerLiteral.toIntMax())
-    }
-    // _BuiltinIntegerLiteralConvertible by Default
-    public init(_builtinIntegerLiteral:_MaxBuiltinIntegerType) {
-        self.init(UInt64(_builtinIntegerLiteral: _builtinIntegerLiteral))
-    }
-    // Hashable by default
-    public var hashValue : Int {    // slow but steady
-        return self.description.hashValue
     }
 }
 ///
@@ -118,6 +77,12 @@ public extension POUInt {
     public static func divmod8(lhs:Self, _ rhs:Int8)->(Self, Int) {
         let denom = Self(rhs)
         return (lhs / denom, (lhs % denom).asInt)
+    }
+    /// returns quotient and remainder all at once.
+    ///
+    /// we give you the default you should override this for efficiency
+    public static func divmod8(lhs:Self, _ rhs:Self)->(Self, Self) {
+        return (lhs / rhs, lhs % rhs)
     }
     ///
     /// Stringifies `self` with base `radix` which defaults to `10`
@@ -214,7 +179,8 @@ extension UInt:     POUInt {
 /// For the sake of protocol-oriented programming,
 /// consider extend this protocol first before extending each signed integer types.
 ///
-public protocol POInt: POInteger, POSignedNumber, SignedIntegerType, StringLiteralConvertible, CustomDebugStringConvertible {
+public protocol POInt:  POInteger, POSignedNumber,
+                        SignedIntegerType, StringLiteralConvertible, CustomDebugStringConvertible {
     ///
     /// The unsigned version of `self`
     ///
@@ -222,6 +188,9 @@ public protocol POInt: POInteger, POSignedNumber, SignedIntegerType, StringLiter
     init(_:UIntType)           // must be capable of initializing from it
 }
 public extension POInt {
+    public func toUIntMax()->UIntMax {
+        return UIntMax(self.toIntMax())
+    }
     ///
     /// Returns the index of the most significant bit of `self`
     /// or `-1` if `self == 0`
