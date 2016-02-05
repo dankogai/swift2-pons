@@ -6,4 +6,4 @@ true  ^^ false
 false ^^  true
 false ^^ false
 
-BigInt(1)<<128-1
+BigInt(2)**1024 == BigInt(1)<<1024
