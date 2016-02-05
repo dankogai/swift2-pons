@@ -89,7 +89,7 @@ public class POUtil {
 /// For the sake of protocol-oriented programming,
 /// consider extend this protocol first before extending each unsigned integer type.
 ///
-public protocol POUInt: POInteger, UnsignedIntegerType, StringLiteralConvertible {
+public protocol POUInt: POInteger, UnsignedIntegerType, StringLiteralConvertible, CustomDebugStringConvertible {
     // typealias IntType:POInt // its correspoinding singed type
     // init(_:IntType)         // must be capable of initializing from it
 }
@@ -206,7 +206,7 @@ extension UInt:     POUInt {
 /// For the sake of protocol-oriented programming,
 /// consider extend this protocol first before extending each signed integer types.
 ///
-public protocol POInt: POInteger, POSignedNumber, SignedIntegerType, StringLiteralConvertible {
+public protocol POInt: POInteger, POSignedNumber, SignedIntegerType, StringLiteralConvertible, CustomDebugStringConvertible {
     typealias UIntType:POUInt  // its correspoinding unsinged type
     init(_:UIntType)           // must be capable of initializing from it
 }
