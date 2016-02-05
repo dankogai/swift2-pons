@@ -121,12 +121,17 @@ extension BigUInt : BitwiseOperationsType {
                 return BigUInt(rawValue:value)
             }
     }
+    /// bitwise `&` in functional form
     public static let bitAnd = BigUInt.binop(&)
+    /// bitwise `|` in functional form
     public static let bitOr  = BigUInt.binop(|)
+    /// bitwise `^` in functional form
     public static let bitXor = BigUInt.binop(^)
+    /// bitwise `~` in functional form
     public static func bitNot(bs:BigUInt)->BigUInt {
         return BigUInt(rawValue: bs.digits.map{ ~$0 } )
     }
+    /// bitwise `<<` in functional form
     public static func bitShiftL(lhs:BigUInt, _ rhs:DigitType)->BigUInt {
         if lhs == 0 { return lhs }
         let (index, offset) = (rhs / 32, rhs % 32)
@@ -144,6 +149,7 @@ extension BigUInt : BitwiseOperationsType {
     public static func bitShiftL(lhs:BigUInt, _ rhs:BigUInt)->BigUInt {
         return bitShiftL(lhs, rhs.asUInt32)
     }
+    /// bitwise `>>` in functional form
     public static func bitShiftR(lhs:BigUInt, _ rhs:DigitType)->BigUInt {
         if lhs == 0 { return lhs }
         var value = lhs.digits
@@ -204,6 +210,9 @@ public func >>=(inout lhs:BigUInt, rhs:BigUInt) {
 }
 // addtition and subtraction
 public extension BigUInt {
+    /// addition in functional form
+    ///
+    /// - returns: `lhs + rhs`
     public static func add(lhs:BigUInt, _ rhs:BigUInt)->BigUInt {
         let (l, r) = lhs.digits.count < rhs.digits.count ? (rhs, lhs) : (lhs, rhs)
         var value = l.digits
@@ -220,9 +229,8 @@ public extension BigUInt {
         }
         return BigUInt(rawValue:value)
     }
-    /// addition never overflows
     public static func addWithOverflow(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, overflow:Bool) {
-        return (add(lhs, rhs), overflow:false)
+        return (add(lhs, rhs), overflow:false)  // never overlows but protocol demands this
     }
     /// subtraction overflows when lhs < rhs
     public static func subtractWithOverflow(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, overflow:Bool) {
@@ -234,9 +242,14 @@ public extension BigUInt {
         s += 1
         s += lhs
         if s.digits.count > count { s.digits.removeLast() } // remove carry
-        s.trim()    // it can be zero
-        return (s, overflow: lhs < rhs)
+        s.trim()    // in case it gets zero by accident
+        return (s, overflow: lhs < rhs) // overflow when `li
     }
+    /// subtraction in functional form
+    ///
+    /// since BigUInt is unsigned, it overflows when `lhs < rhs`.
+    ///
+    /// - returns: `lhs - rhs`
     public static func subtract(lhs:BigUInt, _ rhs:BigUInt)->BigUInt {
         let result = subtractWithOverflow(lhs, rhs)
         if result.overflow {
@@ -271,6 +284,9 @@ public func -=(inout lhs:BigUInt, rhs:BigUInt) {
 }
 // multiplication
 public extension BigUInt {
+    ///
+    /// multiply by `single` digit
+    ///
     public static func multiply32(lhs:BigUInt, _ rhs:DigitType)->BigUInt {
         var value = lhs.digits
         value.append(0) // sentinel
@@ -282,6 +298,9 @@ public extension BigUInt {
         value[lhs.digits.count] = DigitType(carry >> 32)
         return BigUInt(rawValue:value)
     }
+    /// multiplication in functinal form.
+    ///
+    /// - returns: lhs * rhs
     public static func multiply(lhs:BigUInt, _ rhs:BigUInt)->BigUInt {
         var result = BigUInt()
         for i in 0..<rhs.digits.count {
@@ -289,7 +308,7 @@ public extension BigUInt {
         }
         return result
     }
-    /// multiplication never overflows
+    // multiplication never overflows
     public static func multiplyWithOverflow(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, overflow:Bool) {
         return (multiply(lhs, rhs), overflow:false)
     }
@@ -343,6 +362,7 @@ public extension BigUInt {
         }
         return (q, r)
     }
+    /// - returns: (quotient, remainder)
     public static func divmod(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, BigUInt) {
         guard rhs != 0 else { fatalError("division by zero") }
         if lhs == rhs { return (1, 0) }

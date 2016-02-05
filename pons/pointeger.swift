@@ -94,6 +94,9 @@ public protocol POUInt: POInteger, UnsignedIntegerType, StringLiteralConvertible
     // init(_:IntType)         // must be capable of initializing from it
 }
 public extension POUInt {
+    ///
+    /// Returns the index of the most significant bit of `self`
+    /// or `-1` if `self == 0`
     public var msbAt:Int { return self.toUIntMax().msbAt }
     // overrides POInteger implementations
     public var asUInt64:UInt64  { return UInt64(self.toUIntMax()) }
@@ -107,13 +110,16 @@ public extension POUInt {
     public init(integerLiteral:UInt) {
         self.init(integerLiteral.toUIntMax())
     }
-    //
-    // used by .toString()
-    //
+    ///
+    /// `self.toString()` uses this to extract digits
+    ///
     public static func divmod8(lhs:Self, _ rhs:Int8)->(Self, Int) {
         let denom = Self(rhs)
         return (lhs / denom, (lhs % denom).asInt)
     }
+    ///
+    /// Stringifies `self` with base `radix` which defaults to `10`
+    ///
     public func toString(base:Int = 10)-> String {
         guard 2 <= base && base <= 36 else {
             fatalError("base out of range. \(base) is not within 2...36")
@@ -207,16 +213,28 @@ extension UInt:     POUInt {
 /// consider extend this protocol first before extending each signed integer types.
 ///
 public protocol POInt: POInteger, POSignedNumber, SignedIntegerType, StringLiteralConvertible, CustomDebugStringConvertible {
+    ///
+    /// The unsigned version of `self`
+    ///
     typealias UIntType:POUInt  // its correspoinding unsinged type
     init(_:UIntType)           // must be capable of initializing from it
 }
 public extension POInt {
+    ///
+    /// Returns the index of the most significant bit of `self`
+    /// or `-1` if `self == 0`
     public var msbAt:Int {
         return self < 0 ? sizeof(Self) * 8 - 1 : self.toUIntMax().msbAt
     }
+    ///
+    /// absolute value of `self`
+    ///
     public var abs:Self { return Swift.abs(self) }
-    public func toString(base:Int = 10)-> String {
-        return (self < 0 ? "-" : "") + self.abs.asUInt64.toString(base)
+    ///
+    /// Stringifies `self` with base `radix` which defaults to `10`
+    ///
+    public func toString(radix:Int = 10)-> String {
+        return (self < 0 ? "-" : "") + self.abs.asUInt64.toString(radix)
     }
     // automagically CustomStringConvertible by defalut
     public var description:String {
