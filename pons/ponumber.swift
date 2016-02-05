@@ -57,8 +57,6 @@ public extension PONumber {
     public init(_ v:Int32)  { self.init(v.toIntMax()) }
     public init(_ v:Int16)  { self.init(v.toIntMax()) }
     public init(_ v:Int8)   { self.init(v.toIntMax()) }
-    public init(_ d:Double) { self.init(IntMax(d)) }    // override this for the best result
-    public init(_ f:Float)  { self.init(Double(f)) }
     /// IntegerLiteralConvertible by Default
     public init(integerLiteral:Int) {
         self.init(integerLiteral)

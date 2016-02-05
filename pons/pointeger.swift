@@ -30,6 +30,7 @@ public extension POInteger {
     public func advancedBy(n: Int) -> Self {
         return self + Self(n)
     }
+    public init(_ d:Double) { self.init(IntMax(d)) }
 }
 ///
 /// Placeholder for utility functions and values
