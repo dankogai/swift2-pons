@@ -23,7 +23,7 @@ public extension POInteger {
     public func toUIntMax()->UIntMax {
         return UIntMax(self.toIntMax())
     }
-    //
+    // initializer
     public init(_ v:UInt64)   { self.init(UInt(v)) }
     public init(_ v:UInt32)   { self.init(UInt(v)) }
     public init(_ v:UInt16)   { self.init(UInt(v)) }
@@ -33,7 +33,7 @@ public extension POInteger {
     public init(_ v:Int16)    { self.init(Int(v)) }
     public init(_ v:Int8)     { self.init(Int(v)) }
     public init(_ v:Float)    { self.init(Double(v)) }
-    //
+    // converters
     public var asUInt64:UInt64  { return UInt64(self.toIntMax()) }
     public var asUInt32:UInt32  { return UInt32(self.toIntMax()) }
     public var asUInt16:UInt16  { return UInt16(self.toIntMax()) }
@@ -72,7 +72,9 @@ public extension POInteger {
         return self.description.hashValue
     }
 }
-/// placeholder
+///
+/// Placeholder for utility functions and values
+///
 public class POUtil {
     public static let int2char = Array("0123456789abcdefghijklmnopqrstuvwxyz".characters)
     public static let char2int:[Character:Int] = {

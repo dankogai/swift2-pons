@@ -6,7 +6,9 @@
 //  Copyright © 2016 Dan Kogai. All rights reserved.
 //
 
-/// Big Unsigned Integer
+///
+/// Arbitrary-precision Unsigned Integer
+///
 public struct BigUInt {
     public typealias IntType = Int
     public typealias DigitType = UInt32
