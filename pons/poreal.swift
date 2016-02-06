@@ -23,11 +23,9 @@ public extension POReal {
 #else
     import Darwin
 #endif
-
 public protocol POFloat : POReal {
     static var EPSILON:Self { get }
 }
-
 // public protocol POElementaryFunctional : POReal {}
 extension POReal {
     #if os(Linux)

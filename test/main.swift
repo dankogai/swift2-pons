@@ -82,14 +82,33 @@ test.eq(+BigInt(3) % +BigInt(2), +BigInt(1), "+3 % +1 == +1")
 test.eq(-BigInt(3) % +BigInt(2), -BigInt(1), "-3 % +1 == -1")
 test.eq(+BigInt(3) % -BigInt(2), +BigInt(1), "+3 % -2 == +1")
 test.eq(-BigInt(3) % -BigInt(2), -BigInt(1), "-3 % -2 == -1")
-
+// BigInt / BigInt test
 for i in 1...42 {
     let bi = BigInt(i)
     test.eq(fact(bi) / fact(bi - 1), bi,    "BigInt: \(bi)!/\(bi-1)! == \(bi)")
     if i > 20 { continue }
     test.eq(fact(i) / fact(i - 1),  i,      "Int:    \(bi)!/\(bi-1)! == \(bi)")
 }
-// var dict = [BigInt(42):42]
-//var x = Int.power(3, 3, op:*)
-
+// infix ** test
+({
+    typealias R=Double
+    typealias C=Complex<R>
+    test.eq(C.log10(100.i).re, 2.0,             "log10(100.i).re == 2.0")
+    test.eq(C.log10(100.i).im, C.log10(1.i).im, "log10(100.i).im == log10(1.i).im")
+    test.eq(2.0 * 3.0 ** 4.0, 162.0,            "2.0*3.0**4.0 == 2.0 * (3.0 ** 4.0)")
+    test.eq((R.E+0.0.i)**R.PI.i, C.exp(R.PI.i), "exp(z) == e ** z")
+    test.eq(C.sqrt(-1.0), 1.0.i,            "sqrt(-1) == i")
+    test.eq(C.sqrt(2.0.i),    1.0+1.0.i,    "sqrt(2i) == 1+i")
+    test.eq(2.0.i **  2.5, -4-4.i,      "z **  2.5  == z*z*sqrt(z)")
+    test.eq(2.0.i **  2, -4+0.i,        "z **  2    == z*z")
+    test.eq(2.0.i **  1.5, -2+2.i,      "z **  1.5  == z*sqrt(z)")
+    test.eq(2.0.i **  1,  2.i,          "z **  1    == z")
+    test.eq(2.0.i **  0.5,  1+1.i,      "z **  0.5  == sqrt(z)")
+    test.eq(2.0.i **  0,    1+0.i,      "z **  0    == 1")
+    test.eq(2.0.i ** -0.5,  0.5-0.5.i,  "z **  -0.5 == 1/sqrt(z)")
+    test.eq(2.0.i ** -1, -0.5.i,        "z ** -1 == 1/z")
+    test.eq(2.0.i ** -1.5, (-1-1.i)/4,  "z ** -1.5 == 1/(z*sqrt(z))")
+    test.eq(2.0.i ** -2, -0.25+0.i,     "z ** -2 == 1/(z*z)")
+    test.eq(2.0.i ** -2.5, (-1+1.i)/8,  "z ** -2.5 == 1/(z*z*sqrt(z))")
+})()
 test.done()

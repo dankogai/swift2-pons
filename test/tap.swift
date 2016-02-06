@@ -31,6 +31,13 @@ public class TAP {
         return ok
     }
     /// ok if `actual` == `expected`
+    public func eq<T:Equatable>(actual:T, _ expected:T, _ message:String = "")->Bool {
+        if ok(actual == expected, message) { return true }
+        print("#       got: \(actual)")
+        print("#  expected: \(expected)")
+        return false
+    }
+    /// ok if `actual` == `expected`
     public func eq<T:Equatable>(actual:T?, _ expected:T?, _ message:String = "")->Bool {
         if ok(actual == expected, message) { return true }
         print("#       got: \(actual)")
@@ -49,6 +56,13 @@ public class TAP {
         if ok(actual == expected, message) { return true }
         print("#       got: \(actual)")
         print("#  expected: \(expected)")
+        return false
+    }
+    /// ok if `actual` != `expected`
+    public func ne<T:Equatable>(actual:T, _ expected:T, _ message:String = "")->Bool {
+        if ok(actual != expected, message) { return true }
+        print("#       got: \(actual)")
+        print("#  expected: anthing but \(expected)")
         return false
     }
     /// ok if `actual` != `expected`

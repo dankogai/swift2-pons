@@ -16,6 +16,10 @@ fib(142 as BigInt)
 var x = Int.power("X", 3){ $0 + $1 }
 x
 
+2 ** 2
+2 ** -2.0
+1.i == 1.i
+
 
 ({  z in
     z.i
@@ -40,8 +44,14 @@ x
     z-z
 })((BigInt(2)**128-1).i)
 ({
-    let z = Complex(abs:2.0, arg:0.5)
+    var z = Complex(abs:2.0, arg:0.5)
     norm(z)
     z.abs
     z.arg
+    z = -1.0+0.i
+    sqrt(z)
+    Complex.sqrt(-1)
+    sqrt(sqrt(z))
+    exp(M_PI.i)
+    log(exp(M_PI.i))
 })()

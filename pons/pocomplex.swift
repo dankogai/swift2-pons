@@ -15,10 +15,30 @@ public protocol POComplex: PONumber {
     var im:RealType { get set }
     init(_:RealType, _:RealType)
 }
+public func ==<C:POComplex>(lhs:C, rhs:C)->Bool {
+    return lhs.re == rhs.re && lhs.im == rhs.im
+}
+public func ==<C:POComplex>(lhs:C, rhs:C.RealType)->Bool {
+    return lhs.im == 0 && lhs.re == rhs
+}
+public func ==<C:POComplex>(lhs:C.RealType, rhs:C)->Bool {
+    return rhs.im == 0 && rhs.re == lhs
+}
 extension POComplex {
-    public var conj:Self { return Self(re, -im) }
-    public var norm:RealType { return re*re + im*im }
+    /// real part of z
+    public static func real(z:Self) -> RealType { return z.re }
+    /// imag part of z
+    public static func imag(z:Self) -> RealType { return z.im }
+    /// self * (0.0+1.0.i)
     public var i:Self { return Self(-im, re) }
+    /// conjugate of self
+    public var conj:Self { return Self(re, -im) }
+    /// conjugate of z
+    public static func conj(z:Self) -> Self { return z.conj }
+    /// norm of self == abs(self)**2
+    public var norm:RealType { return re*re + im*im }
+    /// norm of z
+    public static func norm(z:Self) -> RealType { return z.norm }
     public var description:String {
         let sign = im.isSignMinus ? "" : "+"
         return "(\(re)\(sign)\(im).i)"
@@ -34,14 +54,6 @@ extension POComplex {
         return re.toIntMax()
     }
 }
-/// conjugate of z
-public func conj<C:POComplex>(z:C) -> C { return z.conj }
-/// norm of z
-public func norm<C:POComplex>(z:C) -> C.RealType { return z.norm }
-/// real part of z
-public func real<C:POComplex>(z:C) -> C.RealType { return z.re }
-/// imaginary part of z
-public func imag<C:POComplex>(z:C) -> C.RealType { return z.im }
 // prefix +
 public prefix func +<C:POComplex>(z:C) -> C {
     return z
@@ -110,7 +122,7 @@ public struct GaussianInt<R:POInt> : POComplex {
     public init(_ i:Int) { self.init(RealType(i), 0) }
 }
 public extension POInt {
-    public var i:GaussianInt<Self>{ return GaussianInt(self, 0) }
+    public var i:GaussianInt<Self>{ return GaussianInt(0, self) }
 }
 ///
 /// Complex Real
@@ -118,39 +130,39 @@ public extension POInt {
 public protocol POComplexReal : POComplex {
     typealias RealType: POReal
 }
-extension POComplexReal {
-    private typealias R = RealType
-    public init(abs:R, arg:R) {
+public extension POComplexReal {
+    public init(abs:RealType, arg:RealType) {
         self.init(abs * RealType.cos(arg), abs * RealType.sin(arg))
     }
     /// absolute value of `self`
-    public var abs:R {
+    public var abs:RealType {
         get { return RealType.hypot(re, im) }
         set {
             let r = newValue / abs
             (re, im) = (re * r, im * r)
         }
     }
+    public static func abs(z:Self)->RealType { return z.abs }
     /// argument of `self`
-    public var arg:R  {
-        get { return R.atan2(im, re) }
+    public var arg:RealType  {
+        get { return RealType.atan2(im, re) }
         set {
             let m = abs
-            (re, im) = (m * R.cos(newValue), m * R.sin(newValue))
+            (re, im) = (m * RealType.cos(newValue), m * RealType.sin(newValue))
         }
     }
+    public static func arg(z:Self)->RealType { return z.arg }
     /// projection of `self`
     public var proj:Self {
         if re.isFinite && im.isFinite {
             return self
         } else {
             return Self(
-                R(1)/R(0), im.isSignMinus ? -R(0) : R(0)
+                RealType(1)/RealType(0),
+                im.isSignMinus ? -RealType(0) : +RealType(0)
             )
         }
     }
-    public static func abs(z:Self)->R { return z.abs }
-    public static func arg(z:Self)->R { return z.arg }
     public static func proj(z:Self)->Self { return z.proj }
 }
 public func abs<C:POComplexReal>(z:C)->C.RealType { return z.abs }
@@ -169,5 +181,125 @@ public struct Complex<R:POReal> : POComplexReal {
     public init(_ i:Int) { self.init(RealType(i), 0) }
 }
 public extension POReal {
-    public var i:Complex<Self>{ return Complex(self, 0) }
+    public var i:Complex<Self>{ return Complex(0, self) }
+}
+/*
+ * with basic stuff done, let's add elementary functions!
+ */
+public extension POComplexReal {
+    private typealias R = RealType  // for ease of coding
+    /// - returns: square root of z in Complex
+    public static func sqrt(z:Self) -> Self {
+        // return z ** 0.5
+        let d = R.hypot(z.re, z.im)
+        let r = R.sqrt((z.re + d)/R(2))
+        if z.im < 0 {
+            return Self(r, -R.sqrt((-z.re + d)/2))
+        } else {
+            return Self(r, +R.sqrt((-z.re + d)/2))
+        }
+    }
+    public static func sqrt(r:R) -> Self { return sqrt(Self(r, 0)) }
+    /// - returns: e ** z in Complex
+    public static func exp(z:Self) -> Self {
+        let r = R.exp(z.re)
+        let a = z.im
+        return Self(r * R.cos(a), r * R.sin(a))
+    }
+    public static func exp(r:R) -> Self { return exp(Self(r, 0)) }
+    /// - returns: natural log of z in Complex
+    public static func log(z:Self) -> Self {
+        return Self(R.log(z.abs), z.arg)
+    }
+    public static func log(r:R) -> Self { return log(Self(r, 0)) }
+    /// - returns: log 10 of z in Complex
+    public static func log10(z:Self) -> Self {
+        return log(z) / R.LN10
+    }
+    public static func log10(r:R) -> Self { return log10(Self(r, 0)) }
+    /// - returns: lhs ** rhs in Complex
+    public static func pow(lhs:Self, _ rhs:Self) -> Self {
+        return exp(log(lhs) * rhs)
+    }
+    public static func pow(lhs:Self, _ rhs:R) -> Self {
+        if lhs == Self(0, 0) || rhs == 0 {
+            return Self(1, 0) // x ** 0 == 1 for any x; 1 ** y == 1 for any y
+        }
+        if lhs == Self(0, 0) { lhs } // 0 ** y for any y
+        let ax = rhs.isSignMinus ? -rhs : rhs
+        let ix = ax.toIntMax().asInt
+        let ip = ix < 1 ? Self(1, 0) : Int.power(lhs, ix, op:*)
+        let fx = ax - R(ix)
+        let fp = fx < R(0.5) ? pow(lhs, Self(fx, 0)) : sqrt(lhs) * pow(lhs, Self(fx - R(0.5),0))
+        let ap = ip * fp
+        return rhs.isSignMinus ? Self(1, 0) / ap : ap
+    }
+    /// - returns: cosine of z in Complex
+    public static func cos(z:Self) -> Self {
+        //return (exp(z.i) + exp(-z.i)) / 2
+        return Self(R.cos(z.re)*R.cosh(z.im), -R.sin(z.re)*R.sinh(z.im))
+    }
+    public static func cos(r:R) -> Self { return cos(Self(r, 0)) }
+    /// - returns: sine of z in Complex
+    public static func sin(z:Self) -> Self {
+        // return -(exp(z.i) - exp(-z.i)).i / 2
+        return Self(R.sin(z.re)*R.cosh(z.im), +R.cos(z.re)*R.sinh(z.im))
+    }
+    public static func sin(r:R) -> Self { return sin(Self(r, 0)) }
+    /// - returns: tangent of z in Complex
+    public static func tan(z:Self) -> Self {
+        return sin(z) / cos(z)
+    }
+    public static func tan(r:R) -> Self { return tan(Self(r, 0)) }
+    /// - returns: arc cosine of z in Complex
+    public static func acos(z:Self) -> Self {
+        return log(z - sqrt(1 - z*z).i).i
+    }
+    public static func acos(r:R) -> Self { return acos(Self(r, 0)) }
+    /// - returns: arc sine of z in Complex
+    public static func asin(z:Self) -> Self {
+        return -log(z.i + sqrt(1 - z*z)).i
+    }
+    public static func asin(r:R) -> Self { return asin(Self(r, 0)) }
+    /// - returns: arc tangent of z in Complex
+    public static func atan(z:Self) -> Self {
+        let lp = log(1 - z.i)
+        let lm = log(1 + z.i)
+        return (lp - lm).i / 2
+    }
+    public static func atan(r:R) -> Self { return atan(Self(r, 0)) }
+    /// - returns: hyperbolic cosine of z in Complex
+    public static func cosh(z:Self) -> Self {
+        // return (exp(z) + exp(-z)) / T(2)
+        return cos(z.i)
+    }
+    public static func cosh(r:R) -> Self { return cosh(Self(r, 0)) }
+    /// - returns: hyperbolic sine of z in Complex
+    public static func sinh(z:Self) -> Self {
+        // return (exp(z) - exp(-z)) / T(2)
+        return -sin(z.i).i;
+    }
+    public static func sinh(r:R) -> Self { return sinh(Self(r, 0)) }
+    /// - returns: hyperbolic tangent of z in Complex
+    public static func tanh(z:Self) -> Self {
+        // let ez = exp(z), e_z = exp(-z)
+        // return (ez - e_z) / (ez + e_z)
+        return sinh(z) / cosh(z)
+    }
+    public static func tanh(r:R) -> Self { return tanh(Self(r, 0)) }
+    /// - returns: inverse hyperbolic cosine of z in Complex
+    public static func acosh(z:Self) -> Self {
+        return log(z + sqrt(z*z - 1))
+    }
+    public static func acosh(r:R) -> Self { return acosh(Self(r, 0)) }
+    /// - returns: inverse hyperbolic sine of z in Complex
+    public static func asinh(z:Self) -> Self {
+        return log(z + sqrt(z*z + 1))
+    }
+    public static func asinh(r:R) -> Self { return asinh(Self(r, 0)) }
+    /// - returns: inverse hyperbolic tangent of z in Complex
+    public static func atanh(z:Self) -> Self {
+        return log((1 + z) / (1 - z)) / 2
+    }
+    public static func atanh(r:R) -> Self { return atanh(Self(r, 0)) }
 }
