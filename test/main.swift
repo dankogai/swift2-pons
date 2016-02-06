@@ -85,4 +85,6 @@ test.eq(-BigInt(3) % -BigInt(2), -BigInt(1), "-3 % -2 == -1")
 
 var dict = [BigInt(42):42]
 
+var x = Int.power(3, 3, op:*)
+
 test.done()

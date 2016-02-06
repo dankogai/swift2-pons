@@ -13,6 +13,5 @@ func fib<T:POInteger>(n:T)->T {
 }
 fib(42)
 fib(142 as BigInt)
-var x = Int.power(3, 3){ $0 + $1 }
+var x = Int.power("X", 3){ $0 + $1 }
 x
-
