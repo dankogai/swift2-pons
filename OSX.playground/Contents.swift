@@ -45,13 +45,16 @@ x
 })((BigInt(2)**128-1).i)
 ({
     var z = Complex(abs:2.0, arg:0.5)
-    norm(z)
+    Complex.norm(z)
     z.abs
     z.arg
     z = -1.0+0.i
-    sqrt(z)
+    Complex.sqrt(z)
     Complex.sqrt(-1)
-    sqrt(sqrt(z))
-    exp(M_PI.i)
-    log(exp(M_PI.i))
+    Complex.sqrt(Complex.sqrt(z))
+    Complex.exp(M_PI.i)
+    Complex.log(Complex.exp(M_PI.i))
 })()
+
+
+(-0.0+0.0.i) ** -1

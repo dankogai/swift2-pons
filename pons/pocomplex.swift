@@ -53,6 +53,8 @@ extension POComplex {
         }
         return re.toIntMax()
     }
+    public static var zero:Self { return Self(0, 0) }
+    public static var one:Self  { return Self(1, 0) }
 }
 // prefix +
 public prefix func +<C:POComplex>(z:C) -> C {
@@ -222,13 +224,19 @@ public extension POComplexReal {
         return exp(log(lhs) * rhs)
     }
     public static func pow(lhs:Self, _ rhs:R) -> Self {
-        if lhs == Self(0, 0) || rhs == 0 {
-            return Self(1, 0) // x ** 0 == 1 for any x; 1 ** y == 1 for any y
+        if lhs == zero {
+            if 0 <  rhs { return zero }
+            if 0 == rhs { return Self(0/0, 0) }
+            // print("lhs=\(lhs), rhs=\(rhs)")
+            let sig:R = lhs.re.isSignMinus && rhs.toDouble() % 2 == -1 ? -1 : 1
+            return Self(sig/0, 0)
         }
-        if lhs == Self(0, 0) { lhs } // 0 ** y for any y
+        if rhs == 0 {
+            return one // x ** 0 == 1 for any x; 1 ** y == 1 for any y
+        }
         let ax = rhs.isSignMinus ? -rhs : rhs
         let ix = ax.toIntMax().asInt
-        let ip = ix < 1 ? Self(1, 0) : Int.power(lhs, ix, op:*)
+        let ip = ix < 1 ? one : Int.power(lhs, ix, op:*)
         let fx = ax - R(ix)
         let fp = fx < R(0.5) ? pow(lhs, Self(fx, 0)) : sqrt(lhs) * pow(lhs, Self(fx - R(0.5),0))
         let ap = ip * fp

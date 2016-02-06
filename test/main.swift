@@ -89,7 +89,37 @@ for i in 1...42 {
     if i > 20 { continue }
     test.eq(fact(i) / fact(i - 1),  i,      "Int:    \(bi)!/\(bi-1)! == \(bi)")
 }
-// infix ** test
+// Complex
+({
+    test.eq(1.0-1.0.i, Complex(1.0,-1.0),           "1.0-1.0.i == Complex(1.0,-1.0)")
+    test.ok(1.0+0.0.i==1.0,                         "1.0+0.0.i == 1")
+    test.ok(    0.0.i==0.0,                         "    0.0.i == 0")
+    test.eq(Complex(),     0+0.i,                   "Complex(), 0+0.i")
+    test.eq(Complex(), 0.0+0.0.i,                   "Complex(), 0.0+0.0.i")
+    test.eq("\(Complex(0.0,+0.0))", "(0.0+0.0.i)",  "0.0+0.0.i")
+    test.eq("\(Complex(0.0,-0.0))", "(0.0-0.0.i)",  "0.0-0.0.i")
+    var z0 = Complex(abs:10.0, arg:Double.atan2(3.0,4.0))
+    test.eq(z0, 8.0+6.0.i      , "Complex(abs:10, arg:atan2(3,4)) == 8.0+6.0.i")
+    test.eq(z0 - z0, 0.0+0.0.i , "z - z = 0+0.i")
+    test.eq(z0 + z0, z0 * 2    , "z + z = z0*2")
+    var z1 = z0; z1 *= z1;
+    test.eq(z1, z0*z0  , "var z1=z0; z1*=z1; z1==z0*z0")
+    test.eq(z1.abs, z0.abs ** 2  , "z1.abs == z0.abs * z0.abs")
+    test.eq(z1.arg, z0.arg *  2  , "z1.arg == z0.abs + z0.arg")
+    z1 /= z0;
+    test.eq(z1, z0, "z1 /= z0; z1==z0")
+})()
+({
+    let z0 = 0.0 + 0.0.i, zm0 = -z0
+    let z1 = 1.0 + 0.0.i, z42_195 = 42.0 + 0.195.i
+    test.ok(z0  ** -1.0 == +1.0/0.0, "\(z0 ) ** -1.0 == \(+1.0/0.0)")
+    test.ok(zm0 ** -1.0 == -1.0/0.0, "\(zm0) ** -1.0 == \(-1.0/0.0)")
+    test.ok(z0  ** -2.0 == +1.0/0.0, "\(z0 ) ** -2.0 == \(+1.0/0.0)")
+    test.ok(zm0 ** -2.0 == +1.0/0.0, "\(zm0) ** -2.0 == \(+1.0/0.0)")
+    test.eq(z1 ** z42_195,   z1, "\(z1) ** y  == \(z1) // for any y")
+    test.eq(z42_195 ** z0,   z1, "x ** \(z0 ) == \(z1) // for any x")
+    test.eq(z42_195 ** zm0,  z1, "x ** \(zm0) == \(z1) // for any x")
+})()
 ({
     typealias R=Double
     typealias C=Complex<R>
@@ -110,5 +140,10 @@ for i in 1...42 {
     test.eq(2.0.i ** -1.5, (-1-1.i)/4,  "z ** -1.5 == 1/(z*sqrt(z))")
     test.eq(2.0.i ** -2, -0.25+0.i,     "z ** -2 == 1/(z*z)")
     test.eq(2.0.i ** -2.5, (-1+1.i)/8,  "z ** -2.5 == 1/(z*z*sqrt(z))")
+    let r = 0.5, z = C.sqrt(-1.i)
+})()
+({
+    var dict = [0+0.i:"origin"]
+    test.ok(dict[0+0.i] == "origin", "Complex as a dictionary key")
 })()
 test.done()
