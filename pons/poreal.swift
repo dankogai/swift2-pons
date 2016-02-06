@@ -15,6 +15,7 @@ public protocol POReal : POSignedNumber {
     var isZero:Bool      { get }
 }
 public extension POReal {
+    public var isFinite:Bool { return !isInfinite }
     public init(_ f:Float)  { self.init(Double(f)) }
 }
 #if os(Linux)
@@ -27,8 +28,8 @@ public protocol POFloat : POReal {
     static var EPSILON:Self { get }
 }
 
-public protocol POElementaryFunctional : POReal {}
-extension POElementaryFunctional {
+// public protocol POElementaryFunctional : POReal {}
+extension POReal {
     #if os(Linux)
     public static func sqrt(x:Self)->Self   { return Self(Glibc.sqrt(x.toDouble())) }
     public static func hypot(x:Self, _ y:Self)->Self { return Self(Glibc.hypot(x.toDouble(), y.toDouble())) }
@@ -78,7 +79,7 @@ extension POElementaryFunctional {
     public static var SQRT2:Self    { return Self(M_SQRT2) }
 }
 
-extension Double : POFloat, POElementaryFunctional {
+extension Double : POFloat {
     public func toDouble()->Double { return self }
     public func toIntMax()->IntMax { return IntMax(self) }
     public static var EPSILON = 0x1p-52
@@ -99,7 +100,7 @@ extension Double : POFloat, POElementaryFunctional {
     #endif
 }
 
-extension Float : POFloat, POElementaryFunctional {
+extension Float : POFloat {
     public func toDouble()->Double { return Double(self) }
     public func toIntMax()->IntMax { return IntMax(self) }
     public static var EPSILON:Float = 0x1p-23
