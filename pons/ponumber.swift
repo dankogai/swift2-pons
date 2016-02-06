@@ -31,7 +31,7 @@
 ///
 /// Note it is NOT `Comparable`.
 /// Otherwise you can't make complex numbers conform to this.
-public protocol PONumber :  Equatable, Hashable,
+public protocol PONumber :  Equatable, Hashable, CustomStringConvertible,
                             IntegerLiteralConvertible,
                             _BuiltinIntegerLiteralConvertible
 {

@@ -83,8 +83,13 @@ test.eq(-BigInt(3) % +BigInt(2), -BigInt(1), "-3 % +1 == -1")
 test.eq(+BigInt(3) % -BigInt(2), +BigInt(1), "+3 % -2 == +1")
 test.eq(-BigInt(3) % -BigInt(2), -BigInt(1), "-3 % -2 == -1")
 
-var dict = [BigInt(42):42]
-
-var x = Int.power(3, 3, op:*)
+for i in 1...42 {
+    let bi = BigInt(i)
+    test.eq(fact(bi) / fact(bi - 1), bi,    "BigInt: \(bi)!/\(bi-1)! == \(bi)")
+    if i > 20 { continue }
+    test.eq(fact(i) / fact(i - 1),  i,      "Int:    \(bi)!/\(bi-1)! == \(bi)")
+}
+// var dict = [BigInt(42):42]
+//var x = Int.power(3, 3, op:*)
 
 test.done()
