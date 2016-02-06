@@ -12,14 +12,56 @@
 /// For the sake of protocol-oriented programming,
 /// consider extend this protocol first before extending each integer type.
 ///
-public protocol POInteger : PONumber, IntegerArithmeticType, IntegerType, BitwiseOperationsType {
+public protocol POInteger : POComparableNumber, RandomAccessIndexType {
+    // from IntegerArithmeticType
+    static func addWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool)
+    static func subtractWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool)
+    static func multiplyWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool)
+    static func divideWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool)
+    static func remainderWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool)
+    func %(lhs: Self, rhs: Self) -> Self
+    // from BitwiseOperationsType
+    func &(lhs: Self, rhs: Self) -> Self
+    func |(lhs: Self, rhs: Self) -> Self
+    func ^(lhs: Self, rhs: Self) -> Self
+    prefix func ~(x: Self) -> Self
+    // strangely they did not exist
     func <<(_:Self,_:Self)->Self
-    func <<=(inout _:Self, _:Self)
     func >>(_:Self,_:Self)->Self
-    func >>=(inout _:Self, _:Self)
     // init?(_:String, radix:Int)
 }
+// give away &op
+public func &+<I:POInteger>(lhs:I, rhs:I)->I {
+    return I.addWithOverflow(lhs, rhs).0
+}
+public func &-<I:POInteger>(lhs:I, rhs:I)->I {
+    return I.subtractWithOverflow(lhs, rhs).0
+}
+public func &*<I:POInteger>(lhs:I, rhs:I)->I {
+    return I.multiplyWithOverflow(lhs, rhs).0
+}
+// give away op=
+public func %=<I:POInteger>(inout lhs:I, rhs:I) {
+    lhs = lhs % rhs
+}
+public func &=<I:POInteger>(inout lhs:I, rhs:I) {
+    lhs = lhs & rhs
+}
+public func |=<I:POInteger>(inout lhs:I, rhs:I) {
+    lhs = lhs | rhs
+}
+public func ^=<I:POInteger>(inout lhs:I, rhs:I) {
+    lhs = lhs ^ rhs
+}
+public func <<=<I:POInteger>(inout lhs:I, rhs:I) {
+    lhs = lhs << rhs
+}
+public func >>=<I:POInteger>(inout lhs:I, rhs:I) {
+    lhs = lhs << rhs
+}
 public extension POInteger {
+    // from BitwiseOperationsType
+    public static var allZeros: Self { return 0 }
     // RandomAccessIndexType by default
     public func successor() -> Self {
         return self + 1
@@ -32,37 +74,6 @@ public extension POInteger {
     }
     //
     public init(_ d:Double) { self.init(IntMax(d)) }
-    ///
-    /// Generalized power.
-    ///
-    /// the end result is the same as `(1..<n).reduce(lhs, combine:op)`
-    /// but it is faster by [exponentiation by squaring].
-    ///
-    /// [exponentiation by squaring]: https://en.wikipedia.org/wiki/Exponentiation_by_squaring
-    ///
-    public static func power<L>(lhs:L, _ rhs:Self, op:(L,L)->L)->L {
-        guard 1 <= rhs else {
-            fatalError("exponent must be > 0")
-        }
-        var r = lhs
-        var t = lhs, n = rhs - 1
-        while n > 0 {
-            if n & 1 == 1 {
-                r = op(r, t)
-            }
-            n >>= 1; t = op(t, t)
-        }
-        return r
-    }
-    ///
-    /// Integer power.  Note only `rhs` must be integer
-    ///
-    public static func pow<L:PONumber>(lhs: L, _ rhs:Self)->L {
-        guard 0 <= rhs else {
-            fatalError("negative exponent not supported")
-        }
-        return lhs == 0 ? 1 : power(lhs, rhs, op:*)
-    }
 }
 ///
 /// Placeholder for utility functions and values
@@ -83,7 +94,8 @@ public class POUtil {
 /// For the sake of protocol-oriented programming,
 /// consider extend this protocol first before extending each unsigned integer type.
 ///
-public protocol POUInt: POInteger, UnsignedIntegerType, StringLiteralConvertible, CustomDebugStringConvertible {
+public protocol POUInt: POInteger, StringLiteralConvertible, CustomDebugStringConvertible {
+    func toUIntMax()->UIntMax
     // typealias IntType:POInt // its correspoinding singed type
     // init(_:IntType)         // must be capable of initializing from it
 }
@@ -212,8 +224,7 @@ extension UInt:     POUInt {
 /// For the sake of protocol-oriented programming,
 /// consider extend this protocol first before extending each signed integer types.
 ///
-public protocol POInt:  POInteger, POSignedNumber,
-                        SignedIntegerType, StringLiteralConvertible, CustomDebugStringConvertible {
+public protocol POInt:  POInteger, POSignedNumber, StringLiteralConvertible, CustomDebugStringConvertible {
     ///
     /// The unsigned version of `self`
     ///
@@ -267,6 +278,50 @@ public extension POInt {
     }
     public init(extendedGraphemeClusterLiteral: String) {
         self.init(stringLiteral: extendedGraphemeClusterLiteral)
+    }
+    ///
+    /// Generalized power func
+    ///
+    /// the end result is the same as `(1..<n).reduce(lhs, combine:op)`
+    /// but it is faster by [exponentiation by squaring].
+    ///
+    ///     power(2, 3){ $0 + $1 }          // 2 + 2 + 2 == 6
+    ///     power("Swift", 3){ $0 + $1 }    // "SwiftSwiftSwift"
+    ///
+    /// In exchange for efficiency, `op` must be commutable.
+    /// That is, `op(x, y) == op(y, x)` is true for all `(x, y)`
+    ///
+    /// [exponentiation by squaring]: https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+    ///
+    public static func power<L>(lhs:L, _ rhs:Self, op:(L,L)->L)->L {
+        guard 1 <= rhs else {
+            fatalError("exponent must be > 0")
+        }
+        var r = lhs
+        var t = lhs, n = rhs - 1
+        while n > 0 {
+            if n & 1 == 1 {
+                r = op(r, t)
+            }
+            n >>= 1; t = op(t, t)
+        }
+        return r
+    }
+    ///
+    /// Integer power.  Note only `rhs` must be integer
+    ///
+    public static func pow<L:PONumber>(lhs: L, _ rhs:Self)->L {
+        guard 0 <= rhs else {
+            fatalError("negative exponent not supported")
+        }
+        return lhs == 0 ? 1 : power(lhs, rhs, op:*)
+    }
+    // if lhs is also POInteger, use &* instead
+    public static func pow<L:POInteger>(lhs: L, _ rhs:Self)->L {
+        guard 0 <= rhs else {
+            fatalError("negative exponent not supported")
+        }
+        return lhs == 0 ? 1 : power(lhs, rhs, op:&*)
     }
 }
 extension Int64:    POInt {

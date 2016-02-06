@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9E53903F1C64133900A19CE8 /* pobool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E53903E1C64133900A19CE8 /* pobool.swift */; };
+		9E7C5C601C65B1F500A19CE8 /* pocomplex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7C5C5F1C65B1F500A19CE8 /* pocomplex.swift */; };
 		9EE8AFA61C63731400A19CE8 /* ponumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EE8AFA51C63731400A19CE8 /* ponumber.swift */; };
 		9EE8AFA81C63757C00A19CE8 /* poextraops.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EE8AFA71C63757C00A19CE8 /* poextraops.swift */; };
 		9EE8AFAA1C63768F00A19CE8 /* pointeger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EE8AFA91C63768F00A19CE8 /* pointeger.swift */; };
@@ -32,6 +33,7 @@
 
 /* Begin PBXFileReference section */
 		9E53903E1C64133900A19CE8 /* pobool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = pobool.swift; sourceTree = "<group>"; };
+		9E7C5C5F1C65B1F500A19CE8 /* pocomplex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = pocomplex.swift; sourceTree = "<group>"; };
 		9EE8AF981C6371F300A19CE8 /* pons */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pons; sourceTree = BUILT_PRODUCTS_DIR; };
 		9EE8AFA51C63731400A19CE8 /* ponumber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ponumber.swift; sourceTree = "<group>"; };
 		9EE8AFA71C63757C00A19CE8 /* poextraops.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = poextraops.swift; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 				9EE8AFAB1C63785400A19CE8 /* poreal.swift */,
 				9EE8AFAF1C639C6800A19CE8 /* pobiguint.swift */,
 				9EE8AFB51C639EF100A19CE8 /* pobigint.swift */,
+				9E7C5C5F1C65B1F500A19CE8 /* pocomplex.swift */,
 				9EE8AFA71C63757C00A19CE8 /* poextraops.swift */,
 			);
 			path = pons;
@@ -157,6 +160,7 @@
 				9EE8AFB01C639C6800A19CE8 /* pobiguint.swift in Sources */,
 				9EE8AFA81C63757C00A19CE8 /* poextraops.swift in Sources */,
 				9EE8AFA61C63731400A19CE8 /* ponumber.swift in Sources */,
+				9E7C5C601C65B1F500A19CE8 /* pocomplex.swift in Sources */,
 				9EE8AFB61C639EF100A19CE8 /* pobigint.swift in Sources */,
 				9EE8AFAA1C63768F00A19CE8 /* pointeger.swift in Sources */,
 				9EE8AFB21C639D7D00A19CE8 /* tap.swift in Sources */,

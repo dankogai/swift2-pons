@@ -206,14 +206,8 @@ public func ^=(inout lhs:BigUInt, rhs:BigUInt) {
 public func <<(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.bitShiftL(lhs, rhs)
 }
-public func <<=(inout lhs:BigUInt, rhs:BigUInt) {
-    lhs = lhs << rhs
-}
 public func >>(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.bitShiftR(lhs, rhs)
-}
-public func >>=(inout lhs:BigUInt, rhs:BigUInt) {
-    lhs = lhs >> rhs
 }
 // addtition and subtraction
 public extension BigUInt {
@@ -268,26 +262,14 @@ public extension BigUInt {
 public func +(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.add(lhs, rhs)
 }
-public func &+(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    return BigUInt.addWithOverflow(lhs, rhs).0
-}
 public prefix func +(bs:BigUInt)->BigUInt {
     return bs
-}
-public func +=(inout lhs:BigUInt, rhs:BigUInt) {
-    lhs = lhs + rhs
 }
 public func -(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.subtract(lhs, rhs)
 }
-public func &-(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    return BigUInt.subtractWithOverflow(lhs, rhs).0
-}
 public prefix func -(bs:BigUInt)->BigUInt {
     return 0 - bs
-}
-public func -=(inout lhs:BigUInt, rhs:BigUInt) {
-    lhs = lhs - rhs
 }
 // multiplication
 public extension BigUInt {
@@ -325,9 +307,6 @@ public func *(lhs:BigUInt, rhs:BigUInt)->BigUInt {
 }
 public func &*(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.multiplyWithOverflow(lhs, rhs).0
-}
-public func *=(inout lhs:BigUInt, rhs:BigUInt) {
-    lhs = lhs * rhs
 }
 // before we get down to division, let's define divmod32 and divmod8
 // and use it to make it conform to CustomStringConvertible

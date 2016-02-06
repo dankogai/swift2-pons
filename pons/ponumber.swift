@@ -31,11 +31,9 @@
 ///
 /// Note it is NOT `Comparable`.
 /// Otherwise you can't make complex numbers conform to this.
-public protocol PONumber :  Equatable,
-                            CustomStringConvertible,
+public protocol PONumber :  Equatable, Hashable,
                             IntegerLiteralConvertible,
-                            _BuiltinIntegerLiteralConvertible,
-                            Hashable
+                            _BuiltinIntegerLiteralConvertible
 {
     init(_:Self)
     init(_:Int)
@@ -92,7 +90,25 @@ public extension PONumber {
 public func ==<T:PONumber>(lhs:T, rhs:T)->Bool {
     return lhs.toIntMax() == rhs.toIntMax()
 }
+public func !=<T:PONumber>(lhs:T, rhs:T)->Bool {
+    return !(lhs == rhs)
+}
+// give them all way!
+public func +=<T:PONumber>(inout lhs:T, rhs:T) {
+    lhs = lhs + rhs
+}
+public func -=<T:PONumber>(inout lhs:T, rhs:T) {
+    lhs = lhs - rhs
+}
+public func *=<T:PONumber>(inout lhs:T, rhs:T) {
+    lhs = lhs * rhs
+}
+public func /=<T:PONumber>(inout lhs:T, rhs:T) {
+    lhs = lhs / rhs
+}
+/// Comparable Numbers
+public protocol POComparableNumber : PONumber, Comparable {}
 ///
 /// `POSignedNumber` = `PONumber` + `SignedNumberType`
 ///
-public protocol POSignedNumber : PONumber, SignedNumberType {}
+public protocol POSignedNumber : POComparableNumber, SignedNumberType {}

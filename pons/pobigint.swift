@@ -118,20 +118,11 @@ public prefix func ~(bs:BigInt)->BigInt {
 public func &(lhs:BigInt, rhs:BigInt)->BigInt {
     return BigInt(unsignedValue:lhs.unsignedValue & rhs.unsignedValue)
 }
-public func &=(inout lhs:BigInt, rhs:BigInt) {
-    lhs = lhs & rhs
-}
 public func |(lhs:BigInt, rhs:BigInt)->BigInt {
     return BigInt(unsignedValue:lhs.unsignedValue | rhs.unsignedValue)
 }
-public func |=(inout lhs:BigInt, rhs:BigInt) {
-    lhs = lhs | rhs
-}
 public func ^(lhs:BigInt, rhs:BigInt)->BigInt {
     return BigInt(unsignedValue:lhs.unsignedValue ^ rhs.unsignedValue)
-}
-public func ^=(inout lhs:BigInt, rhs:BigInt) {
-    lhs = lhs ^ rhs
 }
 public func <<(lhs:BigInt, rhs:BigInt)->BigInt {
     return BigInt(
@@ -139,17 +130,11 @@ public func <<(lhs:BigInt, rhs:BigInt)->BigInt {
         isSignMinus:    lhs.isSignMinus
     )
 }
-public func <<=(inout lhs:BigInt, rhs:BigInt) {
-    lhs = lhs << rhs
-}
 public func >>(lhs:BigInt, rhs:BigInt)->BigInt {
     return BigInt(
         unsignedValue:  lhs.unsignedValue >> rhs.unsignedValue,
         isSignMinus:    lhs.isSignMinus
     )
-}
-public func >>=(inout lhs:BigInt, rhs:BigInt) {
-    lhs = lhs >> rhs
 }
 // arithmetic operators
 public func *(lhs:BigInt, rhs:BigInt)->BigInt {
@@ -160,9 +145,6 @@ public func *(lhs:BigInt, rhs:BigInt)->BigInt {
 }
 public func &*(lhs:BigInt, rhs:BigInt)->BigInt {
     return lhs * rhs
-}
-public func *=(inout lhs:BigInt, rhs:BigInt) {
-    lhs = lhs * rhs
 }
 public func /(lhs:BigInt, rhs:BigInt)->BigInt {
     return BigInt.divmod(lhs, rhs).0

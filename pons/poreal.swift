@@ -17,7 +17,6 @@ public protocol POReal : POSignedNumber {
 public extension POReal {
     public init(_ f:Float)  { self.init(Double(f)) }
 }
-
 #if os(Linux)
     import Glibc
 #else

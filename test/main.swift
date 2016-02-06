@@ -83,4 +83,6 @@ test.eq(-BigInt(3) % +BigInt(2), -BigInt(1), "-3 % +1 == -1")
 test.eq(+BigInt(3) % -BigInt(2), +BigInt(1), "+3 % -2 == +1")
 test.eq(-BigInt(3) % -BigInt(2), -BigInt(1), "-3 % -2 == -1")
 
+var dict = [BigInt(42):42]
+
 test.done()
