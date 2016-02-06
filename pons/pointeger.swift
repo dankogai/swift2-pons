@@ -33,24 +33,35 @@ public extension POInteger {
     //
     public init(_ d:Double) { self.init(IntMax(d)) }
     ///
+    /// Generalized power.
+    ///
+    /// the end result is the same as `(1..<n).reduce(lhs, combine:op)`
+    /// but it is faster by [exponentiation by squaring].
+    ///
+    /// [exponentiation by squaring]: https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+    ///
+    public static func power<L>(lhs:L, _ rhs:Self, op:(L,L)->L)->L {
+        guard 1 <= rhs else {
+            fatalError("exponent must be > 0")
+        }
+        var r = lhs
+        var t = lhs, n = rhs - 1
+        while n > 0 {
+            if n & 1 == 1 {
+                r = op(r, t)
+            }
+            n >>= 1; t = op(t, t)
+        }
+        return r
+    }
+    ///
     /// Integer power.  Note only `rhs` must be integer
     ///
     public static func pow<L:PONumber>(lhs: L, _ rhs:Self)->L {
         guard 0 <= rhs else {
             fatalError("negative exponent not supported")
         }
-        if lhs == 0 { return 1 }
-        if rhs == 1 { return lhs }
-        // cf. https://en.wikipedia.org/wiki/Exponentiation_by_squaring
-        var r = L(1)
-        var t = lhs, n = rhs
-        while n > Self(0) {
-            if n & 1 == 1 {
-                r = r * t
-            }
-            n >>= Self(1); t = t * t
-        }
-        return r
+        return lhs == 0 ? 1 : power(lhs, rhs, op:*)
     }
 }
 ///

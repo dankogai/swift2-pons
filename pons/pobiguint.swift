@@ -26,9 +26,7 @@ public struct BigUInt {
             digits.append(DigitType(u >> 32))
         }
     }
-    public init(_  i:Int)   { self.init(UInt(i)) }      // demanded by PONumber
-    public init(_ d:Double) { self.init(Int(d)) }       // demanded by PONumber
-    public init(_ u:UInt) { self.init(u.toUIntMax()) }  // demanded by PONumber
+    public init(_  i:Int)   { self.init(UInt64(i)) }      // demanded by PONumber
     public init() {
         self.init(DigitType(0))
     }
@@ -360,7 +358,7 @@ public extension BigUInt {
     public static func divmodLong(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, BigUInt) {
         var q:BigUInt = 0
         var r:BigUInt = 0
-        for i in (0...lhs.msbAt).reverse() {
+        for i in (0...lhs.msbAt).lazy.reverse() {
             r <<= 1
             r[0] = lhs[i]
             if r >= rhs {
