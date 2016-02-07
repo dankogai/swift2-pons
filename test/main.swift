@@ -147,7 +147,10 @@ for i in 1...42 {
     test.ok(dict[0+0.i] == "origin", "Complex as a dictionary key")
 })()
 
+
 print((-42).asRational)
 print(sizeofValue(Int8(42).asRational))
-print(BigInt.gcd(BigInt(2) ** 128 - 1, BigInt(UIntMax.max)))
+print((2.asBigInt ** 128 - 1).toRational(BigInt(UIntMax.max)))
 test.done()
+
+

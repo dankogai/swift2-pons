@@ -75,6 +75,9 @@ public protocol POComparableNumber : PONumber, Comparable {}
 ///
 /// `POSignedNumber` = `PONumber` + `SignedNumberType`
 ///
-public protocol POSignedNumber : POComparableNumber, SignedNumberType {
+public protocol POSignedNumber : POComparableNumber, SignedNumberType
+{
     var isSignMinus:Bool { get }
+    prefix func -(_:Self)->Self
+    func -(_:Self, _:Self)->Self
 }

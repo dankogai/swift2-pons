@@ -62,5 +62,21 @@ exp(M_PI)
 exp(M_PI.i)
 42.asBigInt.asRational
 
-Int.gcd(35, 42)
+/*
+Rational(35 as UInt, denominator:42 as UInt) * Rational(2, denominator:3)
 
+BigInt.gcd(2.asBigInt ** 128 - 1, BigInt(UIntMax.max))
+BigInt.gcd(81, 7)
+
+42.asRational / 49.asRational
+*/
+
+var l = 1.toRational(2)
+var r = 1.toRational(3)
+l + r
+l - r
+r - l
+l - l*r
+
+
+// l + r.i

@@ -16,7 +16,6 @@ public protocol POReal : POSignedNumber {
 }
 public extension POReal {
     public var isFinite:Bool { return !isInfinite }
-    public init(_ f:Float)  { self.init(Double(f)) }
 }
 #if os(Linux)
     import Glibc

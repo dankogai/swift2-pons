@@ -81,10 +81,10 @@
 				9E53903E1C64133900A19CE8 /* pobool.swift */,
 				9EE8AFA51C63731400A19CE8 /* ponumber.swift */,
 				9EE8AFA91C63768F00A19CE8 /* pointeger.swift */,
-				9EE8AFAB1C63785400A19CE8 /* poreal.swift */,
-				9EC1A9D61C6715AB00A19CE8 /* porational.swift */,
 				9EE8AFAF1C639C6800A19CE8 /* pobiguint.swift */,
 				9EE8AFB51C639EF100A19CE8 /* pobigint.swift */,
+				9EE8AFAB1C63785400A19CE8 /* poreal.swift */,
+				9EC1A9D61C6715AB00A19CE8 /* porational.swift */,
 				9E7C5C5F1C65B1F500A19CE8 /* pocomplex.swift */,
 				9EE8AFA71C63757C00A19CE8 /* poextraops.swift */,
 			);
