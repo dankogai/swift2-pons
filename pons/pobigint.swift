@@ -21,11 +21,12 @@ public struct BigInt {
         self.unsignedValue = unsignedValue
         self.isSignMinus = isSignMinus
     }
-    public init(_ bu:BigUInt) { unsignedValue = bu }
-    public init(_ u:UInt)   { unsignedValue = BigUInt(u) }
-    public init(_ i:IntMax) { unsignedValue = BigUInt(Swift.abs(i)); isSignMinus = i < 0 }
-    public init(_ i:Int)    { unsignedValue = BigUInt(Swift.abs(i)); isSignMinus = i < 0 }
-    public init(_ d:Double) { unsignedValue = BigUInt(Swift.abs(d)); isSignMinus = d < 0 }
+    public init(_ bu:BigUInt)   { unsignedValue = bu }
+    public init(_ u:UIntMax)    { unsignedValue = BigUInt(u) }
+    public init(_ u:UInt)       { unsignedValue = BigUInt(u) }
+    public init(_ i:IntMax)     { unsignedValue = BigUInt(Swift.abs(i)); isSignMinus = i < 0 }
+    public init(_ i:Int)        { unsignedValue = BigUInt(Swift.abs(i)); isSignMinus = i < 0 }
+    public init(_ d:Double)     { unsignedValue = BigUInt(Swift.abs(d)); isSignMinus = d < 0 }
     public init(){}
     // conversions
     public func toIntMax()->IntMax {
@@ -152,4 +153,9 @@ public func /(lhs:BigInt, rhs:BigInt)->BigInt {
 public func %(lhs:BigInt, rhs:BigInt)->BigInt {
     return BigInt.divmod(lhs, rhs).1
 }
-extension BigInt : POInt {} // at last!
+extension BigInt : POInt {
+    public var asUnsigned:UIntType { return self.unsignedValue }
+}
+extension POInt {
+    public var asBigInt:BigInt { return BigInt(self.toIntMax()) }
+}

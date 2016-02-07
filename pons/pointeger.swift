@@ -108,6 +108,10 @@ public extension POInteger {
     public var asInt:Int        { return Int(self.toIntMax()) }
     public var asDouble:Double  { return Double(self.toIntMax()) }
     public var asFloat:Float    { return Float(self.toIntMax()) }
+    /// default implementation.  you should override it
+    public static func divmod(lhs:Self, _ rhs:Self)->(Self, Self) {
+        return (lhs / rhs, lhs % rhs)
+    }
 }
 ///
 /// Placeholder for utility functions and values
@@ -130,8 +134,9 @@ public class POUtil {
 ///
 public protocol POUInt: POInteger, StringLiteralConvertible, CustomDebugStringConvertible {
     func toUIntMax()->UIntMax
-    // typealias IntType:POInt // its correspoinding singed type
+    typealias IntType    //:POInt // its correspoinding singed type
     // init(_:IntType)         // must be capable of initializing from it
+    var asSigned:IntType { get }
 }
 public extension POUInt {
     ///
@@ -230,27 +235,32 @@ public extension POUInt {
     }
 }
 extension UInt64:   POUInt {
-    // public typealias IntType = Int64
+    public typealias IntType = Int64
     public var msbAt:Int {
         return self <= UInt64(UInt32.max)
             ? UInt32(self).msbAt
             : UInt32(self >> 32).msbAt + 32
     }
+    public var asSigned:IntType { return IntType(self) }
 }
 extension UInt32:   POUInt {
-    // public typealias IntType = Int32
+    public typealias IntType = Int32
+    public var asSigned:IntType { return IntType(self) }
     public var msbAt:Int {
         return Double.frexp(Double(self)).1 - 1
     }
 }
 extension UInt16:   POUInt {
-    // public typealias IntType = Int16
+    public typealias IntType = Int16
+    public var asSigned:IntType { return IntType(self) }
 }
 extension UInt8:    POUInt {
-    // public typealias IntType = Int8
+    public typealias IntType = Int8
+    public var asSigned:IntType { return IntType(self) }
 }
 extension UInt:     POUInt {
-    // public typealias IntType = Int
+    public typealias IntType = Int
+    public var asSigned:IntType { return IntType(self) }
 }
 ///
 /// Protocol-oriented signed integer.  All built-ins already conform to this.
@@ -262,8 +272,9 @@ public protocol POInt:  POInteger, POSignedNumber, StringLiteralConvertible, Cus
     ///
     /// The unsigned version of `self`
     ///
-    typealias UIntType:POUInt   // its corresponding unsinged type
-    init(_:UIntType)            // must be capable of initializing from it
+    typealias UIntType:POUInt       // its corresponding unsinged type
+    init(_:UIntType)                // capable of initializing from it
+    var asUnsigned:UIntType { get }  // able to convert to unsigned
 }
 public extension POInt {
     /// Default isSignMinus
@@ -310,6 +321,7 @@ public extension POInt {
             : UIntType(s, radix:radix)
         self.init(s[si] == "-" ? -Self(u) : +Self(u))
     }
+    ///
     /// StringLiteralConvertible by Default
     public init(stringLiteral: String) {
         self.init(stringLiteral)
@@ -364,16 +376,21 @@ public extension POInt {
 }
 extension Int64:    POInt {
     public typealias UIntType = UInt64
+    public var asUnsigned:UIntType { return UIntType(self) }
 }
 extension Int32:    POInt {
     public typealias UIntType = UInt32
+    public var asUnsigned:UIntType { return UIntType(self) }
 }
 extension Int16:    POInt {
     public typealias UIntType = UInt16
+    public var asUnsigned:UIntType { return UIntType(self) }
 }
 extension Int8:     POInt {
     public typealias UIntType = UInt8
+    public var asUnsigned:UIntType { return UIntType(self) }
 }
 extension Int:      POInt {
     public typealias UIntType = UInt
+    public var asUnsigned:UIntType { return UIntType(self) }
 }

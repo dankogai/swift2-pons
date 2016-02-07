@@ -21,10 +21,10 @@ public func ^^=(inout lhs:Bool, rhs:Bool) {
 infix operator **   { associativity right precedence 160 }    // Exponentiative, same as << and >>
 infix operator **=  { associativity right precedence  90 }    // Assignment, same as <<= and >>=
 
-public func **<R:POInt>(lhs:R, rhs:R)->R {
+public func **<L:POInt, R:POInt>(lhs:L, rhs:R)->L {
     return R.pow(lhs, rhs)
 }
-public func **=<R:POInt>(inout lhs:R, rhs:R) {
+public func **=<L:POInt, R:POInt>(inout lhs:L, rhs:R) {
     lhs = lhs ** rhs
 }
 public func **<L:POReal, R:POInt>(lhs:L, rhs:R)->L {

@@ -10,7 +10,6 @@
 /// Arbitrary-precision Unsigned Integer
 ///
 public struct BigUInt {
-    public typealias IntType = Int
     public typealias DigitType = UInt32
     var digits = [DigitType]()  // Base 2**32 = 4294967296
     public init(_ s:BigUInt) {  // demanded by PONumber
@@ -374,4 +373,10 @@ public func %(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.divmod(lhs, rhs).1
 }
 // Now that we are done with all requirements, Let Swift know that!
-extension BigUInt: POUInt {}
+extension BigUInt: POUInt {
+    public typealias IntType = BigInt
+    public var asSigned:IntType { return BigInt(unsignedValue:self) }
+}
+extension POUInt {
+    public var asBigUInt:BigUInt { return BigUInt(self.toUIntMax()) }
+}

@@ -84,7 +84,7 @@ test.eq(+BigInt(3) % -BigInt(2), +BigInt(1), "+3 % -2 == +1")
 test.eq(-BigInt(3) % -BigInt(2), -BigInt(1), "-3 % -2 == -1")
 // BigInt / BigInt test
 for i in 1...42 {
-    let bi = BigInt(i)
+    let bi = i.asBigInt
     test.eq(fact(bi) / fact(bi - 1), bi,    "BigInt: \(bi)!/\(bi-1)! == \(bi)")
     if i > 20 { continue }
     test.eq(fact(i) / fact(i - 1),  i,      "Int:    \(bi)!/\(bi-1)! == \(bi)")
@@ -146,4 +146,8 @@ for i in 1...42 {
     var dict = [0+0.i:"origin"]
     test.ok(dict[0+0.i] == "origin", "Complex as a dictionary key")
 })()
+
+print((-42).asRational)
+print(sizeofValue(Int8(42).asRational))
+print(BigInt.gcd(BigInt(2) ** 128 - 1, BigInt(UIntMax.max)))
 test.done()

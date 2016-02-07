@@ -55,6 +55,12 @@ x
     Complex.exp(M_PI.i)
     Complex.log(Complex.exp(M_PI.i))
 })()
+Complex.sin(Double.PI.i)
+func exp<C:POComplexReal>(z:C)->C { return C.exp(z) }
+exp(1.0)
+exp(M_PI)
+exp(M_PI.i)
+42.asBigInt.asRational
 
+Int.gcd(35, 42)
 
-(-0.0+0.0.i) ** -1
