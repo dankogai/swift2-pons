@@ -30,24 +30,19 @@ public extension POInt {
         return self.toRational()
     }
 }
-public struct Rational<U:POUInt> : PONumber, IntegerLiteralConvertible {
-    public init(integerLiteral:Int) {
-        self.init(integerLiteral)
-    }
+public struct Rational<U:POUInt> : POReal {
     public typealias UIntType = U
     public var sgn:Bool = false
     public var num:U = 0
-    public var den:U = 0
+    public var den:U = 1
     public init(_ s:Bool, _ n:U, _ d:U, isNormal:Bool = false) {
-        sgn = s
-        let g = isNormal ? 1 : U.gcd(n, d)
-        num = isNormal ? n : n / g
-        den = isNormal ? n : d / g
+        // print("\(__FILE__):\(__LINE__): n=\(n),d=\(d),isNormal=\(isNormal)")
+        (sgn, num, den) = isNormal ? (s, n, d)
+            : n == 0 ? (s, 0, d != 0 ? 1 : 0)
+            : d == 0 ? (s, 1, 0) : { (s, n/$0, d/$0) }(U.gcd(n, d))
     }
     public init(_ q:Rational<U>) {
-        sgn = q.sgn
-        num = q.num
-        den = q.den
+        (sgn, num, den) = (q.sgn, q.num, q.den)
     }
     public init(_ n:Int, _ d:Int, isNormal:Bool = false) {
         self.init(Bool.xor(n.isSignMinus, d.isSignMinus), U(n), U(d), isNormal:isNormal)
@@ -60,6 +55,11 @@ public struct Rational<U:POUInt> : PONumber, IntegerLiteralConvertible {
         let n = unsafeBitCast(m, UInt64.self) | UInt64(0x000fffffffffffff) | (1 << 52)
         let d = UInt64(1 << (e - 1))
         self.init(r.isSignMinus, UIntType(n), UIntType(d))
+    }
+    // IntegerLiteralConvertible
+    public typealias IntegerLiteralType = Int.IntegerLiteralType
+    public init(integerLiteral:IntegerLiteralType) {
+        self.init(integerLiteral)
     }
     public func toIntMax()->IntMax {
         return ((sgn ? -1 : 1) * num / den).toIntMax()
