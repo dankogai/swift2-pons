@@ -31,6 +31,7 @@ public protocol POInteger : POComparableNumber,
     func <<(_:Self,_:Self)->Self
     func >>(_:Self,_:Self)->Self
     // init?(_:String, radix:Int)
+    func toDouble()->Double
 }
 // give away &op
 public func &+<I:POInteger>(lhs:I, rhs:I)->I {
@@ -84,6 +85,7 @@ public extension POInteger {
     }
     //
     public init(_ d:Double) { self.init(IntMax(d)) }
+    public func toDouble()->Double { return Double(self.toIntMax()) }
     /// default initializers just Int()s the argument.
     /// in practice you should override them, especially U?Int64 and Double
     public init(_ v:UInt64) { self.init(Int(v)) }       //  override this for the best result
@@ -106,8 +108,8 @@ public extension POInteger {
     public var asInt16:Int16    { return Int16(self.toIntMax()) }
     public var asInt8:Int8      { return Int8(self.toIntMax()) }
     public var asInt:Int        { return Int(self.toIntMax()) }
-    public var asDouble:Double  { return Double(self.toIntMax()) }
-    public var asFloat:Float    { return Float(self.toIntMax()) }
+    public var asDouble:Double  { return self.toDouble() }
+    public var asFloat:Float    { return Float(self.toDouble()) }
     /// default implementation.  you should override it
     public static func divmod(lhs:Self, _ rhs:Self)->(Self, Self) {
         return (lhs / rhs, lhs % rhs)
@@ -282,10 +284,6 @@ public extension POInt {
     /// Default toUIntMax
     public func toUIntMax()->UIntMax {
         return UIntMax(self.toIntMax())
-    }
-    /// Default toDouble
-    public func toDouble()->Double {
-        return self.asDouble
     }
     ///
     /// Returns the index of the most significant bit of `self`

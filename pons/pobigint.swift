@@ -39,6 +39,9 @@ public struct BigInt {
     public func toUIntMax()->UIntMax {
         return self.unsignedValue.toUIntMax()
     }
+    public func toDouble() -> Double {
+        return Double(isSignMinus ? -1.0 : +1.0) * unsignedValue.toDouble()
+    }
     public var msbAt:Int { return unsignedValue.msbAt }
     public static let allZeros = BigInt(0)
     public var abs:BigInt { return self.isSignMinus ? -self : self }

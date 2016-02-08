@@ -37,7 +37,8 @@ public extension PORational {
         return (sgn ? -i : i, f)
     }
     public func toDouble()->Double {
-        return (sgn ? -1 : 1) * Double(num.toUIntMax()) / Double(den.toUIntMax())
+        let (i, f) = self.asMixed
+        return Double(i.toIntMax()) + Double(f.sgn ? -1 : 1) * f.num.toDouble() / f.den.toDouble()
     }
     public var isSignMinus:Bool { return sgn }
     public var isInfinite:Bool  { return den == 0 && num != 0 }

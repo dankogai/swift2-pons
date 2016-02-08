@@ -38,13 +38,10 @@ public struct BigUInt {
     public var asUInt8:UInt8    { return UInt8(self.asUInt32) }
     public var asUInt64:UInt64 {
         if digits.count > 2 { fatalError("value too large for UInt64") }
-        return UInt64(
-            digits.count == 2 ? (digits[1] << 32 | digits[0]) : digits[0]
-        )
+        return digits.count == 2 ? UInt64(digits[1]) << 32 | UInt64(digits[0]) : UInt64(digits[0])
     }
     public var asInt:Int        { return Int(self.asUInt64) }
     public var asUInt:UInt      { return UInt(self.asUInt64) }
-    public var asDouble:Double  { return Double(self.asUInt64) }
     public var asFloat:Float    { return Float(self.asUInt64) }
     public func toIntMax()->IntMax {
         return IntMax(self.asInt)
@@ -52,6 +49,14 @@ public struct BigUInt {
     public func toUIntMax()->UIntMax {
         return UIntMax(self.asUInt)
     }
+    public func toDouble()->Double {
+        let e = self.msbAt - 53
+        if e < 0 { return Double(self.toIntMax()) }
+        let m = (self >> BigUInt(e)).toIntMax()
+        // print("\(__FILE__):\(__LINE__): e=\(e),m=\(m)")
+        return Double.ldexp(Double(m), e)
+    }
+    public var asDouble:Double { return self.toDouble() }
 }
 // reverse conversions
 public extension Int    { public init(_ bu:BigUInt){ self.init(bu.asInt) } }
