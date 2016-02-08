@@ -134,8 +134,8 @@ public class POUtil {
 ///
 public protocol POUInt: POInteger, StringLiteralConvertible, CustomDebugStringConvertible {
     func toUIntMax()->UIntMax
-    typealias IntType    //:POInt // its correspoinding singed type
-    // init(_:IntType)         // must be capable of initializing from it
+    typealias IntType:POSignedNumber    // its correspoinding singed type
+    //init(_:IntType)         // must be capable of initializing from it
     var asSigned:IntType { get }
 }
 public extension POUInt {

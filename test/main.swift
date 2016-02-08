@@ -160,6 +160,8 @@ test.ok((-42.over(0)).isInfinite, "\(-42.over(0)) is infinite")
 test.ok((0.over(0)).isNaN, "\(0.over(0)) is NaN")
 test.ne(0.over(0), 0.over(0), "NaN != NaN")
 
+print((-14).over(6).asMixed)
+
 test.done()
 
 

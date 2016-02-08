@@ -17,22 +17,6 @@ public extension POInteger {
         return q
     }
 }
-// add .toRational() and .asNational
-public extension POInt {
-    public func toRational(denominator:Self = 1)->Rational<UIntType> {
-        return Rational(
-            Bool.xor(self.isSignMinus, denominator.isSignMinus),
-            self.abs.asUnsigned,
-            denominator.abs.asUnsigned
-        )
-    }
-    public var asRational:Rational<Self.UIntType> {
-        return self.toRational()
-    }
-    public func over(dominator:Self)->Rational<UIntType> {
-        return self.toRational(dominator)
-    }
-}
 public protocol PORational : POReal {
     typealias UIntType:POUInt
     var sgn:Bool { get set }
@@ -41,8 +25,16 @@ public protocol PORational : POReal {
     init(_:Bool, _:UIntType, _:UIntType, isNormal:Bool)
 }
 public extension PORational {
+    public var numerator:UIntType   { return num }
+    public var denominator:UIntType { return den }
     public func toIntMax()->IntMax {
-        return ((sgn ? -1 : 1) * num / den).toIntMax()
+        return (sgn ? -1 : 1) * (num / den).toIntMax()
+    }
+    public var asMixed:(UIntType.IntType, Self) {
+        let i = (num / den).asSigned
+        var f = self
+        f.num %= den
+        return (sgn ? -i : i, f)
     }
     public func toDouble()->Double {
         return (sgn ? -1 : 1) * Double(num.toUIntMax()) / Double(den.toUIntMax())
@@ -185,4 +177,20 @@ public func /<Q:PORational>(lhs:Q, rhs:Q) -> Q {
 infix operator &/ {associativity left precedence 150}
 public func &/<Q:PORational>(lhs:Q, rhs:Q) -> Q {
     return Q.multiplyWithOverflow(lhs, rhs).0
+}
+// add .toRational() and .asNational
+public extension POInt {
+    public func toRational(denominator:Self = 1)->Rational<UIntType> {
+        return Rational(
+            Bool.xor(self.isSignMinus, denominator.isSignMinus),
+            self.abs.asUnsigned,
+            denominator.abs.asUnsigned
+        )
+    }
+    public var asRational:Rational<Self.UIntType> {
+        return self.toRational()
+    }
+    public func over(dominator:Self)->Rational<UIntType> {
+        return self.toRational(dominator)
+    }
 }
