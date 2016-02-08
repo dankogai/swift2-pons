@@ -3,6 +3,7 @@ import UIKit    // this is a tvOS playground
 let bn = BigInt(2) ** 128
 let bq = BigInt(1).over(bn)
 let bz = bq + bq.i
-print(bn)
-print(bq)
-print(bz)
+print(bz + bz)
+print(bz - bz)
+print(bz * bz)
+print(bz / bz)

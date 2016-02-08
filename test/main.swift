@@ -164,13 +164,6 @@ test.ne(0.over(0), 0.over(0), "NaN != NaN")
 //import Foundation
 //print(String(format:"%a", -(BigInt(1) << 128 - 1).toDouble() ))
 //print(String(format:"%a", -BigInt(1).over(BigInt(1) << 128 - 1).toDouble() ))
-
-let bn = BigInt(2) ** 128
-let bq = BigInt(1).over(bn)
-let bz = bq + bq.i
-
-print(bz / bz)
-
 test.done()
 
 
