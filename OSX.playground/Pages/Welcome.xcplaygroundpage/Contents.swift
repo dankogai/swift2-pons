@@ -6,3 +6,7 @@ let bz = bq + bq.i
 print(bn)
 print(bq)
 print(bz)
+bz + bz
+bz - bz
+bz * bz
+bz / bz

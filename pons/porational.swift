@@ -56,6 +56,7 @@ public extension PORational {
         return (sgn ? -1 : 1) * (((num.hashValue >> bits) << bits) | (den.hashValue >> bits))
     }
     public static func multiplyWithOverflow(lhs:Self, _ rhs:Self)->(Self, overflow:Bool) {
+        if lhs.isZero || rhs.isZero { return (zero, false) }
         var ln = lhs.num, ld = lhs.den, rn = rhs.num, rd = rhs.den;
         let gn = UIntType.gcd(ln, rd), gd = UIntType.gcd(ld, rn);
         ln /= gn; rn /= gd;
@@ -78,6 +79,7 @@ public extension PORational {
                 ? lhs.num < rhs.num ? UIntType.subtractWithOverflow(rhs.num, lhs.num)
                     : UIntType.subtractWithOverflow(lhs.num, rhs.num)
                     : UIntType.addWithOverflow(lhs.num, rhs.num)
+            if n == 0 { return (zero, false) }
             var result = lhs
             let g = UIntType.gcd(n, lhs.den)
             result.sgn = lhs.num < rhs.num ? rhs.sgn: lhs.sgn
