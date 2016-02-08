@@ -132,8 +132,9 @@ public struct Rational<U:POUInt> : PORational {
     public init(_ r:Double) {
         let (m, e) = Double.frexp(r)
         // print("\(__FILE__):\(__LINE__): m=\(m),e=\(e)")
-        let n = UInt64(m * Double(1 << 52))
-        self.init(r.isSignMinus, UIntType(n), UIntType(1 << 52))
+        let b = Swift.min(Double.precision, UIntType.precision - 1)
+        let n = UInt64(m * Double(1 << b))
+        self.init(r.isSignMinus, UIntType(n), UIntType(1 << b))
         if e < 0    { self.den <<= UIntType(abs(e)) }
         else        { self.num <<= UIntType(abs(e)) }
     }

@@ -115,6 +115,35 @@ public extension POInteger {
     public static func divmod(lhs:Self, _ rhs:Self)->(Self, Self) {
         return (lhs / rhs, lhs % rhs)
     }
+    ///
+    /// Generalized power func
+    ///
+    /// the end result is the same as `(1..<n).reduce(lhs, combine:op)`
+    /// but it is faster by [exponentiation by squaring].
+    ///
+    ///     power(2, 3){ $0 + $1 }          // 2 + 2 + 2 == 6
+    ///     power("Swift", 3){ $0 + $1 }    // "SwiftSwiftSwift"
+    ///
+    /// In exchange for efficiency, `op` must be commutable.
+    /// That is, `op(x, y) == op(y, x)` is true for all `(x, y)`
+    ///
+    /// [exponentiation by squaring]: https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+    ///
+    public static func power<L>(lhs:L, _ rhs:Self, op:(L,L)->L)->L {
+        if rhs < 1 {
+            fatalError("negative exponent unsupported")
+        }
+        var r = lhs
+        var t = lhs, n = rhs - 1
+        while n > 0 {
+            if n & 1 == 1 {
+                r = op(r, t)
+            }
+            n >>= 1
+            t = op(t, t)
+        }
+        return r
+    }
 }
 ///
 /// Placeholder for utility functions and values
@@ -240,6 +269,13 @@ public extension POUInt {
     public init(extendedGraphemeClusterLiteral: String) {
         self.init(stringLiteral: extendedGraphemeClusterLiteral)
     }
+    ///
+    /// Note only `rhs` must be integer
+    ///
+    public static func pow<L:POUInt>(lhs:L, _ rhs:Self, mod:L=1)->L {
+        return rhs < 1 ? 1
+            : mod == 1 ? power(lhs, rhs, op:&*) : power(lhs, rhs){ ($0 &* $1) % mod }
+    }
 }
 extension UInt64:   POUInt {
     public typealias IntType = Int64
@@ -340,45 +376,12 @@ public extension POInt {
         self.init(stringLiteral: extendedGraphemeClusterLiteral)
     }
     ///
-    /// Generalized power func
-    ///
-    /// the end result is the same as `(1..<n).reduce(lhs, combine:op)`
-    /// but it is faster by [exponentiation by squaring].
-    ///
-    ///     power(2, 3){ $0 + $1 }          // 2 + 2 + 2 == 6
-    ///     power("Swift", 3){ $0 + $1 }    // "SwiftSwiftSwift"
-    ///
-    /// In exchange for efficiency, `op` must be commutable.
-    /// That is, `op(x, y) == op(y, x)` is true for all `(x, y)`
-    ///
-    /// [exponentiation by squaring]: https://en.wikipedia.org/wiki/Exponentiation_by_squaring
-    ///
-    public static func power<L>(lhs:L, _ rhs:Self, op:(L,L)->L)->L {
-        if rhs < 1 {
-            fatalError("negative exponent unsupported")
-        }
-        var r = lhs
-        var t = lhs, n = rhs - 1
-        while n > 0 {
-            if n & 1 == 1 {
-                r = op(r, t)
-            }
-            n >>= 1
-            t = op(t, t)
-        }
-        return r
-    }
-    ///
-    /// Note only `rhs` must be integer
-    ///
-    public static func pow<L:POUInt>(lhs:L, _ rhs:Self)->L {
-        return rhs < 1 ? 1 : power(lhs, rhs, op:&*)
-    }
-    public static func pow<L:POInt>(lhs:L, _ rhs:Self)->L {
-        return rhs < 1 ? 1 :  power(lhs, rhs, op:&*)
+    public static func pow<L:POInt>(lhs:L, _ rhs:Self, mod:L = 1)->L {
+        return rhs < 1 ? 1
+            : mod == 1 ? power(lhs, rhs, op:&*) : power(lhs, rhs){ ($0 &* $1) % mod }
     }
     public static func pow<L:POReal>(lhs:L, _ rhs:Self)->L {
-        return L(Double.pow(lhs.toDouble(), rhs.asDouble))
+        return L.pow(lhs, L(rhs.asDouble))
     }
 }
 extension Int64:    POInt {
