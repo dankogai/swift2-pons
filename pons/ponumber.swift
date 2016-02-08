@@ -82,3 +82,17 @@ public protocol POSignedNumber : POComparableNumber, SignedNumberType
     prefix func -(_:Self)->Self
     func -(_:Self, _:Self)->Self
 }
+///
+/// Placeholder for utility functions and values
+///
+public class POUtil {
+    public static let int2char = Array("0123456789abcdefghijklmnopqrstuvwxyz".characters)
+    public static let char2int:[Character:Int] = {
+        var result = [Character:Int]()
+        for i in 0..<int2char.count {
+            result[int2char[i]] = i
+        }
+        return result
+    }()
+}
+

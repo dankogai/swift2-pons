@@ -146,19 +146,6 @@ public extension POInteger {
     }
 }
 ///
-/// Placeholder for utility functions and values
-///
-public class POUtil {
-    public static let int2char = Array("0123456789abcdefghijklmnopqrstuvwxyz".characters)
-    public static let char2int:[Character:Int] = {
-        var result = [Character:Int]()
-        for i in 0..<int2char.count {
-            result[int2char[i]] = i
-        }
-        return result
-    }()
-}
-///
 /// Protocol-oriented unsigned integer.  All built-ins already conform to this.
 ///
 /// For the sake of protocol-oriented programming,
@@ -270,7 +257,10 @@ public extension POUInt {
         self.init(stringLiteral: extendedGraphemeClusterLiteral)
     }
     ///
-    /// Note only `rhs` must be integer
+    /// * `lhs ** rhs`
+    /// * `lhs ** rhs % mod` if `mod !=` (aka `modpow` or `powmod`)
+    ///
+    /// note only `rhs` must be an integer.
     ///
     public static func pow<L:POUInt>(lhs:L, _ rhs:Self, mod:L=1)->L {
         return rhs < 1 ? 1
@@ -375,11 +365,20 @@ public extension POInt {
     public init(extendedGraphemeClusterLiteral: String) {
         self.init(stringLiteral: extendedGraphemeClusterLiteral)
     }
+    /// - returns: 
+    ///   `lhs ** rhs` or `lhs ** rhs % mod` if `mod != 1`  (aka `modpow` or `powmod`)
     ///
+    /// note only `rhs` must be an integer.
+    /// also note it unconditinally returns `1` if `rhs < 1`
+    /// for negative exponent, make lhs noninteger
+    ///
+    ///     pow(2,   -2) // 1
+    ///     pow(2.0, -2) // 0.25
     public static func pow<L:POInt>(lhs:L, _ rhs:Self, mod:L = 1)->L {
         return rhs < 1 ? 1
             : mod == 1 ? power(lhs, rhs, op:&*) : power(lhs, rhs){ ($0 &* $1) % mod }
     }
+    /// - returns: `lhs ** rhs`
     public static func pow<L:POReal>(lhs:L, _ rhs:Self)->L {
         return L.pow(lhs, L(rhs.asDouble))
     }

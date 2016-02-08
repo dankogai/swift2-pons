@@ -186,6 +186,11 @@ let bz = bq + bq.i
 print(bz.conj)
 print(bz.abs)
 print(bz.arg)
+
+print(0x7FFFffff.isPrime)
+print(0x7FFFffff.nextPrime)
+print(UIntMax.max.asBigUInt.successor().isPrime)
+
 test.done()
 
 
