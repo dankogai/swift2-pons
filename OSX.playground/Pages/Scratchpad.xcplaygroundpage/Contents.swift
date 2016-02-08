@@ -1,5 +1,6 @@
-import Cocoa    // this is an OSX playground
-//: Playground - noun: a place where people can play
+//: [Previous](@previous)
+
+import Cocoa
 
 true  ^^  true
 true  ^^ false
@@ -88,3 +89,5 @@ l - l*r
 
 l + r.i
 
+
+//: [Next](@next)

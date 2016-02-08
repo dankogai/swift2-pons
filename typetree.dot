@@ -1,0 +1,72 @@
+digraph typetree {
+  node [
+    shape = box
+    style = "filled, rounded"
+    peripheries = 0
+    fontname = "San Francisco"
+    fontcolor = white
+    fillcolor = "#aaaaaa"
+  ]
+  edge [
+     color = green
+  ]
+  node [ fillcolor = gray style = "filled"]
+  Bool
+  Int64 Int32 Int16 Int8 Int UInt64 UInt32 UInt16 UInt8 UInt
+  Double Float
+  node [ fillcolor = "#00aa00" style = "filled, rounded"]
+  PONumber POComparableNumber POSignedNumber POInteger
+  POUInt POInt POReal POFloat POComplex POComplexReal PORational
+  node [ fillcolor = "#0000aa" style="filled"]
+  BigUInt BigInt
+  node [ fillcolor = "#aa0000" style="filled"]
+  GaussianInt Complex Rational 
+
+  Bool -> BigInt [ color = blue ]
+  Bool -> Rational [ color = blue ]
+  BigInt -> GaussianInt [ color = blue ]
+  BigUInt -> Rational [ color = blue ]
+  BigUInt -> BigInt [ color = blue ]
+  Double -> Complex  [ color = blue ]
+  Float -> Complex  [ color = blue ]
+  Int -> GaussianInt [ color = blue ]
+  Int16 -> GaussianInt [ color = blue ]
+  Int32 -> GaussianInt [ color = blue ]
+  Int64 -> GaussianInt [ color = blue ]
+  Int8 -> GaussianInt [ color = blue ]
+  POComparableNumber -> POInteger
+  POComparableNumber -> POSignedNumber
+  POComplex -> GaussianInt
+  POComplex -> POComplexReal
+  POComplexReal -> Complex
+  POFloat -> Double
+  POFloat -> Float
+  POInt -> BigInt [ color = green ]
+  POInt -> Int
+  POInt -> Int16
+  POInt -> Int32
+  POInt -> Int64
+  POInt -> Int8
+  POInteger -> POInt  [ color = green ]
+  POInteger -> POUInt
+  PONumber -> POComparableNumber
+  PONumber -> POComplex
+  PORational -> Rational
+  POReal -> POComplexReal
+  POReal -> POFloat
+  POReal -> PORational
+  POSignedNumber -> POInt
+  POSignedNumber -> POReal
+  POUInt -> BigUInt
+  POUInt -> UInt
+  POUInt -> UInt16
+  POUInt -> UInt32
+  POUInt -> UInt64
+  POUInt -> UInt8
+  Rational -> Complex [ color = blue ]
+  UInt -> Rational [ color = blue ]
+  UInt16 -> Rational [ color = blue ]
+  UInt32 -> Rational [ color = blue ]
+  UInt64 -> Rational [ color = blue ]
+  UInt8  -> Rational [ color = blue ]
+ }

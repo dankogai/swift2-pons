@@ -79,8 +79,10 @@ public extension PORational {
                     : UIntType.subtractWithOverflow(lhs.num, rhs.num)
                     : UIntType.addWithOverflow(lhs.num, rhs.num)
             var result = lhs
+            let g = UIntType.gcd(n, lhs.den)
             result.sgn = lhs.num < rhs.num ? rhs.sgn: lhs.sgn
-            result.num = n
+            result.num = g == 1 ? n : n / g
+            if g == 1 { result.den /= g }
             return (result, overflow:nof)
         } else {
             var l = lhs, r = rhs
@@ -88,6 +90,7 @@ public extension PORational {
             var d = UIntType(0), fin = lhs
             // print("add:", l, r)
             let g = UIntType.gcd(lhs.den, rhs.den)
+            // print("__FILE__:__LINE__:", g)
             (d, o0) = UIntType.multiplyWithOverflow(l.den, r.den / g)
             (l.num, o1) = UIntType.multiplyWithOverflow(l.num, r.den / g)
             (r.num, o2) = UIntType.multiplyWithOverflow(r.num, l.den / g)

@@ -5,6 +5,12 @@
       location = "group:OSX.playground">
    </FileRef>
    <FileRef
+      location = "group:iOS.playground">
+   </FileRef>
+   <FileRef
+      location = "group:tvOS.playground">
+   </FileRef>
+   <FileRef
       location = "group:pons.xcodeproj">
    </FileRef>
 </Workspace>

@@ -161,9 +161,9 @@ test.ok((0.over(0)).isNaN, "\(0.over(0)) is NaN")
 test.ne(0.over(0), 0.over(0), "NaN != NaN")
 
 // print((-14).over(6).asMixed)
-import Foundation
-print(String(format:"%a", -(BigInt(1) << 128 - 1).toDouble() ))
-print(String(format:"%a", -BigInt(1).over(BigInt(1) << 128 - 1).toDouble() ))
+//import Foundation
+//print(String(format:"%a", -(BigInt(1) << 128 - 1).toDouble() ))
+//print(String(format:"%a", -BigInt(1).over(BigInt(1) << 128 - 1).toDouble() ))
 
 test.done()
 

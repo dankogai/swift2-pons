@@ -1,5 +1,6 @@
 MOD=PONS
 BIN=main
+GRAPH=typetree
 MODSRC=pons/*.swift
 BINSRC=$(MODSRC) test/*.swift
 MODULE=$(MOD).swiftmodule $(MOD).swiftdoc
@@ -27,3 +28,6 @@ $(MODULE): $(MODSRC)
 	$(SWIFTC) -emit-library -emit-module $(MODSRC) -module-name $(MOD)
 repl: $(MODULE)
 	$(SWIFT) -I. -L. -l$(MOD)
+graph:$(GRAPH).png
+$(GRAPH).png: $(GRAPH).dot
+	dot -Tpng $(GRAPH).dot -o $(GRAPH).png
