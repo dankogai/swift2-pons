@@ -128,9 +128,12 @@ public struct Rational<U:POUInt> : PORational {
     }
     public init(_ r:Double) {
         let (m, e) = Double.frexp(r)
-        let n = unsafeBitCast(m, UInt64.self) | UInt64(0x001f_ffff_ffff_ffff)
-        let d = UInt64(1 << (e - 1))
-        self.init(r.isSignMinus, UIntType(n), UIntType(d))
+        // print("\(__FILE__):\(__LINE__): m=\(m),e=\(e)")
+        let n = UInt64(m * Double(1 << 52))
+        let d = UIntType(1) << UIntType(abs(e))
+        self.init(r.isSignMinus, UIntType(n), UIntType(1 << 52))
+        if e < 0    { self.den *= d }
+        else        { self.num *= d }
     }
     // IntegerLiteralConvertible
     public typealias IntegerLiteralType = Int.IntegerLiteralType
