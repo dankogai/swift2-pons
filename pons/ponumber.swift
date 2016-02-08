@@ -71,7 +71,8 @@ public func /=<T:PONumber>(inout lhs:T, rhs:T) {
     lhs = lhs / rhs
 }
 /// Comparable Numbers
-public protocol POComparableNumber : PONumber, Comparable {}
+public protocol POComparableNumber : PONumber, Comparable {
+}
 ///
 /// `POSignedNumber` = `PONumber` + `SignedNumberType`
 ///

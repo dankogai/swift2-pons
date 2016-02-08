@@ -27,6 +27,9 @@ public protocol PORational : POReal {
 public extension PORational {
     public var numerator:UIntType   { return num }
     public var denominator:UIntType { return den }
+    public static var precision:Int {
+        return UIntType.precision
+    }
     public func toIntMax()->IntMax {
         return (sgn ? -1 : 1) * (num / den).toIntMax()
     }
@@ -130,10 +133,9 @@ public struct Rational<U:POUInt> : PORational {
         let (m, e) = Double.frexp(r)
         // print("\(__FILE__):\(__LINE__): m=\(m),e=\(e)")
         let n = UInt64(m * Double(1 << 52))
-        let d = UIntType(1) << UIntType(abs(e))
         self.init(r.isSignMinus, UIntType(n), UIntType(1 << 52))
-        if e < 0    { self.den *= d }
-        else        { self.num *= d }
+        if e < 0    { self.den <<= UIntType(abs(e)) }
+        else        { self.num <<= UIntType(abs(e)) }
     }
     // IntegerLiteralConvertible
     public typealias IntegerLiteralType = Int.IntegerLiteralType

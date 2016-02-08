@@ -23,7 +23,7 @@ public extension POReal {
     import Darwin
 #endif
 public protocol POFloat : POReal {
-    static var EPSILON:Self { get }
+    // static var EPSILON:Self { get }
 }
 // public protocol POElementaryFunctional : POReal {}
 extension POReal {
@@ -79,7 +79,8 @@ extension POReal {
 extension Double : POFloat {
     public func toDouble()->Double { return self }
     public func toIntMax()->IntMax { return IntMax(self) }
-    public static var EPSILON = 0x1p-52
+    /// number of significant bits == 52
+    public static let precision = 52
     #if os(Linux)
     public static func frexp(d:Double)->(Double, Int) {
         // return Glibc.frexp(d)
@@ -100,6 +101,7 @@ extension Double : POFloat {
 extension Float : POFloat {
     public func toDouble()->Double { return Double(self) }
     public func toIntMax()->IntMax { return IntMax(self) }
-    public static var EPSILON:Float = 0x1p-23
+    /// number of significant bits == 23
+    public static let precision = 23
 }
 

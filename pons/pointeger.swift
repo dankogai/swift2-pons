@@ -32,6 +32,7 @@ public protocol POInteger : POComparableNumber,
     func >>(_:Self,_:Self)->Self
     // init?(_:String, radix:Int)
     func toDouble()->Double
+    static var precision:Int { get }
 }
 // give away &op
 public func &+<I:POInteger>(lhs:I, rhs:I)->I {
@@ -141,6 +142,10 @@ public protocol POUInt: POInteger, StringLiteralConvertible, CustomDebugStringCo
     var asSigned:IntType { get }
 }
 public extension POUInt {
+    /// number of significant bits ==  sizeof(Self) * 8
+    public static var precision:Int {
+        return sizeof(Self) * 8
+    }
     ///
     /// Returns the index of the most significant bit of `self`
     /// or `-1` if `self == 0`
@@ -279,6 +284,10 @@ public protocol POInt:  POInteger, POSignedNumber, StringLiteralConvertible, Cus
     var asUnsigned:UIntType { get }  // able to convert to unsigned
 }
 public extension POInt {
+    /// number of significant bits ==  sizeof(Self) * 8 - 1
+    public static var precision:Int {
+        return sizeof(Self) * 8 - 1
+    }
     /// Default isSignMinus
     public var isSignMinus:Bool { return self < 0 }
     /// Default toUIntMax

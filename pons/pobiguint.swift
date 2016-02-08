@@ -12,6 +12,7 @@
 public struct BigUInt {
     public typealias DigitType = UInt32
     var digits = [DigitType]()  // Base 2**32 = 4294967296
+    public static let precision = IntMax.max
     public init(_ s:BigUInt) {  // demanded by PONumber
         self.digits = s.digits
     }

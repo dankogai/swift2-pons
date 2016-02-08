@@ -10,3 +10,8 @@ print(bz / bz)
 print(bz.conj)
 print(bz.abs)
 print(bz.arg)
+Int.precision
+UInt.precision
+Double.precision
+Float.precision
+Int8.precision
