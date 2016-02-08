@@ -127,8 +127,8 @@ extension BigUInt : BitwiseOperationsType {
             return { lhs, rhs in
                 let (l, r) = lhs.digits.count < rhs.digits.count ? (rhs, lhs) : (lhs, rhs)
                 var value = l.digits
-                for i in 0..<r.digits.count {
-                    value[i] = op(value[i], r.digits[i])
+                for i in 0..<l.digits.count {
+                    value[i] = op(value[i], i < r.digits.count ? r.digits[i] : 0)
                 }
                 return BigUInt(rawValue:value)
             }

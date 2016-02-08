@@ -1,4 +1,4 @@
-import UIKit    // this is an iOS playground
+import UIKit    // this is a tvOS playground
 //: Playground - noun: a place where people can play
 let bn = BigInt(2) ** 128
 let bq = BigInt(1).over(bn)

@@ -6,6 +6,11 @@
 //  Copyright © 2016 Dan Kogai. All rights reserved.
 //
 
+// make (T,S) equatable just for tests
+func ==<T:Equatable,S:Equatable>(lhs:(T,S), rhs:(T,S))->Bool {
+    return lhs.0 == rhs.0 && lhs.1 == rhs.1
+}
+
 let test = TAP()
 
 // Bool.xor
@@ -174,22 +179,7 @@ test.ok((+42.over(0)).isInfinite, "\(+42.over(0)) is infinite")
 test.ok((-42.over(0)).isInfinite, "\(-42.over(0)) is infinite")
 test.ok((0.over(0)).isNaN, "\(0.over(0)) is NaN")
 test.ne(0.over(0), 0.over(0), "NaN != NaN")
-
-// print((-14).over(6).asMixed)
-//import Foundation
-//print(String(format:"%a", -(BigInt(1) << 128 - 1).toDouble() ))
-//print(String(format:"%a", -BigInt(1).over(BigInt(1) << 128 - 1).toDouble() ))
-
-let bn = BigInt(2) ** 128
-let bq = BigInt(1).over(bn)
-let bz = bq + bq.i
-print(bz.conj)
-print(bz.abs)
-print(bz.arg)
-
-print(0x7FFFffff.isPrime)
-print(0x7FFFffff.nextPrime)
-print(UIntMax.max.asBigUInt.successor().isPrime)
+test.ok((-14).over(6).asMixed == (-2, (-1).over(3)), "-14/6 = -2-1/3")
 
 test.done()
 

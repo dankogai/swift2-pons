@@ -61,17 +61,29 @@ public extension POUInt {
     /// [Miller-Rabin] test `n` for `base`
     ///
     /// [Miller-Rabin]: https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test
+//    public static func powmod(var _ base:Self, var _ power:Self, mod:Self) -> Self {
+//        var result:Self = 1
+//        while power > 0 {
+//            if power & 1 == 1 { result = (result * base) % mod }
+//            base = (base * base) % mod
+//            power >>= 1;
+//        }
+//        return result
+//    }
     public func millerRabinTest(base:UIntMax)->Bool {
         if self < 2      { return false }
         if self & 1 == 0 { return self == 2 }
         var d = self - 1
         while d & 1 == 0 { d >>= 1 }
-        var t:Self = d
+        var t = d
         var y = Self.pow(Self(base), t, mod:self)
+        // print("\(__FILE__):\(__LINE__): base=\(base),\nself=\(self),\ny=\(y)\nt=\(t)")
         while t != self-1 && y != 1 && y != self-1 {
-            y = Self.pow(y, 2, mod:self)
+            y = (y * y) % self
             t <<= 1
         }
+        // print("\(__FILE__):\(__LINE__): base=\(base),self=\(self),y=\(y),t=\(t)")
+
         return y == self-1 || t & 1 == 1
     }
     public var isPrime:Bool {
