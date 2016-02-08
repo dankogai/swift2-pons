@@ -141,18 +141,25 @@ for i in 1...42 {
     test.eq(2.0.i ** -2.0, -0.25+0.0.i,         "z ** -2    == 1/(z*z)")
     test.eq(2.0.i ** -2.5, (-1.0+1.0.i)/8.0,    "z ** -2.5  == 1/(z*z*sqrt(z))")
     let r = 0.5, z = C.sqrt(-1.0.i)
-})()
-({
     var dict = [0+0.i:"origin"]
     test.ok(dict[0+0.i] == "origin", "Complex as a dictionary key")
 })()
+// Rational
+test.eq("\(+2.over(4))", "(1/2)",  "\"\\(+2.over(4))\" == \"(1/2)\"")
+test.eq("\(-2.over(4))", "-(1/2)", "\"\\(-2.over(4))\" == \"-(1/2)\"")
+test.eq("\(2.over(4)+2.over(4).i)", "((1/2)+(1/2).i)",
+    "\"\\(2.over(4)+2.over(4).i)\" == \"((1/2)+(1/2).i)\"")
+test.eq("\(2.over(4)-2.over(4).i)", "((1/2)-(1/2).i)",
+    "\"\\(2.over(4)-2.over(4).i)\" == \"((1/2)+(1/2).i)\"")
+test.eq(+2.over(+4), +1.over(2), "+2/+4 == +1/2")
+test.eq(+2.over(-4), -1.over(2), "-2/+4 == -1/2")
+test.eq(-2.over(+4), -1.over(2), "+2/-4 == -1/2")
+test.eq(-2.over(-4), +1.over(2), "-2/-4 == +1/2")
+test.ok((+42.over(0)).isInfinite, "\(+42.over(0)) is infinite")
+test.ok((-42.over(0)).isInfinite, "\(-42.over(0)) is infinite")
+test.ok((0.over(0)).isNaN, "\(0.over(0)) is NaN")
+test.ne(0.over(0), 0.over(0), "NaN != NaN")
 
-
-print((-42).asRational)
-print(sizeofValue(Int8(42).asRational))
-print((2.asBigInt ** 128 - 1).toRational(BigInt(UIntMax.max)))
-print(0.toRational(2))
-print(1.toRational(2).i)
 test.done()
 
 

@@ -29,6 +29,9 @@ public extension POInt {
     public var asRational:Rational<Self.UIntType> {
         return self.toRational()
     }
+    public func over(dominator:Self)->Rational<UIntType> {
+        return self.toRational(dominator)
+    }
 }
 public struct Rational<U:POUInt> : POReal {
     public typealias UIntType = U
@@ -69,7 +72,7 @@ public struct Rational<U:POUInt> : POReal {
     }
     public var description:String {
         let s = sgn ? "-" : ""
-        return "(\(s)\(num)/\(den))"
+        return "\(s)(\(num)/\(den))"
     }
     public var hashValue:Int {
         let bits = sizeof(Int) * 4
@@ -77,8 +80,11 @@ public struct Rational<U:POUInt> : POReal {
     }
     public var isSignMinus:Bool { return sgn }
     public var isInfinite:Bool  { return den == 0 && num != 0 }
+    public static var infinity:Rational<U>  { return Rational(false, 1, 0, isNormal:true) }
     public var isNaN:Bool       { return den == 0 && num == 0 }
+    public static var NaN:Rational<U>  { return Rational(false, 0, 0, isNormal:true) }
     public var isZero:Bool      { return den != 0 && num == 0 }
+    public static var zero:Rational<U>  { return Rational(false, 0, 1, isNormal:true) }
     public static func multiplyWithOverflow(lhs:Rational<U>, _ rhs:Rational<U>)->(Rational<U>, overflow:Bool) {
         var ln = lhs.num, ld = lhs.den, rn = rhs.num, rd = rhs.den;
         let gn = UIntType.gcd(ln, rd), gd = UIntType.gcd(ld, rn);
@@ -86,11 +92,7 @@ public struct Rational<U:POUInt> : POReal {
         ld /= gd; rd /= gn;
         let (n, nof) = U.multiplyWithOverflow(ln, rn)
         let (d, dof) = U.multiplyWithOverflow(ld, rd)
-        var q = lhs
-        q.sgn  = Bool.xor(lhs.sgn, rhs.sgn)
-        q.num = n
-        q.den = d
-        return (q, overflow: nof || dof)
+        return (Rational(Bool.xor(lhs.sgn, rhs.sgn), n, d, isNormal:true), overflow: nof || dof)
     }
     public var reciprocal:Rational<U> {
         var newValue = self
@@ -109,15 +111,17 @@ public struct Rational<U:POUInt> : POReal {
             return (Rational(lhs.num < rhs.num ? rhs.sgn: lhs.sgn, n, lhs.den), overflow:nof)
         } else {
             var l = lhs, r = rhs
+            var (o0, o1, o2, o3) = (false, false, false, false)
+            var d = U(0), fin = lhs
             // print("add:", l, r)
             let g = U.gcd(lhs.den, rhs.den)
-            let d = l.den * r.den / g
-            l.num *= r.den / g
-            r.num *= l.den / g
-            l.den = d
-            r.den = d
+            (d, o0) = U.multiplyWithOverflow(l.den, r.den / g)
+            (l.num, o1) = U.multiplyWithOverflow(l.num, r.den / g)
+            (r.num, o2) = U.multiplyWithOverflow(r.num, l.den / g)
+            l.den = d ; r.den = d
             // print("add:", l, r)
-            return addWithOverflow(l, r)
+            (fin, o3) = addWithOverflow(l, r)
+            return (fin, overflow: o0 || o1 || o2 || o3)
         }
     }
     public static func subtractWithOverflow(lhs:Rational<U>, _ rhs:Rational<U>)->(Rational<U>, overflow:Bool) {
@@ -135,9 +139,7 @@ public prefix func +<U:POUInt>(q:Rational<U>) -> Rational<U> {
     return q
 }
 public prefix func -<U:POUInt>(q:Rational<U>) -> Rational<U> {
-    var newValue = q
-    newValue.sgn = !q.sgn
-    return newValue
+    return Rational(!q.sgn, q.num, q.den, isNormal:true)
 }
 public func +<U:POUInt>(lhs:Rational<U>, rhs:Rational<U>) -> Rational<U> {
     let (result, overflow) = Rational<U>.addWithOverflow(lhs, rhs)

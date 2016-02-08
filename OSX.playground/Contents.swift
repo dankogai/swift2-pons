@@ -34,6 +34,8 @@ x
     z.i.i.i.i
     z+z
     z-z
+    z/z
+    z*z
 })(42.195.i)
 ({  z in
     z.i
@@ -54,12 +56,15 @@ x
     Complex.sqrt(Complex.sqrt(z))
     Complex.exp(M_PI.i)
     Complex.log(Complex.exp(M_PI.i))
+    Complex.sin(Double.PI.i)
 })()
-Complex.sin(Double.PI.i)
+// func exp<R:POReal>(r:R)->R { return R.exp(r) }
 func exp<C:POComplexReal>(z:C)->C { return C.exp(z) }
 exp(1.0)
 exp(M_PI)
 exp(M_PI.i)
+
+
 42.asBigInt.asRational
 
 /*
@@ -70,6 +75,8 @@ BigInt.gcd(81, 7)
 
 42.asRational / 49.asRational
 */
+
+
 
 var l = 1.toRational(2)
 var r = 1.toRational(3)
