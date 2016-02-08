@@ -140,49 +140,49 @@ public struct Rational<U:POUInt> : PORational {
         self.init(integerLiteral)
     }
 }
-public func ==<U:POUInt>(lhs:Rational<U>, rhs:Rational<U>) -> Bool {
+public func ==<Q:PORational>(lhs:Q, rhs:Q) -> Bool {
     return !lhs.isNaN && !rhs.isNaN
         && lhs.sgn == rhs.sgn && lhs.num == rhs.num && lhs.den == rhs.den
 }
-public func < <U:POUInt>(lhs:Rational<U>, rhs:Rational<U>) -> Bool {
+public func < <Q:PORational>(lhs:Q, rhs:Q) -> Bool {
     return (lhs - rhs).sgn
 }
-public prefix func +<U:POUInt>(q:Rational<U>) -> Rational<U> {
+public prefix func +<Q:PORational>(q:Q) -> Q {
     return q
 }
-public prefix func -<U:POUInt>(q:Rational<U>) -> Rational<U> {
-    return Rational(!q.sgn, q.num, q.den, isNormal:true)
+public prefix func -<Q:PORational>(q:Q) -> Q {
+    return Q(!q.sgn, q.num, q.den, isNormal:true)
 }
-public func +<U:POUInt>(lhs:Rational<U>, rhs:Rational<U>) -> Rational<U> {
-    let (result, overflow) = Rational<U>.addWithOverflow(lhs, rhs)
+public func +<Q:PORational>(lhs:Q, rhs:Q) -> Q {
+    let (result, overflow) = Q.addWithOverflow(lhs, rhs)
     if overflow { fatalError("\(lhs) + \(rhs) overflows") }
     return result
 }
-public func &+<U:POUInt>(lhs:Rational<U>, rhs:Rational<U>) -> Rational<U> {
-    return Rational<U>.addWithOverflow(lhs, rhs).0
+public func &+<Q:PORational>(lhs:Q, rhs:Q) -> Q {
+    return Q.addWithOverflow(lhs, rhs).0
 }
-public func -<U:POUInt>(lhs:Rational<U>, rhs:Rational<U>) -> Rational<U> {
-    let (result, overflow) = Rational<U>.subtractWithOverflow(lhs, rhs)
+public func -<Q:PORational>(lhs:Q, rhs:Q) -> Q {
+    let (result, overflow) = Q.subtractWithOverflow(lhs, rhs)
     if overflow { fatalError("\(lhs) - \(rhs) overflows") }
     return result
 }
-public func &-<U:POUInt>(lhs:Rational<U>, rhs:Rational<U>) -> Rational<U> {
-    return Rational<U>.subtractWithOverflow(lhs, rhs).0
+public func &-<Q:PORational>(lhs:Q, rhs:Q) -> Q {
+    return Q.subtractWithOverflow(lhs, rhs).0
 }
-public func *<U:POUInt>(lhs:Rational<U>, rhs:Rational<U>) -> Rational<U> {
-    let (result, overflow) = Rational<U>.multiplyWithOverflow(lhs, rhs)
+public func *<Q:PORational>(lhs:Q, rhs:Q) -> Q {
+    let (result, overflow) = Q.multiplyWithOverflow(lhs, rhs)
     if overflow { fatalError("\(lhs) * \(rhs) overflows") }
     return result
 }
-public func &*<U:POUInt>(lhs:Rational<U>, rhs:Rational<U>) -> Rational<U> {
-    return Rational<U>.multiplyWithOverflow(lhs, rhs).0
+public func &*<Q:PORational>(lhs:Q, rhs:Q) -> Q {
+    return Q.multiplyWithOverflow(lhs, rhs).0
 }
-public func /<U:POUInt>(lhs:Rational<U>, rhs:Rational<U>) -> Rational<U> {
-    let (result, overflow) = Rational<U>.divideWithOverflow(lhs, rhs)
+public func /<Q:PORational>(lhs:Q, rhs:Q) -> Q {
+    let (result, overflow) = Q.divideWithOverflow(lhs, rhs)
     if overflow { fatalError("\(lhs) / \(rhs) overflows") }
     return result
 }
 infix operator &/ {associativity left precedence 150}
-public func &/<U:POUInt>(lhs:Rational<U>, rhs:Rational<U>) -> Rational<U> {
-    return Rational<U>.multiplyWithOverflow(lhs, rhs).0
+public func &/<Q:PORational>(lhs:Q, rhs:Q) -> Q {
+    return Q.multiplyWithOverflow(lhs, rhs).0
 }
