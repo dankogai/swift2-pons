@@ -66,7 +66,20 @@ public extension Float  { public init(_ bu:BigUInt){ self.init(bu.asFloat) } }
 // must be Equatable
 extension BigUInt: Equatable {}
 public func == (lhs:BigUInt, rhs:BigUInt)->Bool {
-    return lhs.digits == rhs.digits
+    // return lhs.digits == rhs.digits // considered naive
+    if lhs.digits.count != rhs.digits.count { return false }
+    for i in 0..<lhs.digits.count {
+        if lhs.digits[i] != rhs.digits[i] { return false }
+    }
+    return true
+}
+public func != (lhs:BigUInt, rhs:BigUInt)->Bool {
+    // return !(lhs.digits == rhs.digits) // still considered naive
+    if lhs.digits.count != rhs.digits.count { return true }
+    for i in 0..<lhs.digits.count {
+        if lhs.digits[i] != rhs.digits[i] { return true }
+    }
+    return false
 }
 // and Comparable
 extension BigUInt: Comparable {}
