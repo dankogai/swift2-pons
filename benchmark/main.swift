@@ -18,17 +18,20 @@ func timeit(count:Int, task:()->())->Double {
     return now() - started
 }
 
-print("sqrt(2.0)         == \(sqrt(2.0))")
-print("pow(2.0, 0.5)     == \(pow(2.0, 0.5))")
-print("exp(log(2.0)*0.5) == \(exp(log(2.0)*0.5))")
+// print("sqrt(2.0)         == \(sqrt(2.0))")
+// print("pow(2.0, 0.5)     == \(pow(2.0, 0.5))")
+// print("exp(log(2.0)*0.5) == \(exp(log(2.0)*0.5))")
 
 
-let count = 1_000_000
+// let count = 1_000_000
 
-[
-    "sqrt(2.0)         ":timeit(count){ sqrt(2.0) },
-    "pow(2.0, 0.5)    ":timeit(count) { pow(2.0, 0.5) },
-    "exp(log(2.0)*0.5)":timeit(count) { exp(log(2.0)*0.5) }
-].forEach {
-    print($0.0, ":\t", $0.1)
-}
+// [
+//     "sqrt(2.0)         ":timeit(count){ sqrt(2.0) },
+//     "pow(2.0, 0.5)    ":timeit(count) { pow(2.0, 0.5) },
+//     "exp(log(2.0)*0.5)":timeit(count) { exp(log(2.0)*0.5) }
+// ].forEach {
+//     print($0.0, ":\t", $0.1)
+// }
+
+let t = timeit(1) { (BigInt(1) << 127 - 1).isPrime }
+print(t)

@@ -18,17 +18,16 @@ public struct BigUInt {
     }
     // init from built-in types
     public init(_ u:DigitType) {
-        digits.append(u)
+        digits = [u]
     }
-    public init(_ u:UInt64) {
-        digits.append(DigitType(u & 0xFFFFffff))
-        if u > UInt64(DigitType.max) { // append higer half only if necessary
-            digits.append(DigitType(u >> 32))
-        }
+    public init(_ u:UIntMax) {
+        digits = u <= UIntMax(DigitType.max)
+            ? [DigitType(u & 0xFFFFffff)]
+            : [DigitType(u & 0xFFFFffff), DigitType(u >> 32)]
     }
     public init(_  i:Int)   { self.init(UInt64(i)) }      // demanded by PONumber
     public init() {
-        self.init(DigitType(0))
+        digits = [0]
     }
     // conversions
     public var asUInt32:UInt32 {
@@ -211,6 +210,24 @@ public func ^=(inout lhs:BigUInt, rhs:BigUInt) {
 public func <<(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.bitShiftL(lhs, rhs)
 }
+public func <<=(inout lhs:BigUInt, rhs:BigUInt) {
+    // lhs = lhs << rhs; return // turns out to be too naive
+    if lhs == 0 { return }
+    let (index, offset) = (rhs / 32, rhs.asUInt32 % 32)
+    while lhs.digits.count <= index.asInt {
+        lhs.digits.insert(0, atIndex:0)
+    }
+    if offset == 0 { return }
+    var carry:UInt32 = 0
+    var tmp:UInt32 = 0
+    for i in 0..<lhs.digits.count {
+        tmp = lhs.digits[i] >> (32 - offset)
+        lhs.digits[i] <<= offset
+        lhs.digits[i] |= carry
+        carry = tmp
+    }
+    if carry != 0 { lhs.digits.append(carry) }
+}
 public func >>(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.bitShiftR(lhs, rhs)
 }
@@ -241,15 +258,9 @@ public extension BigUInt {
     /// subtraction overflows when lhs < rhs
     public static func subtractWithOverflow(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, overflow:Bool) {
         if rhs == 0 { return (lhs, false) }
-        var s = rhs
-        s.stretch(lhs.digits.count-1)
-        let count = s.digits.count
-        s = bitNot(s)
-        s += 1
-        s += lhs
-        if s.digits.count > count { s.digits.removeLast() } // remove carry
-        s.trim()    // in case it gets zero by accident
-        return (s, overflow: lhs < rhs) // overflow when `li
+        var l = lhs
+        l -= rhs
+        return (l, overflow: lhs < rhs) // overflow when `li
     }
     /// subtraction in functional form
     ///
@@ -267,11 +278,38 @@ public extension BigUInt {
 public func +(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.add(lhs, rhs)
 }
+public func +=(inout lhs:BigUInt, rhs:BigUInt) {
+    // lhs = BigUInt.add(lhs, rhs); return // is too naive
+    lhs.stretch(rhs.digits.count-1)
+    var carry:UInt64 = 0
+    for i in 0..<lhs.digits.count {
+        carry += UInt64(lhs.digits[i]) + UInt64(i < rhs.digits.count ? rhs.digits[i] : 0)
+        lhs.digits[i] = UInt32(carry & 0xffff_ffff)
+        carry >>= 32
+    }
+    if carry != 0 { lhs.digits.append(UInt32(carry & 0xffff_ffff)) }
+}
 public prefix func +(bs:BigUInt)->BigUInt {
     return bs
 }
 public func -(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.subtract(lhs, rhs)
+}
+public func -=(inout lhs:BigUInt, rhs:BigUInt) {
+    // lhs = lhs - rhs; return // is too naive
+    if rhs == 0 { return }
+    var sub = rhs
+    sub.stretch(lhs.digits.count-1)
+    for i in 0..<sub.digits.count {
+        sub.digits[i] = ~sub.digits[i]
+    }
+    var carry:UInt64 = 1
+    for i in 0..<sub.digits.count {
+        carry += UInt64(lhs.digits[i]) + UInt64(sub.digits[i])
+        lhs.digits[i] = UInt32(carry & 0xffff_ffff)
+        carry >>= 32
+    }
+    lhs.trim()
 }
 public prefix func -(bs:BigUInt)->BigUInt {
     return 0 - bs
@@ -340,8 +378,8 @@ public extension BigUInt {
     ///
     /// cf. https://en.wikipedia.org/wiki/Division_algorithm#Integer_division_.28unsigned.29_with_remainder
     public static func divmodLong(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, BigUInt) {
-        var q:BigUInt = 0
-        var r:BigUInt = 0
+        var q = BigUInt(0)
+        var r = BigUInt(0)
         for i in (0...lhs.msbAt).lazy.reverse() {
             r <<= 1
             r[0] = lhs[i]
