@@ -9,8 +9,8 @@
 public extension POUtil {
     public class Prime : SequenceType {
         public init(){}
-        public func generate()->AnyGenerator<UIntMax> {
-            var currPrime:UIntMax = 0
+        public func generate()->AnyGenerator<BigUInt> {
+            var currPrime = BigUInt(0)
             return anyGenerator {
                 let nextPrime = currPrime.nextPrime
                 if nextPrime > currPrime {
@@ -24,9 +24,9 @@ public extension POUtil {
 }
 public extension POUtil.Prime {
     /// primes less than 2048
-    public static let tinyPrimes:[UIntMax] = {
-        var ps:[UIntMax] = [2, 3]
-        var n:UIntMax = 5
+    public static let tinyPrimes:[Int] = {
+        var ps = [2, 3]
+        var n = 5
         while n < 2048 {
             for p in ps {
                 if n % p == 0 { break }
@@ -42,7 +42,7 @@ public extension POUtil.Prime {
     /// on bases <= n-th prime does not reveal compositeness.
     ///
     /// [A014233]: https://oeis.org/A014233
-    public static let A014233:[UIntMax] = [
+    public static let A014233 = [
         2047,                   // p0   = 2
         1373653,                // p1   = 3
         25326001,               // p2   = 5
@@ -61,7 +61,7 @@ public extension POUInt {
     /// [Miller-Rabin] test `n` for `base`
     ///
     /// [Miller-Rabin]: https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test
-    public func millerRabinTest(base:UIntMax)->Bool {
+    public func millerRabinTest(base:Int)->Bool {
         if self < 2      { return false }
         if self & 1 == 0 { return self == 2 }
         var d = self - 1
@@ -105,8 +105,36 @@ public extension POUInt {
         return u
     }
 }
+
 public extension POInt {
+    public var isPrime:Bool { return self.toUIntMax().isPrime }
+    public var nextPrime:Self { return Self(self.toUIntMax().nextPrime) }
+    public var prevPrime:Self { return Self(self.toUIntMax().prevPrime) }
+}
+public extension BigInt {
     public var isPrime:Bool { return self.asUnsigned.isPrime }
-    public var nextPrime:Self { return Self(self.asUnsigned.nextPrime) }
-    public var prevPrime:Self { return Self(self.asUnsigned.prevPrime) }
+    public var nextPrime:BigInt { return self.asUnsigned.nextPrime.asSigned }
+    public var prevPrime:BigInt { return self.asUnsigned.prevPrime.asSigned }
+}
+public extension BigUInt {
+    public static let A014233_12 = BigUInt("318665857834031151167461")
+    public var isPrime:Bool {
+        if self < 2      { return false }
+        if self & 1 == 0 { return self == 2 }
+        if self % 3 == 0 { return self == 3 }
+        if self % 5 == 0 { return self == 5 }
+        if self % 7 == 0 { return self == 7 }
+        typealias PP = POUtil.Prime
+        for i in 0..<PP.A014233.count {
+            // print("\(__FILE__):\(__LINE__): \(self).millerRabinTest(\(PP.tinyPrimes[i]))")
+            if self.millerRabinTest(PP.tinyPrimes[i]) == false { return false }
+            if self < BigUInt(PP.A014233[i]) { break }
+        }
+        if self.millerRabinTest(37) == false { return false }   // one more thing for sure!
+        return self.millerRabinTest(41)                         // no longer surely prime
+    }
+    public var isSurelyPrime:(Bool, surely:Bool) {
+        let mrtest = self.isPrime
+        return (mrtest, mrtest == false || self <= BigUInt.A014233_12)
+    }
 }

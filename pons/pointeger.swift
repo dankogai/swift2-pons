@@ -6,6 +6,8 @@
 //  Copyright © 2016 Dan Kogai. All rights reserved.
 //
 
+public typealias POSwiftInteger = IntegerType
+
 ///
 /// Protocol-oriented integer, signed or unsigned.
 ///
@@ -147,6 +149,9 @@ public extension POInteger {
         return r
     }
 }
+
+public typealias POSwiftUInt = UnsignedIntegerType
+
 ///
 /// Protocol-oriented unsigned integer.  All built-ins already conform to this.
 ///
@@ -313,15 +318,18 @@ public extension POUInt {
         let bits = Self(m.msbAt + 1)
         let mask = (Self(1) << bits) - 1
         let minv = m.modinv
-        let r1 = (Self(1) << bits)
-        let r2 = (r1 * r1) % m
+        let r1 = (Self(1) << bits) % m
+        let r2 = (r1 * r1) % m    // to avoid overflow
         let innerRedc:Self->Self =  { n in
             // print("\(__FILE__):\(__LINE__): n=\(n),bits=\(bits), minv=\(minv)")
             let t = (n + ((n * minv) & mask) * m) >> bits
             return t >= m ? t - m : t
         }
         let innerMulMod:(Self,Self)->Self = { (a, b) in
-            return innerRedc(innerRedc(a * b) * r2)
+            // return innerRedc(innerRedc(a * b) * r2)
+            let ma = innerRedc(a * r2)
+            let mb = innerRedc(b * r2)
+            return innerRedc(innerRedc(ma * mb))
         }
         if b < Self(1) {
             fatalError("negative exponent unsupported")
@@ -366,6 +374,9 @@ extension UInt:     POUInt {
     public typealias IntType = Int
     public var asSigned:IntType { return IntType(self) }
 }
+
+public typealias POSwiftInt = SignedIntegerType
+
 ///
 /// Protocol-oriented signed integer.  All built-ins already conform to this.
 ///

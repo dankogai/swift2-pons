@@ -6,6 +6,8 @@
 //  Copyright © 2016 Dan Kogai. All rights reserved.
 //
 
+public typealias POSwiftReal = FloatingPointType
+
 public protocol POReal : POSignedNumber {
     init(_:Double)
     func toDouble()->Double

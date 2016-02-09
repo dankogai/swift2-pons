@@ -165,7 +165,9 @@ for i in 1...42 {
     var dict = [0+0.i:"origin"]
     test.ok(dict[0+0.i] == "origin", "Complex as a dictionary key")
 })()
+//
 // Rational
+//
 test.eq("\(+2.over(4))", "(1/2)",  "\"\\(+2.over(4))\" == \"(1/2)\"")
 test.eq("\(-2.over(4))", "-(1/2)", "\"\\(-2.over(4))\" == \"-(1/2)\"")
 test.eq("\(2.over(4)+2.over(4).i)", "((1/2)+(1/2).i)",
@@ -184,13 +186,22 @@ test.ne(0.over(0), 0.over(0), "NaN != NaN")
     test.eq(q.asMixed.0, -2,            "-14/6 = -2-1/3")
     test.eq(q.asMixed.1, (-1).over(3),  "-14/6 = -2-1/3")
 })((-14).over(6))
-test.eq((BigInt(1)<<127 - 1).isPrime, true, "2**127-1 is prime")
 //
-//print(BigUInt.mulmod(11, 18, 169))
-//print(BigUInt.mulmod(17, 17, 23))
+// Primarity
 //
-//var v = BigUInt(1)<<127 - 1
-//print(BigUInt.powmod(BigUInt(2), v-1, v))
+test.eq(Int32.max.isPrime,  true,   "2**31-1 is prime")
+test.eq(IntMax.max.isPrime, false,  "2**63-1 is not prime")
+test.eq((BigInt(1)<<127 - 1).isPrime, true,  "2**127-1 is prime")
+[
+    BigUInt(3825123056546413051):(false,true),
+    BigUInt("318665857834031151167461"):(false,true),
+    BigUInt("318665857834031151167483"):(true, false)
+].forEach {
+    let sp = $0.0.isSurelyPrime
+    test.eq(sp.0, $0.1.0, "\($0.0) is prime? \($0.1.0)")
+    test.eq(sp.1, $0.1.1, "for sure ? \($0.1.1)")
+}
+
 test.done()
 
 
