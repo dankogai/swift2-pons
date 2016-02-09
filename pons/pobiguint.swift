@@ -246,29 +246,18 @@ public func >>(lhs:BigUInt, rhs:BigUInt)->BigUInt {
 }
 // addtition and subtraction
 public extension BigUInt {
-    /// addition in functional form
+    /// BigUInt addition never overflows
     ///
-    /// - returns: `lhs + rhs`
-    public static func add(lhs:BigUInt, _ rhs:BigUInt)->BigUInt {
-        let (l, r) = lhs.digits.count < rhs.digits.count ? (rhs, lhs) : (lhs, rhs)
-        var value = l.digits
-        value.append(0) // sentinel
-        var carry:UInt64 = 0
-        for i in 0..<r.digits.count {
-            carry = UInt64(value[i]) + UInt64(r.digits[i]) + (carry >> 32)
-            value[i] = DigitType(carry & 0xffff_ffff)
-        }
-        for i in r.digits.count..<value.count {
-            carry = UInt64(value[i]) + (carry >> 32)
-            value[i] = DigitType(carry & 0xffff_ffff)
-            if carry <= 0xffff_ffff { break }
-        }
-        return BigUInt(rawValue:value)
-    }
+    /// - returns: `(lhs + rhs, overflow:false)`
     public static func addWithOverflow(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, overflow:Bool) {
-        return (add(lhs, rhs), overflow:false)  // never overlows but protocol demands this
+        if rhs == 0 { return (lhs, false) }
+        var l = lhs
+        l += lhs
+        return (l, overflow:false)  // never overlows but protocol demands this
     }
-    /// subtraction overflows when lhs < rhs
+    /// since BigUInt is unsigned, it overflows when `lhs < rhs`.
+    ///
+    /// - returns: (`lhs - rhs`, overflow:lhs < rhs)
     public static func subtractWithOverflow(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, overflow:Bool) {
         if rhs == 0 { return (lhs, false) }
         var l = lhs
@@ -276,10 +265,6 @@ public extension BigUInt {
         return (l, overflow: lhs < rhs) // overflow when `li
     }
     /// subtraction in functional form
-    ///
-    /// since BigUInt is unsigned, it overflows when `lhs < rhs`.
-    ///
-    /// - returns: `lhs - rhs`
     public static func subtract(lhs:BigUInt, _ rhs:BigUInt)->BigUInt {
         let result = subtractWithOverflow(lhs, rhs)
         if result.overflow {
@@ -289,7 +274,10 @@ public extension BigUInt {
     }
 }
 public func +(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    return BigUInt.add(lhs, rhs)
+    // return BigUInt.add(lhs, rhs)
+    var l = lhs
+    l += rhs
+    return l
 }
 public func +=(inout lhs:BigUInt, rhs:BigUInt) {
     // lhs = BigUInt.add(lhs, rhs); return // is too naive
@@ -306,7 +294,11 @@ public prefix func +(bs:BigUInt)->BigUInt {
     return bs
 }
 public func -(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    return BigUInt.subtract(lhs, rhs)
+    let result = BigUInt.subtractWithOverflow(lhs, rhs)
+    if result.overflow {
+        fatalError("arithmetic operation '\(lhs) - \(rhs)' (on type 'BigUInt') results in an overflow")
+    }
+    return result.0
 }
 public func -=(inout lhs:BigUInt, rhs:BigUInt) {
     // lhs = lhs - rhs; return // is too naive
