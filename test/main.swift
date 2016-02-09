@@ -7,9 +7,10 @@
 //
 
 // make (T,S) equatable just for tests
-func ==<T:Equatable,S:Equatable>(lhs:(T,S), rhs:(T,S))->Bool {
-    return lhs.0 == rhs.0 && lhs.1 == rhs.1
-}
+// oh... Swift 2.2 on Linux puked on this :-(
+//func ==<T:Equatable,S:Equatable>(lhs:(T,S), rhs:(T,S))->Bool {
+//    return lhs.0 == rhs.0 && lhs.1 == rhs.1
+//}
 
 let test = TAP()
 
@@ -179,7 +180,10 @@ test.ok((+42.over(0)).isInfinite, "\(+42.over(0)) is infinite")
 test.ok((-42.over(0)).isInfinite, "\(-42.over(0)) is infinite")
 test.ok((0.over(0)).isNaN, "\(0.over(0)) is NaN")
 test.ne(0.over(0), 0.over(0), "NaN != NaN")
-test.ok((-14).over(6).asMixed == (-2, (-1).over(3)), "-14/6 = -2-1/3")
+({ q in
+    test.eq(q.asMixed.0, -2,            "-14/6 = -2-1/3")
+    test.eq(q.asMixed.1, (-1).over(3),  "-14/6 = -2-1/3")
+})((-14).over(6))
 test.eq((BigInt(1)<<127 - 1).isPrime, true, "2**127-1 is prime")
 //
 //print(BigUInt.mulmod(11, 18, 169))
