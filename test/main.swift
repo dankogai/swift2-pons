@@ -181,6 +181,12 @@ test.ok((0.over(0)).isNaN, "\(0.over(0)) is NaN")
 test.ne(0.over(0), 0.over(0), "NaN != NaN")
 test.ok((-14).over(6).asMixed == (-2, (-1).over(3)), "-14/6 = -2-1/3")
 test.eq((BigInt(1)<<127 - 1).isPrime, true, "2**127-1 is prime")
+//
+//print(BigUInt.mulmod(11, 18, 169))
+//print(BigUInt.mulmod(17, 17, 23))
+//
+//var v = BigUInt(1)<<127 - 1
+//print(BigUInt.powmod(BigUInt(2), v-1, v))
 test.done()
 
 

@@ -33,6 +33,8 @@ public protocol POInteger : POComparableNumber,
     // init?(_:String, radix:Int)
     func toDouble()->Double
     static var precision:Int { get }
+    // the most significant bit
+    var msbAt:Int { get }
 }
 // give away &op
 public func &+<I:POInteger>(lhs:I, rhs:I)->I {
@@ -130,16 +132,16 @@ public extension POInteger {
     /// [exponentiation by squaring]: https://en.wikipedia.org/wiki/Exponentiation_by_squaring
     ///
     public static func power<L>(lhs:L, _ rhs:Self, op:(L,L)->L)->L {
-        if rhs < 1 {
+        if rhs < Self(1) {
             fatalError("negative exponent unsupported")
         }
         var r = lhs
-        var t = lhs, n = rhs - 1
-        while n > 0 {
-            if n & 1 == 1 {
+        var t = lhs, n = rhs - Self(1)
+        while n > Self(0) {
+            if n & Self(1) == Self(1) {
                 r = op(r, t)
             }
-            n >>= 1
+            n >>= Self(1)
             t = op(t, t)
         }
         return r
@@ -262,9 +264,78 @@ public extension POUInt {
     ///
     /// note only `rhs` must be an integer.
     ///
-    public static func pow<L:POUInt>(lhs:L, _ rhs:Self, mod:L=1)->L {
-        return rhs < 1 ? 1
-            : mod == 1 ? power(lhs, rhs, op:&*) : power(lhs, rhs){ ($0 &* $1) % mod }
+    public static func pow<L:POUInt>(lhs:L, _ rhs:Self)->L {
+        return rhs < Self(1) ? L(1) : power(lhs, rhs, op:&*)
+
+    }
+    public static func pow(lhs:Self, _ rhs:Self, mod:Self=Self(1))->Self {
+        return rhs < Self(1) ? Self(1)
+            // : mod == L(1) ? power(lhs, rhs, op:&*) : power(lhs, rhs){ ($0 &* $1) % mod }
+            : mod == Self(1) ? power(lhs, rhs, op:&*) : power(lhs, rhs){ powmod($0, $1, mod:mod) }
+    }
+    /// modular reciprocal of n
+    public var modinv:Self {
+        var ndash = Self(0)
+        var t = Self(0)
+        var r = Self(2) << Self(self.msbAt)
+        var i = Self(1)
+        // print("\(__FILE__):\(__LINE__): t=\(t),r=\(r),i=\(i)")
+        while r > Self(1) {
+            if t & Self(1) == Self(0) {
+                t += self
+                ndash += i
+            }
+            t >>= Self(1)
+            r >>= Self(1)
+            i <<= Self(1)
+        }
+        return ndash
+    }
+    /// montgomery reduction
+    //    public static func redc(n:Self, _ m:Self)->Self {
+    //        let bits = Self(m.msbAt + 1)
+    //        let mask = (Self(1) << bits) - 1
+    //        let minv = m.modinv
+    //        // print("\(__FILE__):\(__LINE__): n=\(n),bits=\(bits), minv=\(minv)")
+    //        let t = (n + ((n * minv) & mask) * m) >> bits
+    //        return t >= m ? t - m : t
+    //    }
+    //    public static func mulmod(a:Self, _ b:Self, _ m:Self)->Self {
+    //        let r = (Self(2) << Self(m.msbAt))
+    //        let r2 = (r * r) % m
+    //        return redc(redc(a * b, m) * r2, m)
+    //    }
+    ///
+    /// Modular exponentiation. a.k.a `modpow`.
+    ///
+    /// - returns: `b ** x mod m`
+    public static func powmod(b:Self, _ x:Self, mod m:Self)->Self {
+        let bits = Self(m.msbAt + 1)
+        let mask = (Self(1) << bits) - 1
+        let minv = m.modinv
+        let r1 = (Self(1) << bits)
+        let r2 = (r1 * r1) % m
+        let innerRedc:Self->Self =  { n in
+            // print("\(__FILE__):\(__LINE__): n=\(n),bits=\(bits), minv=\(minv)")
+            let t = (n + ((n * minv) & mask) * m) >> bits
+            return t >= m ? t - m : t
+        }
+        let innerMulMod:(Self,Self)->Self = { (a, b) in
+            return innerRedc(innerRedc(a * b) * r2)
+        }
+        if b < Self(1) {
+            fatalError("negative exponent unsupported")
+        }
+        var r = b
+        var t = b, n = x - Self(1)
+        while n > Self(0) {
+            if n & Self(1) == Self(1) {
+                r = innerMulMod(r, t)
+            }
+            n >>= Self(1)
+            t = innerMulMod(t, t)
+        }
+        return r
     }
 }
 extension UInt64:   POUInt {
@@ -374,9 +445,8 @@ public extension POInt {
     ///
     ///     pow(2,   -2) // 1
     ///     pow(2.0, -2) // 0.25
-    public static func pow<L:POInt>(lhs:L, _ rhs:Self, mod:L = 1)->L {
-        return rhs < 1 ? 1
-            : mod == 1 ? power(lhs, rhs, op:&*) : power(lhs, rhs){ ($0 &* $1) % mod }
+    public static func pow<L:POInt>(lhs:L, _ rhs:Self)->L {
+        return rhs < 1 ? 1 : power(lhs, rhs, op:&*)
     }
     /// - returns: `lhs ** rhs`
     public static func pow<L:POReal>(lhs:L, _ rhs:Self)->L {

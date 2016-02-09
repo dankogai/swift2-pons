@@ -33,5 +33,6 @@ func timeit(count:Int, task:()->())->Double {
 //     print($0.0, ":\t", $0.1)
 // }
 
-let t = timeit(1) { (BigInt(1) << 127 - 1).isPrime }
+print( (BigInt(1) << 127 - 1).isPrime )
+let t = timeit(10) { (BigInt(1) << 127 - 1).isPrime }
 print(t)

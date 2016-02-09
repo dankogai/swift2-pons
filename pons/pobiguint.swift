@@ -386,7 +386,7 @@ public extension BigUInt {
         var q = BigUInt(0)
         var r = BigUInt(0)
         for i in (0...lhs.msbAt).lazy.reverse() {
-            r <<= 1
+            r <<= BigUInt(1)
             r[0] = lhs[i]
             if r >= rhs {
                 r -= rhs
@@ -397,9 +397,9 @@ public extension BigUInt {
     }
     /// - returns: (quotient, remainder)
     public static func divmod(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, BigUInt) {
-        guard rhs != 0 else { fatalError("division by zero") }
-        if lhs == rhs { return (1, 0) }
-        if lhs < rhs  { return (0, lhs) }
+        guard rhs != BigUInt(0) else { fatalError("division by zero") }
+        if lhs == rhs { return (BigUInt(1), BigUInt(0)) }
+        if lhs < rhs  { return (BigUInt(0), lhs) }
         if rhs <= BigUInt(UInt32.max) {
             let (q, r) = divmod32(lhs, rhs.asUInt32)
             return (q, BigUInt(r))
