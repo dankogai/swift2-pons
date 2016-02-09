@@ -96,3 +96,6 @@ public class POUtil {
     }()
 }
 
+public protocol POSwiftNumber {}
+
+
