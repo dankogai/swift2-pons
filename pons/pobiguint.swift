@@ -418,7 +418,7 @@ public func %(lhs:BigUInt, rhs:BigUInt)->BigUInt {
 // Now that we are done with all requirements, Let Swift know that!
 extension BigUInt: POUInt {
     public typealias IntType = BigInt
-    public var asSigned:IntType? { return 0 < self ? nil : BigInt(unsignedValue:self) }
+    public var asSigned:IntType? { return BigInt(unsignedValue:self) }
 }
 extension POUInt {
     public var asBigUInt:BigUInt { return BigUInt(self.toUIntMax()) }

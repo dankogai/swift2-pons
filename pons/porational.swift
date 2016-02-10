@@ -25,8 +25,8 @@ public protocol PORational : POReal {
     init(_:Bool, _:UIntType, _:UIntType, isNormal:Bool)
 }
 public extension PORational {
-    public var numerator:UIntType   { return num }
-    public var denominator:UIntType { return den }
+    public var numerator:UIntType.IntType   { return num.asSigned! }
+    public var denominator:UIntType.IntType { return den.asSigned! }
     public static var precision:Int {
         return UIntType.precision
     }

@@ -37,8 +37,11 @@ public struct BigInt {
         let a = unsignedValue.toIntMax()
         return self.isSignMinus ? -a : +a
     }
+    public var asUInt64:UInt64? {
+        return self.unsignedValue.asUInt64
+    }
     public func toUIntMax()->UIntMax {
-        return self.unsignedValue.toUIntMax()
+        return self.unsignedValue.asUInt64!
     }
     public func toDouble() -> Double {
         return Double(isSignMinus ? -1.0 : +1.0) * unsignedValue.toDouble()

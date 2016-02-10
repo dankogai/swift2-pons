@@ -1,9 +1,7 @@
 /*:
-# Welcome to PONS!
+# Rationale
 
-Welcome to pons, a protocol-oriented number system for swift, purely by swift.
-
-![](https://github.com/dankogai/swift-pons/raw/master/typetree.png)
+Let me briefly describe why I came up with project.
 
 ## Good old day with C
 
