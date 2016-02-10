@@ -44,4 +44,17 @@ bz - bz // ((0/1)+(0/1).i)
 bz * bz // ((0/1)+(2/340282366920938463500268095579187314689).i)
 bz / bz // ((1/1)+(0/1).i)
 
+/*:
+Elementary functions are supported, though by default it just converts
+to `Double`, let `Darwin` (or `Glibc` on Linux) do the work, and converts
+it back by default.
+
+TODO: rewrite elementary functions generically!
+*/
+Double.sqrt(-1)             // sadly NaN
+Rational<BigUInt>.sqrt(bq)  // yes, works with Rational, too!
+Complex.sqrt(-1)            // happily i
+Complex.exp(Double.PI.i)    // not exactly -1.0+0.0.i.
+Complex.log(-1)             // Yes, πi
+
 //: [Next](@next)
