@@ -25,44 +25,38 @@ public struct BigUInt {
             ? [DigitType(u & 0xFFFFffff)]
             : [DigitType(u & 0xFFFFffff), DigitType(u >> 32)]
     }
-    public init(_  i:Int)   { self.init(UInt64(i)) }      // demanded by PONumber
+    public init(_ u:UInt) { self.init(UInt64(u)) }
+    public init(_  i:Int) { self.init(UInt64(i)) }      // demanded by PONumber
     public init() {
         digits = [0]
     }
-    // conversions
-    public var asUInt32:UInt32 {
-        if digits.count != 1 { fatalError("value too large for UInt32") }
-        return digits[0]
-    }
-    public var asUInt16:UInt16 { return UInt16(self.asUInt32) }
-    public var asUInt8:UInt8    { return UInt8(self.asUInt32) }
-    public var asUInt64:UInt64 {
-        if digits.count > 2 { fatalError("value too large for UInt64") }
-        return digits.count == 2 ? UInt64(digits[1]) << 32 | UInt64(digits[0]) : UInt64(digits[0])
-    }
-    public var asInt:Int        { return Int(self.asUInt64) }
-    public var asUInt:UInt      { return UInt(self.asUInt64) }
-    public var asFloat:Float    { return Float(self.asUInt64) }
-    public func toIntMax()->IntMax {
-        return IntMax(self.asInt)
+    public var asUInt64:UInt64? {
+        return digits.count == 1 ? UInt64(digits[0])
+            :  digits.count == 2 ? UInt64(digits[1]) << 32 | UInt64(digits[0])
+            : nil
     }
     public func toUIntMax()->UIntMax {
-        return UIntMax(self.asUInt)
+        return self.asUInt64!
     }
-    public func toDouble()->Double {
+    public func toIntMax()->IntMax {
+        return self.asUInt64!.asInt64!
+    }
+    public var asDouble:Double? {
         let e = self.msbAt - 53
-        if e < 0 { return Double(self.toIntMax()) }
-        let m = (self >> BigUInt(e)).toIntMax()
+        if e < 0 { return Double(self.toUIntMax()) }
+        let m = (self >> BigUInt(e)).toUIntMax()
         // print("\(__FILE__):\(__LINE__): e=\(e),m=\(m)")
         return Double.ldexp(Double(m), e)
     }
-    public var asDouble:Double { return self.toDouble() }
+    public func toDouble() -> Double {
+        return self.asDouble!
+    }
 }
 // reverse conversions
-public extension Int    { public init(_ bu:BigUInt){ self.init(bu.asInt) } }
-public extension UInt   { public init(_ bu:BigUInt){ self.init(bu.asUInt) } }
-public extension Double { public init(_ bu:BigUInt){ self.init(bu.asDouble) } }
-public extension Float  { public init(_ bu:BigUInt){ self.init(bu.asFloat) } }
+public extension Int    { public init(_ bu:BigUInt){ self.init(bu.asInt!) } }
+public extension UInt   { public init(_ bu:BigUInt){ self.init(bu.asUInt!) } }
+public extension Double { public init(_ bu:BigUInt){ self.init(bu.asDouble!) } }
+public extension Float  { public init(_ bu:BigUInt){ self.init(bu.asFloat!) } }
 // must be Equatable
 extension BigUInt: Equatable {}
 public func == (lhs:BigUInt, rhs:BigUInt)->Bool {
@@ -171,7 +165,7 @@ extension BigUInt : BitwiseOperationsType {
         return BigUInt(rawValue:blank + value)
     }
     public static func bitShiftL(lhs:BigUInt, _ rhs:BigUInt)->BigUInt {
-        return bitShiftL(lhs, rhs.asUInt32)
+        return bitShiftL(lhs, rhs.asUInt32!)
     }
     /// bitwise `>>` in functional form
     public static func bitShiftR(lhs:BigUInt, _ rhs:DigitType)->BigUInt {
@@ -195,7 +189,7 @@ extension BigUInt : BitwiseOperationsType {
         return BigUInt(rawValue:value)
     }
     public static func bitShiftR(lhs:BigUInt, _ rhs:BigUInt)->BigUInt {
-        return bitShiftR(lhs, rhs.asUInt32)
+        return bitShiftR(lhs, rhs.asUInt32!)
     }
 }
 // Bitwise ops
@@ -226,7 +220,7 @@ public func <<(lhs:BigUInt, rhs:BigUInt)->BigUInt {
 public func <<=(inout lhs:BigUInt, rhs:BigUInt) {
     // lhs = lhs << rhs; return // turns out to be too naive
     if lhs == 0 { return }
-    let (index, offset) = (rhs / 32, rhs.asUInt32 % 32)
+    let (index, offset) = (rhs / 32, rhs.asUInt32! % 32)
     while lhs.digits.count <= index.asInt {
         lhs.digits.insert(0, atIndex:0)
     }
@@ -401,7 +395,7 @@ public extension BigUInt {
         if lhs == rhs { return (BigUInt(1), BigUInt(0)) }
         if lhs < rhs  { return (BigUInt(0), lhs) }
         if rhs <= BigUInt(UInt32.max) {
-            let (q, r) = divmod32(lhs, rhs.asUInt32)
+            let (q, r) = divmod32(lhs, rhs.asUInt32!)
             return (q, BigUInt(r))
         }
         return divmodLong(lhs, rhs)
@@ -424,7 +418,7 @@ public func %(lhs:BigUInt, rhs:BigUInt)->BigUInt {
 // Now that we are done with all requirements, Let Swift know that!
 extension BigUInt: POUInt {
     public typealias IntType = BigInt
-    public var asSigned:IntType { return BigInt(unsignedValue:self) }
+    public var asSigned:IntType? { return 0 < self ? nil : BigInt(unsignedValue:self) }
 }
 extension POUInt {
     public var asBigUInt:BigUInt { return BigUInt(self.toUIntMax()) }

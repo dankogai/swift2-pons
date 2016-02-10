@@ -33,14 +33,14 @@ public extension PORational {
     public func toIntMax()->IntMax {
         return (sgn ? -1 : 1) * (num / den).toIntMax()
     }
-    public var asMixed:(UIntType.IntType, Self) {
-        let i = (num / den).asSigned
+    public func toMixed()->(UIntType.IntType, Self) {
+        let i = (num / den).asSigned!
         var f = self
         f.num %= den
         return (sgn ? -i : i, f)
     }
     public func toDouble()->Double {
-        let (i, f) = self.asMixed
+        let (i, f) = self.toMixed()
         return Double(i.toIntMax()) + Double(f.sgn ? -1 : 1) * f.num.toDouble() / f.den.toDouble()
     }
     public var isSignMinus:Bool { return sgn }
@@ -191,8 +191,8 @@ public extension POInt {
     public func toRational(denominator:Self = 1)->Rational<UIntType> {
         return Rational(
             Bool.xor(self.isSignMinus, denominator.isSignMinus),
-            self.abs.asUnsigned,
-            denominator.abs.asUnsigned
+            self.abs.asUnsigned!,
+            denominator.abs.asUnsigned!
         )
     }
     public var asRational:Rational<Self.UIntType> {

@@ -105,7 +105,7 @@ test.eq(+BigInt(3) % -BigInt(2), +BigInt(1), "+3 % -2 == +1")
 test.eq(-BigInt(3) % -BigInt(2), -BigInt(1), "-3 % -2 == -1")
 // BigInt / BigInt test
 for i in 1...42 {
-    let bi = i.asBigInt
+    let bi = i.asBigInt!
     test.eq(fact(bi) / fact(bi - 1), bi,    "BigInt: \(bi)!/\(bi-1)! == \(bi)")
     if i > 20 { continue }
     test.eq(fact(i) / fact(i - 1),  i,      "Int:    \(bi)!/\(bi-1)! == \(bi)")
@@ -183,8 +183,8 @@ test.ok((-42.over(0)).isInfinite, "\(-42.over(0)) is infinite")
 test.ok((0.over(0)).isNaN, "\(0.over(0)) is NaN")
 test.ne(0.over(0), 0.over(0), "NaN != NaN")
 ({ q in
-    test.eq(q.asMixed.0, -2,            "-14/6 = -2-1/3")
-    test.eq(q.asMixed.1, (-1).over(3),  "-14/6 = -2-1/3")
+    test.eq(q.toMixed().0, -2,            "-14/6 = -2-1/3")
+    test.eq(q.toMixed().1, (-1).over(3),  "-14/6 = -2-1/3")
 })((-14).over(6))
 //
 // Primarity

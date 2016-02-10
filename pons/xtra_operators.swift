@@ -28,7 +28,7 @@ public func **=<L:POInt, R:POInt>(inout lhs:L, rhs:R) {
     lhs = lhs ** rhs
 }
 public func **<L:POReal, R:POInt>(lhs:L, rhs:R)->L {
-    return L(Double.pow(lhs.toDouble(), rhs.asDouble))
+    return L(Double.pow(lhs.toDouble(), rhs.toDouble()))
 }
 public func **=<L:POReal, R:POInt>(inout lhs:L, rhs:R) {
     lhs = lhs ** rhs

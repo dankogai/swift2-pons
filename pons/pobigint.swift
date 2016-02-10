@@ -24,7 +24,7 @@ public struct BigInt {
     }
     public init(_ bu:BigUInt)   { unsignedValue = bu }
     public init(_ u:UIntMax)    { unsignedValue = BigUInt(u) }
-    public init(_ u:UInt)       { unsignedValue = BigUInt(u) }
+    public init(_ u:UInt)       { unsignedValue = BigUInt(u.toUIntMax()) }
     public init(_ i:IntMax)     { unsignedValue = BigUInt(Swift.abs(i)); isSignMinus = i < 0 }
     public init(_ i:Int)        { unsignedValue = BigUInt(Swift.abs(i)); isSignMinus = i < 0 }
     public init(_ d:Double)     { unsignedValue = BigUInt(Swift.abs(d)); isSignMinus = d < 0 }
@@ -158,8 +158,8 @@ public func %(lhs:BigInt, rhs:BigInt)->BigInt {
     return BigInt.divmod(lhs, rhs).1
 }
 extension BigInt : POInt {
-    public var asUnsigned:UIntType { return self.unsignedValue }
+    public var asUnsigned:UIntType? { return self < 0 ? nil : self.unsignedValue }
 }
 extension POInt {
-    public var asBigInt:BigInt { return BigInt(self.toIntMax()) }
+    public var asBigInt:BigInt? { return BigInt(self.toIntMax()) }
 }

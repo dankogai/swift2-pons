@@ -235,7 +235,7 @@ public extension POComplexReal {
             return one // x ** 0 == 1 for any x; 1 ** y == 1 for any y
         }
         let ax = rhs.isSignMinus ? -rhs : rhs
-        let ix = ax.toIntMax().asInt
+        let ix = ax.toIntMax().asInt!
         let ip = ix < 1 ? one : Int.power(lhs, ix, op:*)
         let fx = ax - R(ix)
         let fp = fx < R(0.5) ? pow(lhs, Self(fx, 0)) : sqrt(lhs) * pow(lhs, Self(fx - R(0.5),0))

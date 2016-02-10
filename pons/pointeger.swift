@@ -37,6 +37,17 @@ public protocol POInteger : POComparableNumber,
     static var precision:Int { get }
     // the most significant bit
     var msbAt:Int { get }
+    //
+    var asUInt64:UInt64? { get }
+    var asUInt32:UInt32? { get }
+    var asUInt16:UInt16? { get }
+    var asUInt8:UInt8?   { get }
+    var asUInt:UInt?     { get }
+    var asInt64:Int64?   { get }
+    var asInt32:Int32?   { get }
+    var asInt16:Int16?   { get }
+    var asInt8:Int8?     { get }
+    var asInt:Int?       { get }
 }
 // give away &op
 public func &+<I:POInteger>(lhs:I, rhs:I)->I {
@@ -74,7 +85,7 @@ public extension POInteger {
     }
     /// _BuiltinIntegerLiteralConvertible by Default
     public init(_builtinIntegerLiteral:_MaxBuiltinIntegerType) {
-        self.init(UInt(_builtinIntegerLiteral: _builtinIntegerLiteral))
+        self.init(Int(_builtinIntegerLiteral: _builtinIntegerLiteral))
     }
     // from BitwiseOperationsType
     public static var allZeros: Self { return 0 }
@@ -89,32 +100,18 @@ public extension POInteger {
         return self + Self(n)
     }
     //
-    public init(_ d:Double) { self.init(IntMax(d)) }
-    public func toDouble()->Double { return Double(self.toIntMax()) }
-    /// default initializers just Int()s the argument.
-    /// in practice you should override them, especially U?Int64 and Double
-    public init(_ v:UInt64) { self.init(Int(v)) }       //  override this for the best result
-    public init(_ v:UInt32) { self.init(v.toUIntMax()) }
-    public init(_ v:UInt16) { self.init(v.toUIntMax()) }
-    public init(_ v:UInt8)  { self.init(v.toUIntMax()) }
-    public init(_ v:UInt)   { self.init(v.toUIntMax()) }
-    public init(_ v:Int64)  { self.init(Int(v)) }       // override this for the best result
-    public init(_ v:Int32)  { self.init(v.toIntMax()) }
-    public init(_ v:Int16)  { self.init(v.toIntMax()) }
-    public init(_ v:Int8)   { self.init(v.toIntMax()) }
-    /// give away these converters
-    public var asUInt64:UInt64  { return UInt64(self.toIntMax()) }
-    public var asUInt32:UInt32  { return UInt32(self.toIntMax()) }
-    public var asUInt16:UInt16  { return UInt16(self.toIntMax()) }
-    public var asUInt8:UInt8    { return UInt8(self.toIntMax()) }
-    public var asUInt:UInt      { return UInt(self.toIntMax()) }
-    public var asInt64:Int64    { return Int64(self.toIntMax()) }
-    public var asInt32:Int32    { return Int32(self.toIntMax()) }
-    public var asInt16:Int16    { return Int16(self.toIntMax()) }
-    public var asInt8:Int8      { return Int8(self.toIntMax()) }
-    public var asInt:Int        { return Int(self.toIntMax()) }
-    public var asDouble:Double  { return self.toDouble() }
-    public var asFloat:Float    { return Float(self.toDouble()) }
+    public init(_ v:UInt64) { self.init(v.asInt!) }
+    public init(_ v:UInt32) { self.init(v.asInt!) }
+    public init(_ v:UInt16) { self.init(v.asInt!) }
+    public init(_ v:UInt8)  { self.init(v.asInt!) }
+    public init(_ v:Int64)  { self.init(v.asInt!) }
+    public init(_ v:Int32)  { self.init(v.asInt!) }
+    public init(_ v:Int16)  { self.init(v.asInt!) }
+    public init(_ v:Int8)   { self.init(v.asInt!) }
+    public init(_ d:Double) { self.init(Int(d)) }
+    public var asDouble:Double?  { return self.toDouble() }
+    public var asFloat:Float?    { return Float(self.toDouble()) }
+    //
     /// default implementation.  you should override it
     public static func divmod(lhs:Self, _ rhs:Self)->(Self, Self) {
         return (lhs / rhs, lhs % rhs)
@@ -159,12 +156,18 @@ public typealias POSwiftUInt = UnsignedIntegerType
 /// consider extend this protocol first before extending each unsigned integer type.
 ///
 public protocol POUInt: POInteger, StringLiteralConvertible, CustomDebugStringConvertible {
+    init (_:UInt)
+    init (_:UIntMax)
     func toUIntMax()->UIntMax
     typealias IntType:POSignedNumber    // its correspoinding singed type
     //init(_:IntType)         // must be capable of initializing from it
-    var asSigned:IntType { get }
+    var asSigned:IntType? { get }
 }
 public extension POUInt {
+    public init(_ v:UInt64) { self.init(v.toUIntMax()) }
+    public init(_ v:UInt32) { self.init(v.toUIntMax()) }
+    public init(_ v:UInt16) { self.init(v.toUIntMax()) }
+    public init(_ v:UInt8)  { self.init(v.toUIntMax()) }
     /// number of significant bits ==  sizeof(Self) * 8
     public static var precision:Int {
         return sizeof(Self) * 8
@@ -173,24 +176,39 @@ public extension POUInt {
     /// Returns the index of the most significant bit of `self`
     /// or `-1` if `self == 0`
     public var msbAt:Int { return self.toUIntMax().msbAt }
-    // overrides POInteger implementations
-    public var asUInt64:UInt64  { return UInt64(self.toUIntMax()) }
-    public var asUInt32:UInt32  { return UInt32(self.toUIntMax()) }
-    public var asUInt16:UInt16  { return UInt16(self.toUIntMax()) }
-    public var asUInt8:UInt8    { return UInt8(self.toUIntMax()) }
-    public var asUInt:UInt      { return UInt(self.toUIntMax()) }
-    public var asDouble:Double  { return Double(self.toUIntMax()) }
-    public var asFloat:Float    { return Float(self.toUIntMax()) }
-    // overrides POInteger IntegerLiteralConvertible
-    public init(integerLiteral:UInt) {
-        self.init(integerLiteral.toUIntMax())
+    // POInteger conformance
+    public var asUInt64:UInt64? { return UInt64(self.toUIntMax()) }
+    public var asUInt32:UInt32? { return UInt32(self.toUIntMax()) }
+    public var asUInt16:UInt16? { return UInt16(self.toUIntMax()) }
+    public var asUInt8:UInt8?   { return UInt8(self.toUIntMax()) }
+    public var asUInt:UInt?     { return UInt(self.toUIntMax()) }
+    public var asInt64:Int64? {
+        let ux = self.toUIntMax()
+        return UInt64(Int64.max) < ux ? nil : Int64(ux)
     }
+    public var asInt32:Int32? {
+        let ux = self.toUIntMax()
+        return UInt64(Int32.max) < ux ? nil : Int32(ux)
+    }
+    public var asInt16:Int16? {
+        let ux = self.toUIntMax()
+        return UInt64(Int16.max) < ux ? nil : Int16(ux)
+    }
+    public var asInt8:Int8? {
+        let ux = self.toUIntMax()
+        return UInt64(Int8.max) < ux ? nil : Int8(ux)
+   }
+    public var asInt:Int? {
+        let ux = self.toUIntMax()
+        return UInt64(Int.max) < ux ? nil : Int(ux)
+    }
+    public func toDouble()->Double { return Double(self.toUIntMax()) }
     ///
     /// `self.toString()` uses this to extract digits
     ///
     public static func divmod8(lhs:Self, _ rhs:Int8)->(Self, Int) {
-        let denom = Self(rhs)
-        return (lhs / denom, (lhs % denom).asInt)
+        let denom = Self(rhs.asInt!)
+        return (lhs / denom, (lhs % denom).asInt!)
     }
     /// returns quotient and remainder all at once.
     ///
@@ -353,26 +371,26 @@ extension UInt64:   POUInt {
             ? UInt32(self).msbAt
             : UInt32(self >> 32).msbAt + 32
     }
-    public var asSigned:IntType { return IntType(self) }
+    public var asSigned:IntType? { return UInt64(Int64.max) < self ? nil : IntType(self) }
 }
 extension UInt32:   POUInt {
     public typealias IntType = Int32
-    public var asSigned:IntType { return IntType(self) }
     public var msbAt:Int {
         return Double.frexp(Double(self)).1 - 1
     }
+    public var asSigned:IntType? { return UInt32(Int32.max) < self ? nil : IntType(self) }
 }
 extension UInt16:   POUInt {
     public typealias IntType = Int16
-    public var asSigned:IntType { return IntType(self) }
+    public var asSigned:IntType? { return UInt16(Int16.max) < self ? nil : IntType(self) }
 }
 extension UInt8:    POUInt {
     public typealias IntType = Int8
-    public var asSigned:IntType { return IntType(self) }
+    public var asSigned:IntType? { return UInt8(Int8.max) < self ? nil : IntType(self) }
 }
 extension UInt:     POUInt {
     public typealias IntType = Int
-    public var asSigned:IntType { return IntType(self) }
+    public var asSigned:IntType? { return UInt(Int.max) < self ? nil : IntType(self) }
 }
 
 public typealias POSwiftInt = SignedIntegerType
@@ -383,13 +401,13 @@ public typealias POSwiftInt = SignedIntegerType
 /// For the sake of protocol-oriented programming,
 /// consider extend this protocol first before extending each signed integer types.
 ///
-public protocol POInt:  POInteger, POSignedNumber, StringLiteralConvertible, CustomDebugStringConvertible {
+public protocol POInt: POInteger, POSignedNumber, StringLiteralConvertible, CustomDebugStringConvertible {
     ///
     /// The unsigned version of `self`
     ///
-    typealias UIntType:POUInt       // its corresponding unsinged type
-    init(_:UIntType)                // capable of initializing from it
-    var asUnsigned:UIntType { get }  // able to convert to unsigned
+    typealias UIntType:POUInt           // its corresponding unsinged type
+    init(_:UIntType)                    // capable of initializing from it
+    var asUnsigned:UIntType? { get }    // able to convert to unsigned
 }
 public extension POInt {
     /// number of significant bits ==  sizeof(Self) * 8 - 1
@@ -402,6 +420,33 @@ public extension POInt {
     public func toUIntMax()->UIntMax {
         return UIntMax(self.toIntMax())
     }
+    // POInteger conformance
+    public var asUInt64:UInt64? {
+        let ix = self.toIntMax()
+        return ix < 0 ? nil : UInt64(ix)
+    }
+    public var asUInt32:UInt32? {
+        let ix = self.toIntMax()
+        return ix < 0 ? nil : UInt32(ix)
+    }
+    public var asUInt16:UInt16? {
+        let ix = self.toIntMax()
+        return ix < 0 ? nil : UInt16(ix)
+    }
+    public var asUInt8:UInt8? {
+        let ix = self.toIntMax()
+        return ix < 0 ? nil : UInt8(ix)
+    }
+    public var asUInt:UInt? {
+        let ix = self.toIntMax()
+        return ix < 0 ? nil : UInt(ix)
+    }
+    public var asInt64:Int64? { return Int64(self.toUIntMax()) }
+    public var asInt32:Int32? { return Int32(self.toUIntMax()) }
+    public var asInt16:Int16? { return Int16(self.toUIntMax()) }
+    public var asInt8:Int8?   { return Int8(self.toUIntMax()) }
+    public var asInt:Int?     { return Int(self.toUIntMax()) }
+    public func toDouble()->Double { return Double(self.toIntMax()) }
     ///
     /// Returns the index of the most significant bit of `self`
     /// or `-1` if `self == 0`
@@ -416,7 +461,7 @@ public extension POInt {
     /// Stringifies `self` with base `radix` which defaults to `10`
     ///
     public func toString(radix:Int = 10)-> String {
-        return (self < 0 ? "-" : "") + self.abs.asUInt64.toString(radix)
+        return (self < 0 ? "-" : "") + self.abs.asUInt64!.toString(radix)
     }
     // automagically CustomStringConvertible by defalut
     public var description:String {
@@ -461,26 +506,26 @@ public extension POInt {
     }
     /// - returns: `lhs ** rhs`
     public static func pow<L:POReal>(lhs:L, _ rhs:Self)->L {
-        return L.pow(lhs, L(rhs.asDouble))
+        return L.pow(lhs, L(rhs.toDouble()))
     }
 }
 extension Int64:    POInt {
     public typealias UIntType = UInt64
-    public var asUnsigned:UIntType { return UIntType(self) }
+    public var asUnsigned:UIntType? { return self < 0 ? nil : UIntType(self) }
 }
 extension Int32:    POInt {
     public typealias UIntType = UInt32
-    public var asUnsigned:UIntType { return UIntType(self) }
+    public var asUnsigned:UIntType? { return self < 0 ? nil : UIntType(self) }
 }
 extension Int16:    POInt {
     public typealias UIntType = UInt16
-    public var asUnsigned:UIntType { return UIntType(self) }
+    public var asUnsigned:UIntType? { return self < 0 ? nil : UIntType(self) }
 }
 extension Int8:     POInt {
     public typealias UIntType = UInt8
-    public var asUnsigned:UIntType { return UIntType(self) }
+    public var asUnsigned:UIntType? { return self < 0 ? nil : UIntType(self) }
 }
 extension Int:      POInt {
     public typealias UIntType = UInt
-    public var asUnsigned:UIntType { return UIntType(self) }
+    public var asUnsigned:UIntType? { return self < 0 ? nil : UIntType(self) }
 }

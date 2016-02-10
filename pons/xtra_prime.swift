@@ -112,9 +112,9 @@ public extension POInt {
     public var prevPrime:Self { return Self(self.toUIntMax().prevPrime) }
 }
 public extension BigInt {
-    public var isPrime:Bool { return self.asUnsigned.isPrime }
-    public var nextPrime:BigInt { return self.asUnsigned.nextPrime.asSigned }
-    public var prevPrime:BigInt { return self.asUnsigned.prevPrime.asSigned }
+    public var isPrime:Bool { return self.asUnsigned!.isPrime }
+    public var nextPrime:BigInt { return self.asUnsigned!.nextPrime.asSigned! }
+    public var prevPrime:BigInt { return self.asUnsigned!.prevPrime.asSigned! }
 }
 public extension BigUInt {
     public static let A014233_12 = BigUInt("318665857834031151167461")
