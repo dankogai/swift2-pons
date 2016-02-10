@@ -118,11 +118,10 @@ A.  I wish I could.  As a matter of fact I tried to do so when I started.  It tu
 
 Besides, where are you going to fit `Complex`?  It is the queen of the numbers but definitely not [Comparable].  It is absolute-valuable but Swift says [AbsoluteValuable] is also [Comparable].
 
-I am pretty sure Swift insiders are aware of this issue that should be addressed.  I found the following in the [swift-evolution] mailing list.
+I am pretty sure Swift insiders are aware of this issue that should be addressed.  I found the following in the swift-evolution mailing list.
 
->  I have been working for some time on a rewrite of all the integer types and protocols <https://github.com/apple/swift/blob/master/test/Prototypes/Integers.swift.gyb>.  One goal of this effort is to enable operations on mixed integer types, which as you can see is partially completed.  In-place arithmetic (anInt32 += aUInt64) is next.  Another important goal is to make the integer protocols actually useful for writing generic code, instead of what they are today: implementation artifacts used only for code sharing.  As another litmus test of the usefulness of the resulting protocols, the plan is to implement BigInt in terms of the generic operations defined on integers, and make BigInt itself conform to those protocols.
-
-[swift-evolution]: https://lists.swift.org/pipermail/swift-evolution/Week-of-Mon-20151214/002445.html
+<https://lists.swift.org/pipermail/swift-evolution/Week-of-Mon-20151214/002445.html>
+>  I have been working for some time on a rewrite of all the integer types and protocols <https://github.com/apple/swift/blob/master/test/Prototypes/Integers.swift.gyb>.  One goal of this effort is to enable operations on mixed integer types, which as you can see is partially completed.  In-place arithmetic (anInt32 += aUInt64) is next.  Another important goal is to make the integer protocols actually useful for writing generic code, instead of what they are today: implementation artifacts used only for code sharing.  As another litmus test of the usefulness of the resulting protocols, the plan is to implement BigInt in terms of the generic operations defined on integers, and make BigInt itself conform to those protocols. 
 
 Maybe I am a litte too impatient.  But here it is.
 
