@@ -156,7 +156,7 @@ public extension BigUInt {
             if self < BigUInt(PP.A014233[i]) { break }
         }
         if self.millerRabinTest(37) == false { return (false, true) }   // one more thing for sure!
-        return (self.millerRabinTest(41), false)                        // no longer surely prime
+        return (self.millerRabinTest(41), self <= BigUInt.A014233_12)   // no longer surely prime beyond A014233_12
     }
     public var isPrime:Bool {
         return self.isSurelyPrime.0
