@@ -241,7 +241,7 @@ public func <<=(inout lhs:BigUInt, rhs:BigUInt) {
 public func >>(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.bitShiftR(lhs, rhs)
 }
-// addtition and subtraction
+// addition and subtraction
 public extension BigUInt {
     /// BigUInt addition never overflows
     ///
