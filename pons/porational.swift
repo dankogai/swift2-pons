@@ -186,10 +186,6 @@ public func /<Q:PORational>(lhs:Q, rhs:Q) -> Q {
     if overflow { fatalError("\(lhs) / \(rhs) overflows") }
     return result
 }
-infix operator &/ {associativity left precedence 150}
-public func &/<Q:PORational>(lhs:Q, rhs:Q) -> Q {
-    return Q.multiplyWithOverflow(lhs, rhs).0
-}
 // add .toRational() and .asNational
 public extension POInt {
     public func toRational(denominator:Self = 1)->Rational<UIntType> {

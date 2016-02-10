@@ -51,3 +51,10 @@ public func **<C:POComplexReal>(lhs:C, rhs:C.RealType)->C {
 public func **=<C:POComplexReal>(inout lhs:C, rhs:C.RealType) {
     lhs = lhs ** rhs
 }
+
+infix operator &/ {associativity left precedence 150}       // Multiplicative, same as *, / and %
+infix operator &% {associativity left precedence 150}       // Multiplicative, same as *, / and %
+
+public func &/<Q:PORational>(lhs:Q, rhs:Q) -> Q {
+    return Q.divideWithOverflow(lhs, rhs).0
+}
