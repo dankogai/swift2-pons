@@ -52,7 +52,7 @@ it back by default.
 TODO: rewrite elementary functions generically!
 */
 Double.sqrt(-1)             // sadly NaN
-Rational<BigUInt>.sqrt(bq)  // yes, works with Rational, too!
+Rational.sqrt(bq)           // yes, works with Rational, too!
 Complex.sqrt(-1)            // happily i
 Complex.exp(Double.PI.i)    // not exactly -1.0+0.0.i.
 Complex.log(-1)             // Yes, πi
