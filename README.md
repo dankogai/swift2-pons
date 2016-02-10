@@ -8,24 +8,69 @@ Protocol-Oriented Number System in Pure Swift
 ## SYNOPSIS
 
 ````swift
-let bn = BigInt(2) ** 128   // BigInt
-// 340282366920938463463374607431768211456
-let bq = BigInt(1).over(bn) // Rational<BigInt.UIntType> == Rational<BigUInt>
-// (1/340282366920938463463374607431768211456)
-let bz = bq + bq.i           // Complex<Rational<BigUInt>>
-// ((1/340282366920938463463374607431768211456)+(1/340282366920938463463374607431768211456).i)
-bz + bz
-// ((1/170141183460469231731687303715884105728)+(1/170141183460469231731687303715884105728).i)
-bz - bz
-// ((0/1)+(0/1).i)
-bz * bz
-// ((0/1)+(1/57896044618658097711785492504343953926634992332820282019728792003956564819968).i)
-bz / bz
-// ((1/1)+(0/1).i)
-bz.conj
-// ((1/340282366920938463463374607431768211456)-(1/340282366920938463463374607431768211456).i)
-bz.abs
-// (1592262918131443/383123885216472214589586756787577295904684780545900544) ≓ sqrt(2) / 2**128
-bz.arg
-// (884279719003555/1125899906842624) ≓ π/4 == atan2(1, 1)
+import PONS                     // Let the fun begin!
+
+let bn = BigInt(1)<<64 + 1      // 18446744073709551617
+bn.asUInt64                     // nil; bn > UIntMax.max
+(bn - 2).asUInt64               // 18446744073709551615 == UIntMax.max
+bn + bn // 36893488147419103234
+bn - bn // 0
+bn * bn // 340282366920938463500268095579187314689
+bn / bn // 1
+
+let bq = BigInt(1).over(bn)     // (1/18446744073709551617)
+bq + bq // (2/18446744073709551617)
+bq - bq // (0/1)
+bq * bq // (1/340282366920938463500268095579187314689)
+bq / bq // (1/1)
+bq.denominator == bn            // true, of course!
+bq.reciprocal.numerator == bn   // so is this
+
+let bz = bq + bq.i  // ((1/18446744073709551617)+(1/18446744073709551617).i)
+bz + bz // ((2/18446744073709551617)+(2/18446744073709551617).i)
+bz - bz // ((0/1)+(0/1).i)
+bz * bz // ((0/1)+(2/340282366920938463500268095579187314689).i)
+bz / bz // ((1/1)+(0/1).i)
 ````
+
+## USAGE
+
+### With Playground via Workspace
+
+Build the framework before having fun.
+
+![](screenshots/select-scheme.png)
+
+To do so, all you need is choose Framework-OSX from the scheme and build it.  With framework done, 
+get back to the OSX playground and enjoy.
+
+### With Your Project
+
+0. Just copy pons/*.swift to your project
+1. Or build framework and copy it to your project
+
+### With REPL
+
+#### OS X
+
+Simply `make repl` in the top directory.
+
+#### Linux
+
+````
+make SWIFTPATH=${YOUR_SWIFT_PATH} repl # ${YOUR_SWIFT_PATH}=~/swift/usr/bin in my case
+````
+
+## REQUIREMENT
+
+Swift 2.1 or better.  Linux supported.
+
+With Swift 2.2 you get some deprecation warnings like:
+
+````
+pons/pocomplex.swift:13:5: warning: use of 'typealias' to declare associated types is deprecated; use 'associatedtype' instead
+    typealias RealType:POSignedNumber
+    ^~~~~~~~~
+```
+
+Just ignore them for the time being.  They are needed in 2.1.
