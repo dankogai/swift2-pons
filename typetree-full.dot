@@ -1,0 +1,113 @@
+digraph typetree {
+  node [
+    shape = box
+    style = "filled, rounded"
+    peripheries = 0
+    fontname = "San Francisco"
+    fontcolor = white
+    fillcolor = "#aaaaaa"
+  ]
+  edge [
+     color = green
+  ]
+  node [ fillcolor = gray ]
+  Int64 Int32 Int16 Int8 Int UInt64 UInt32 UInt16 UInt8 UInt Double Float
+  Equatable Hashable CustomStringConvertible Comparable SignedNumberType
+  RandomAccessIndexType IntegerLiteralConvertible StringLiteralConvertible
+  FloatLiteralConvertible _BuiltinIntegerLiteralConvertible
+  node [ fillcolor = "#00aa00" ]
+  PONumber POComparableNumber POSignedNumber POInteger
+  POUInt POInt POReal POFloat POComplex POComplexReal PORational
+  node [ fillcolor = "#0000aa" ]
+  BigUInt BigInt
+  node [ fillcolor = "#aa0000" ]
+  GaussianInt Complex Rational 
+
+  BigInt -> GaussianInt [ color = blue ]
+  BigUInt -> Rational [ color = blue ]
+  Comparable -> Double
+  Comparable -> Float
+  Comparable -> POComparableNumber
+  Comparable -> POInteger
+  Comparable -> SignedNumberType
+  Comparable -> SignedNumberType
+  Comparable -> UInt
+  Comparable -> UInt16
+  Comparable -> UInt32
+  Comparable -> UInt64
+  Comparable -> UInt8
+  CustomStringConvertible -> PONumber
+  Double -> Complex  [ color = blue ]
+  Equatable -> PONumber
+  Float  -> Complex  [ color = blue ]
+  FloatLiteralConvertible -> Double
+  FloatLiteralConvertible -> Float
+  FloatLiteralConvertible -> Rational
+  Hashable -> PONumber
+  Int -> GaussianInt [ color = blue ]
+  Int16 -> GaussianInt [ color = blue ]
+  Int32 -> GaussianInt [ color = blue ]
+  Int64 -> GaussianInt [ color = blue ]
+  Int8 -> GaussianInt [ color = blue ]
+  IntegerLiteralConvertible -> Double
+  IntegerLiteralConvertible -> Float
+  IntegerLiteralConvertible -> POInteger
+  IntegerLiteralConvertible -> SignedNumberType
+  IntegerLiteralConvertible -> UInt
+  IntegerLiteralConvertible -> UInt16
+  IntegerLiteralConvertible -> UInt32
+  IntegerLiteralConvertible -> UInt64
+  IntegerLiteralConvertible -> UInt8
+  POComparableNumber -> POInteger
+  POComplex -> GaussianInt
+  POComplex -> POComplexReal
+  POComplexReal -> Complex
+  POFloat -> Double
+  POFloat -> Float
+  POInt -> BigInt [ color = green ]
+  POInt -> Int
+  POInt -> Int16
+  POInt -> Int32
+  POInt -> Int64
+  POInt -> Int8
+  POInteger -> POInt  [ color = green ]
+  POInteger -> POUInt
+  PONumber -> POComparableNumber
+  PONumber -> POComplex
+  PONumber -> POSignedNumber
+  PORational -> Rational
+  POReal -> POComplexReal
+  POReal -> POFloat
+  POReal -> PORational
+  POSignedNumber -> POInt
+  POSignedNumber -> POReal
+  POUInt -> BigUInt
+  POUInt -> UInt
+  POUInt -> UInt16
+  POUInt -> UInt32
+  POUInt -> UInt64
+  POUInt -> UInt8
+  RandomAccessIndexType -> Int 
+  RandomAccessIndexType -> Int16
+  RandomAccessIndexType -> Int32
+  RandomAccessIndexType -> Int64
+  RandomAccessIndexType -> Int8
+  RandomAccessIndexType -> POInteger
+  RandomAccessIndexType -> UInt 
+  RandomAccessIndexType -> UInt16
+  RandomAccessIndexType -> UInt32
+  RandomAccessIndexType -> UInt64
+  RandomAccessIndexType -> UInt8
+  Rational -> Complex [ color = blue ]
+  SignedNumberType   -> Double
+  SignedNumberType   -> Float
+  SignedNumberType   -> POSignedNumber
+  StringLiteralConvertible -> POInteger
+  StringLiteralConvertible -> Rational
+  UInt -> Rational [ color = blue ]
+  UInt16 -> Rational [ color = blue ]
+  UInt32 -> Rational [ color = blue ]
+  UInt64 -> Rational [ color = blue ]
+  UInt8  -> Rational [ color = blue ]
+  _BuiltinIntegerLiteralConvertible -> POInteger
+ }

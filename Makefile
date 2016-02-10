@@ -4,6 +4,7 @@ GRAPH=typetree
 MODSRC=pons/*.swift
 BINSRC=$(MODSRC) test/*.swift
 MODULE=$(MOD).swiftmodule
+DOC=$(MOD).swiftdoc
 SWIFTC=swiftc
 SWIFTCFLAGS=-O
 SWIFT=swift
@@ -19,7 +20,7 @@ endif
 all: $(BIN)
 module: $(MODULE)
 clean:
-	-rm $(BIN) $(MODULE) lib$(MOD).*
+	-rm $(BIN) $(MODULE) $(DOC) lib$(MOD).*
 $(BIN): $(BINSRC)
 	$(SWIFTC) $(SWIFTCFLAGS) $(BINSRC)
 test: $(BIN)

@@ -2,15 +2,24 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:OSX.playground">
+      location = "group:osx/OSX.playground">
    </FileRef>
    <FileRef
-      location = "group:iOS.playground">
+      location = "group:ios/iOS.playground">
    </FileRef>
    <FileRef
-      location = "group:tvOS.playground">
+      location = "group:tvOS/tvOS.playground">
    </FileRef>
    <FileRef
-      location = "group:pons.xcodeproj">
+      location = "group:/Users/dankogai/github/swift-pons/osx/Framework-OSX.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:ios/Framework-iOS.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:tvOS/Framework-tvOS.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:osx/test.xcodeproj">
    </FileRef>
 </Workspace>

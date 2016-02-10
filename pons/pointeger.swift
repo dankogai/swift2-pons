@@ -402,6 +402,7 @@ public typealias POSwiftInt = SignedIntegerType
 /// consider extend this protocol first before extending each signed integer types.
 ///
 public protocol POInt: POInteger, POSignedNumber, StringLiteralConvertible, CustomDebugStringConvertible {
+    init(_:IntMax)
     ///
     /// The unsigned version of `self`
     ///

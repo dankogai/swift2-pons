@@ -1,4 +1,0 @@
-//: [Previous](@previous)
-
-
-//: [Next](@next)
