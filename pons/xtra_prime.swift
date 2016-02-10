@@ -71,12 +71,32 @@ public extension POUInt {
         //var y = Self.powmod(Self(base), t, self)
         // print("\(__FILE__):\(__LINE__): base=\(base),\nself=\(self),\ny=\(y)\nt=\(t)")
         while t != self-1 && y != 1 && y != self-1 {
-            y = (y * y) % self
+            // y = (y * y) % self
+            y = Self.mulmod(y, y, self)
             t <<= 1
         }
         // print("\(__FILE__):\(__LINE__): base=\(base),self=\(self),y=\(y),t=\(t)")
 
         return y == self-1 || t & 1 == 1
+    }
+    /// [Lucas–Lehmer primality test] on `self`
+    ///
+    /// [Lucas–Lehmer primality test]: https://en.wikipedia.org/wiki/Lucas%E2%80%93Lehmer_primality_test
+    /// - returns: `true` if Mersenne Prime, `false` if not. Oe `nil` if self is not even a Mersenne Number.
+    public var isMersennePrime:Bool? {
+        let p = Self(self.msbAt + 1) // mersenne number = number of bits
+        // print("\(__FILE__):\(__LINE__): p = \(p), self = \(self)")
+        guard self == Self(1)<<p - 1 else {
+            return nil  // self is not 2**n - 1
+        }
+        guard p.isPrime else {  // if n is composite, so is Mn
+            return false
+        }
+        var s:Self = 4
+        for _ in 0..<(p-2) {
+            s = (s * s - 2) % self
+        }
+        return s == 0
     }
     public var isPrime:Bool {
         if self < 2      { return false }
@@ -84,6 +104,7 @@ public extension POUInt {
         if self % 3 == 0 { return self == 3 }
         if self % 5 == 0 { return self == 5 }
         if self % 7 == 0 { return self == 7 }
+        if let mp = self.isMersennePrime { return mp }
         typealias PP = POUtil.Prime
         for i in 0..<PP.A014233.count {
             // print("\(__FILE__):\(__LINE__): \(self).millerRabinTest(\(PP.tinyPrimes[i]))")
@@ -117,9 +138,13 @@ public extension BigInt {
 }
 public extension BigUInt {
     public static let A014233_12 = BigUInt("318665857834031151167461")
-    public var isPrime:Bool {
+    public var isPrime:Bool {   // a little more stringent tests
         if self < 2      { return false }
         if self & 1 == 0 { return self == 2 }
+        if let _ = self.asUInt32 { // small guys are handled by small types
+            // print("\(__FILE__):\(__LINE__): self = \(u32) > UInt32.max")
+            return self.asUInt64!.isPrime   // that way it never overlows
+        }
         if self % 3 == 0 { return self == 3 }
         if self % 5 == 0 { return self == 5 }
         if self % 7 == 0 { return self == 7 }
@@ -132,25 +157,6 @@ public extension BigUInt {
         }
         if self.millerRabinTest(37) == false { return false }   // one more thing for sure!
         return self.millerRabinTest(41)                         // no longer surely prime
-    }
-    /// [Lucas–Lehmer primality test] on `self`
-    ///
-    /// [Lucas–Lehmer primality test]: https://en.wikipedia.org/wiki/Lucas%E2%80%93Lehmer_primality_test
-    /// - returns: `true` if Mersenne Prime, `false` if not. Oe `nil` if self is not even a Mersenne Number.
-    public var isMersennePrime:Bool? {
-        let p = BigUInt(self.msbAt + 1) // mersenne number = number of bits
-        // print("\(__FILE__):\(__LINE__): p = \(p), self = \(self)")
-        guard self == BigUInt(1)<<p - 1 else {
-            return nil  // self is not 2**n - 1
-        }
-        guard p.isPrime else {  // if n is composite, so is Mn
-            return false
-        }
-        var s:BigUInt = 4
-        for _ in 0..<(p-2) {
-            s = (s * s - 2) % self
-        }
-        return s == 0
     }
     public var isSurelyPrime:(Bool, surely:Bool) {
         let mrtest = self.isPrime

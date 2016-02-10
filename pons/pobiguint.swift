@@ -35,6 +35,9 @@ public struct BigUInt {
             :  digits.count == 2 ? UInt64(digits[1]) << 32 | UInt64(digits[0])
             : nil
     }
+    public var asUInt32:UInt32? {
+        return digits.count == 1 ? digits[0] : nil
+    }
     public func toUIntMax()->UIntMax {
         return self.asUInt64!
     }

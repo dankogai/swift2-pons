@@ -315,29 +315,44 @@ public extension POUInt {
         return ndash
     }
     /// montgomery reduction
-    //    public static func redc(n:Self, _ m:Self)->Self {
-    //        let bits = Self(m.msbAt + 1)
-    //        let mask = (Self(1) << bits) - 1
-    //        let minv = m.modinv
-    //        // print("\(__FILE__):\(__LINE__): n=\(n),bits=\(bits), minv=\(minv)")
-    //        let t = (n + ((n * minv) & mask) * m) >> bits
-    //        return t >= m ? t - m : t
-    //    }
-    //    public static func mulmod(a:Self, _ b:Self, _ m:Self)->Self {
-    //        let r = (Self(2) << Self(m.msbAt))
-    //        let r2 = (r * r) % m
-    //        return redc(redc(a * b, m) * r2, m)
-    //    }
+    public static func redc(n:Self, _ m:Self)->Self {
+        let bits = Self(m.msbAt + 1)
+        let mask = (Self(1) << bits) - 1
+        let minv = m.modinv
+        // print("\(__FILE__):\(__LINE__): n=\(n),bits=\(bits), minv=\(minv)")
+        let t = (n + ((n * minv) & mask) * m) >> bits
+        return t >= m ? t - m : t
+    }
+    /// - returns: `(x * y) % m` witout overflow in exchange for speed
+    public static func mulmod(x:Self, _ y:Self, _ m:Self)->Self {
+        if (m == 0) { fatalError("modulo by zero") }
+        if (m == 1) { return 1 }
+        if (m == 2) { return x & 1 }  // just odd or even
+        let xyo = Self.multiplyWithOverflow(x, y)
+        if !xyo.1 { return xyo.0 % m }
+        var a = x % m;
+        if a == 0 { return 0 }
+        var b = y % m;
+        if b == 0 { return 0 }
+        var r:Self = 0;
+        while a > 0 {
+            if a & 1 == 1 { r = (r + b) % m }
+            a >>= 1
+            b = (b << 1) % m
+        }
+        return r
+    }
     ///
     /// Modular exponentiation. a.k.a `modpow`.
     ///
     /// - returns: `b ** x mod m`
     public static func powmod(b:Self, _ x:Self, mod m:Self)->Self {
+        // return b < 1 ? 1 : power(b, x){ mulmod($0, $1, m) }
         let bits = Self(m.msbAt + 1)
         let mask = (Self(1) << bits) - 1
         let minv = m.modinv
         let r1 = (Self(1) << bits) % m
-        let r2 = (r1 * r1) % m    // to avoid overflow
+        let r2 = mulmod(r1, r1, m)  // to avoid overflow
         let innerRedc:Self->Self =  { n in
             // print("\(__FILE__):\(__LINE__): n=\(n),bits=\(bits), minv=\(minv)")
             let t = (n + ((n * minv) & mask) * m) >> bits
