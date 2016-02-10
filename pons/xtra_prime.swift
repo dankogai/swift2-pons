@@ -138,28 +138,27 @@ public extension BigInt {
 }
 public extension BigUInt {
     public static let A014233_12 = BigUInt("318665857834031151167461")
-    public var isPrime:Bool {   // a little more stringent tests
-        if self < 2      { return false }
-        if self & 1 == 0 { return self == 2 }
+    public var isSurelyPrime:(Bool, surely:Bool) {   // a little more stringent tests
+        if self < 2      { return (false, true) }
+        if self & 1 == 0 { return (self == 2, true) }
         if let _ = self.asUInt32 { // small guys are handled by small types
             // print("\(__FILE__):\(__LINE__): self = \(u32) > UInt32.max")
-            return self.asUInt64!.isPrime   // that way it never overlows
+            return (self.asUInt64!.isPrime, true)   // that way it never overlows
         }
-        if self % 3 == 0 { return self == 3 }
-        if self % 5 == 0 { return self == 5 }
-        if self % 7 == 0 { return self == 7 }
-        if let mp = self.isMersennePrime { return mp }
+        if self % 3 == 0 { return (self == 3, true) }
+        if self % 5 == 0 { return (self == 5, true) }
+        if self % 7 == 0 { return (self == 7, true) }
+        if let mp = self.isMersennePrime { return (mp, true) }
         typealias PP = POUtil.Prime
         for i in 0..<PP.A014233.count {
             // print("\(__FILE__):\(__LINE__): \(self).millerRabinTest(\(PP.tinyPrimes[i]))")
-            if self.millerRabinTest(PP.tinyPrimes[i]) == false { return false }
+            if self.millerRabinTest(PP.tinyPrimes[i]) == false { return (false, true) }
             if self < BigUInt(PP.A014233[i]) { break }
         }
-        if self.millerRabinTest(37) == false { return false }   // one more thing for sure!
-        return self.millerRabinTest(41)                         // no longer surely prime
+        if self.millerRabinTest(37) == false { return (false, true) }   // one more thing for sure!
+        return (self.millerRabinTest(41), false)                        // no longer surely prime
     }
-    public var isSurelyPrime:(Bool, surely:Bool) {
-        let mrtest = self.isPrime
-        return (mrtest, mrtest == false || self <= BigUInt.A014233_12)
+    public var isPrime:Bool {
+        return self.isSurelyPrime.0
     }
 }

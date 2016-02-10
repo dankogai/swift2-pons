@@ -94,5 +94,30 @@ let F666 = fib(666 as BigInt)
 That's the strength of protocol-oriented programming.
 PONS is written to bring the power of POP to numbers.
 
+## FAQ
+
+### Q. Swift already has tons of protocols built-in like [IntegerType] and [FloatingPointType].  Why do you reinvent these?
+
+[IntegerType]: http://swiftdoc.org/v2.1/protocol/IntegerType/
+[FloatingPointType]: http://swiftdoc.org/v2.1/protocol/FloatingPointType/
+[IntegerArithmeticType]: http://swiftdoc.org/v2.1/protocol/IntegerArithmeticType/
+[Comparable]: http://swiftdoc.org/v2.1/protocol/Comparable/
+[AbsoluteValuable]: http://swiftdoc.org/v2.1/protocol/AbsoluteValuable/
+
+A.  I wish I could.  As a matter of fact I tried to do so when I started.  It turns out the protocol tree Swift 2.1 offers is not fit for the Protocol-Oriented Number System.  For instance, [FloatingPointType] lacks arithmetic operators.  They can be found in [IntegerArithmeticType] but it includes `%`, something that is not essential for real-number arithmetics
+
+Besides, where are you going to fit `Complex`?  It is the queen of the numbers but definitely not [Comparable].  It is absolute-valuable but Swift says [AbsoluteValuable] is also [Comparable].
+
+I am pretty sure Swift insiders are aware of this issue that should be addressed.  I found the following in the swift-evolution mailing list.
+
+<https://lists.swift.org/pipermail/swift-evolution/Week-of-Mon-20151214/002445.html>
+>  I have been working for some time on a rewrite of all the integer types and protocols <https://github.com/apple/swift/blob/master/test/Prototypes/Integers.swift.gyb>.  One goal of this effort is to enable operations on mixed integer types, which as you can see is partially completed.  In-place arithmetic (anInt32 += aUInt64) is next.  Another important goal is to make the integer protocols actually useful for writing generic code, instead of what they are today: implementation artifacts used only for code sharing.  As another litmus test of the usefulness of the resulting protocols, the plan is to implement BigInt in terms of the generic operations defined on integers, and make BigInt itself conform to those protocols.
+
+Maybe I am a litte too impatient.  But here it is.
+
+> [Impatience]:  The anger you feel when the computer is being lazy. This makes you write programs that don't just react to your needs, but actually anticipate them. Or at least pretend to.
+
+[Impatience]: http://threevirtues.com
+
 */
 //: [Next](@next)
