@@ -11,7 +11,7 @@ Protocol-Oriented Number System in Pure Swift
 import PONS                     // Let the fun begin!
 ````
 
-BigInt included.  Enjoy unlimited!
+Big integer included.  Enjoy unlimited!
 
 ````swift
 let bn = BigInt(1)<<64 + 1      // 18446744073709551617
@@ -23,9 +23,9 @@ bn * bn // 340282366920938463500268095579187314689
 bn / bn // 1
 ````
 
-Rational (number type) is also included.
+Rational number also included.
  
-````
+````swift
 let bq = BigInt(1).over(bn)     // (1/18446744073709551617)
 bq + bq // (2/18446744073709551617)
 bq - bq // (0/1)
@@ -45,11 +45,14 @@ bz * bz // ((0/1)+(2/340282366920938463500268095579187314689).i)
 bz / bz // ((1/1)+(0/1).i)
 ````
 
-Elementary functions are supported as static functions, 
+[Elementary function]s (as in `<math.h>`) are supported as static functions, 
 By default it just converts to `Double`, let `Darwin` (or `Glibc` on Linux) do the work, 
 and convertsit back by default.
 
-TODO: rewrite elementary functions generically!
+[Elementary function]: https://en.wikipedia.org/wiki/Elementary_function
+
+
+*TODO*: rewrite elementary functions generically!
 
 ````swift
 Double.sqrt(-1)             // sadly NaN
