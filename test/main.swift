@@ -14,11 +14,6 @@
 
 let test = TAP()
 
-// Bool.xor
-test.eq(Bool.xor(true,   true), false,  "xor(true, true)   == false")
-test.eq(Bool.xor(true,  false), true,   "xor(true, false)  == true")
-test.eq(Bool.xor(false,  true), true,   "xor(false, false) == true")
-test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
 // PO{Integer,Real}#precision
 test.eq(Int.precision,      63,  "Int.precision   == 63")
 test.eq(Int8.precision,      7,  "Int8.precision  ==  7")
@@ -201,6 +196,12 @@ test.eq((BigInt(1)<<127 - 1).isPrime, true,  "2**127-1 is prime")
     test.eq(sp.0, $0.1.0, "\($0.0) is prime? \($0.1.0)")
     test.eq(sp.1, $0.1.1, "for sure ? \($0.1.1)")
 }
+
+// Bool.xor
+test.eq(Bool.xor(true,   true), false,  "xor(true, true)   == false")
+test.eq(Bool.xor(true,  false), true,   "xor(true, false)  == true")
+test.eq(Bool.xor(false,  true), true,   "xor(false, false) == true")
+test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
 
 test.done()
 

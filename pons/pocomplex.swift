@@ -25,28 +25,37 @@ public func ==<C:POComplex>(lhs:C.RealType, rhs:C)->Bool {
     return rhs.im == 0 && rhs.re == lhs
 }
 extension POComplex {
-    /// real part of z
-    public static func real(z:Self) -> RealType { return z.re }
-    /// imag part of z
-    public static func imag(z:Self) -> RealType { return z.im }
     /// self * (0.0+1.0.i)
     public var i:Self { return Self(-im, re) }
-    /// conjugate of self
+    /// conjugate of `self`
     public var conj:Self { return Self(re, -im) }
-    /// conjugate of z
+    /// conjugate of `z`
     public static func conj(z:Self) -> Self { return z.conj }
     /// norm of self == abs(self)**2
     public var norm:RealType { return re*re + im*im }
     /// norm of z
     public static func norm(z:Self) -> RealType { return z.norm }
+    /// real part of `self`
+    public var real:RealType { return re }
+    /// real part of `z`
+    public static func real(z:Self) -> RealType { return z.re }
+    /// imag part of `self`
+    public var imag:RealType { return im }
+    /// imag part of `z`
+    public static func imag(z:Self) -> RealType { return z.im }
+    /// converts to real number or `nil` if it fails
+    public var asReal:RealType? { return im == 0 ? re : nil }
+    /// stringifies `self`
     public var description:String {
         let sign = im.isSignMinus ? "" : "+"
         return "(\(re)\(sign)\(im).i)"
     }
+    /// hash value of `self`
     public var hashValue:Int {
         let bits = sizeof(Int) * 4
         return ((re.hashValue >> bits) << bits) | (im.hashValue >> bits)
     }
+    /// converts `self` to `IntMax`
     public func toIntMax()->IntMax {
         guard im != 0 else {
             fatalError("im == \(im) != 0")

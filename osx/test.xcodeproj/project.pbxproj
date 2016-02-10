@@ -80,14 +80,14 @@
 		9EF92AA01C6B2E0300A19CE8 /* pons */ = {
 			isa = PBXGroup;
 			children = (
+				9EF92AA31C6B2E0300A19CE8 /* pobool.swift */,
+				9EF92AA61C6B2E0300A19CE8 /* ponumber.swift */,
+				9EF92AA51C6B2E0300A19CE8 /* pointeger.swift */,
 				9EF92AA11C6B2E0300A19CE8 /* pobigint.swift */,
 				9EF92AA21C6B2E0300A19CE8 /* pobiguint.swift */,
-				9EF92AA31C6B2E0300A19CE8 /* pobool.swift */,
-				9EF92AA41C6B2E0300A19CE8 /* pocomplex.swift */,
-				9EF92AA51C6B2E0300A19CE8 /* pointeger.swift */,
-				9EF92AA61C6B2E0300A19CE8 /* ponumber.swift */,
-				9EF92AA71C6B2E0300A19CE8 /* porational.swift */,
 				9EF92AA81C6B2E0300A19CE8 /* poreal.swift */,
+				9EF92AA71C6B2E0300A19CE8 /* porational.swift */,
+				9EF92AA41C6B2E0300A19CE8 /* pocomplex.swift */,
 				9EF92AA91C6B2E0300A19CE8 /* xtra_operators.swift */,
 				9EF92AAA1C6B2E0300A19CE8 /* xtra_prime.swift */,
 			);
