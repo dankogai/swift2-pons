@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9EF92A9E1C6B2DEA00A19CE8 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92A9C1C6B2DEA00A19CE8 /* main.swift */; };
-		9EF92A9F1C6B2DEA00A19CE8 /* tap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92A9D1C6B2DEA00A19CE8 /* tap.swift */; };
 		9EF92AAB1C6B2E0300A19CE8 /* pobigint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92AA11C6B2E0300A19CE8 /* pobigint.swift */; };
 		9EF92AAC1C6B2E0300A19CE8 /* pobiguint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92AA21C6B2E0300A19CE8 /* pobiguint.swift */; };
 		9EF92AAD1C6B2E0300A19CE8 /* pobool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92AA31C6B2E0300A19CE8 /* pobool.swift */; };
@@ -19,6 +17,8 @@
 		9EF92AB21C6B2E0300A19CE8 /* poreal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92AA81C6B2E0300A19CE8 /* poreal.swift */; };
 		9EF92AB31C6B2E0300A19CE8 /* xtra_operators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92AA91C6B2E0300A19CE8 /* xtra_operators.swift */; };
 		9EF92AB41C6B2E0300A19CE8 /* xtra_prime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92AAA1C6B2E0300A19CE8 /* xtra_prime.swift */; };
+		9EF92B271C6B370C00A19CE8 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92B241C6B370C00A19CE8 /* main.swift */; };
+		9EF92B281C6B370C00A19CE8 /* tap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92B251C6B370C00A19CE8 /* tap.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,8 +35,6 @@
 
 /* Begin PBXFileReference section */
 		9EF92A911C6B2D6300A19CE8 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
-		9EF92A9C1C6B2DEA00A19CE8 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		9EF92A9D1C6B2DEA00A19CE8 /* tap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = tap.swift; sourceTree = "<group>"; };
 		9EF92AA11C6B2E0300A19CE8 /* pobigint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = pobigint.swift; sourceTree = "<group>"; };
 		9EF92AA21C6B2E0300A19CE8 /* pobiguint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = pobiguint.swift; sourceTree = "<group>"; };
 		9EF92AA31C6B2E0300A19CE8 /* pobool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = pobool.swift; sourceTree = "<group>"; };
@@ -47,6 +45,8 @@
 		9EF92AA81C6B2E0300A19CE8 /* poreal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = poreal.swift; sourceTree = "<group>"; };
 		9EF92AA91C6B2E0300A19CE8 /* xtra_operators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = xtra_operators.swift; sourceTree = "<group>"; };
 		9EF92AAA1C6B2E0300A19CE8 /* xtra_prime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = xtra_prime.swift; sourceTree = "<group>"; };
+		9EF92B241C6B370C00A19CE8 /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		9EF92B251C6B370C00A19CE8 /* tap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = tap.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,7 +64,7 @@
 			isa = PBXGroup;
 			children = (
 				9EF92AA01C6B2E0300A19CE8 /* pons */,
-				9EF92A9B1C6B2DEA00A19CE8 /* test */,
+				9EF92B261C6B370C00A19CE8 /* test */,
 				9EF92A921C6B2D6300A19CE8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -75,15 +75,6 @@
 				9EF92A911C6B2D6300A19CE8 /* test */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		9EF92A9B1C6B2DEA00A19CE8 /* test */ = {
-			isa = PBXGroup;
-			children = (
-				9EF92A9C1C6B2DEA00A19CE8 /* main.swift */,
-				9EF92A9D1C6B2DEA00A19CE8 /* tap.swift */,
-			);
-			path = test;
 			sourceTree = "<group>";
 		};
 		9EF92AA01C6B2E0300A19CE8 /* pons */ = {
@@ -102,6 +93,16 @@
 			);
 			name = pons;
 			path = ../pons;
+			sourceTree = "<group>";
+		};
+		9EF92B261C6B370C00A19CE8 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				9EF92B241C6B370C00A19CE8 /* main.swift */,
+				9EF92B251C6B370C00A19CE8 /* tap.swift */,
+			);
+			name = test;
+			path = ../test;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -166,11 +167,11 @@
 				9EF92AB21C6B2E0300A19CE8 /* poreal.swift in Sources */,
 				9EF92AB31C6B2E0300A19CE8 /* xtra_operators.swift in Sources */,
 				9EF92AAB1C6B2E0300A19CE8 /* pobigint.swift in Sources */,
-				9EF92A9E1C6B2DEA00A19CE8 /* main.swift in Sources */,
+				9EF92B281C6B370C00A19CE8 /* tap.swift in Sources */,
 				9EF92AB11C6B2E0300A19CE8 /* porational.swift in Sources */,
 				9EF92AAE1C6B2E0300A19CE8 /* pocomplex.swift in Sources */,
+				9EF92B271C6B370C00A19CE8 /* main.swift in Sources */,
 				9EF92AAF1C6B2E0300A19CE8 /* pointeger.swift in Sources */,
-				9EF92A9F1C6B2DEA00A19CE8 /* tap.swift in Sources */,
 				9EF92AB41C6B2E0300A19CE8 /* xtra_prime.swift in Sources */,
 				9EF92AAC1C6B2E0300A19CE8 /* pobiguint.swift in Sources */,
 			);

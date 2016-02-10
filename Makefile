@@ -1,8 +1,8 @@
 MOD=PONS
 BIN=main
+BINSRC=test/*.swift
 GRAPH=typetree
 MODSRC=pons/*.swift
-BINSRC=$(MODSRC) test/*.swift
 MODULE=$(MOD).swiftmodule
 DOC=$(MOD).swiftdoc
 SWIFTC=swiftc
@@ -21,8 +21,8 @@ all: $(BIN)
 module: $(MODULE)
 clean:
 	-rm $(BIN) $(MODULE) $(DOC) lib$(MOD).*
-$(BIN): $(BINSRC)
-	$(SWIFTC) $(SWIFTCFLAGS) $(BINSRC)
+$(BIN): $(BINSRC) $(MODSRC)
+	$(SWIFTC) $(SWIFTCFLAGS) $(MODSRC) $(BINSRC)
 test: $(BIN)
 	prove ./$(BIN)
 $(MODULE): $(MODSRC)
