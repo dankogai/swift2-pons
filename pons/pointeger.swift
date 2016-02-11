@@ -298,7 +298,7 @@ public extension POUInt {
     }
     /// modular reciprocal of n
     public var modinv:Self {
-        var ndash = Self(0)
+        var m = Self(0)
         var t = Self(0)
         var r = Self(2) << Self(self.msbAt)
         var i = Self(1)
@@ -306,13 +306,13 @@ public extension POUInt {
         while r > Self(1) {
             if t & Self(1) == Self(0) {
                 t += self
-                ndash += i
+                m += i
             }
             t >>= Self(1)
             r >>= Self(1)
             i <<= Self(1)
         }
-        return ndash
+        return m
     }
     /// montgomery reduction
     public static func redc(n:Self, _ m:Self)->Self {
@@ -387,6 +387,9 @@ extension UInt64:   POUInt {
             : UInt32(self >> 32).msbAt + 32
     }
     public var asSigned:IntType? { return UInt64(Int64.max) < self ? nil : IntType(self) }
+    public static func powmod(b:UInt64, _ x:UInt64, mod m:UInt64)->UInt64 {
+        return BigUInt.powmod(b.asBigUInt!, x.asBigUInt!, mod:m.asBigUInt!).asUInt64!
+    }
 }
 extension UInt32:   POUInt {
     public typealias IntType = Int32
@@ -394,18 +397,30 @@ extension UInt32:   POUInt {
         return Double.frexp(Double(self)).1 - 1
     }
     public var asSigned:IntType? { return UInt32(Int32.max) < self ? nil : IntType(self) }
+    public static func powmod(b:UInt32, _ x:UInt32, mod m:UInt32)->UInt32 {
+        return UInt64.powmod(b.asUInt64!, x.asUInt64!, mod:m.asUInt64!).asUInt32!
+    }
 }
 extension UInt16:   POUInt {
     public typealias IntType = Int16
     public var asSigned:IntType? { return UInt16(Int16.max) < self ? nil : IntType(self) }
+    public static func powmod(b:UInt16, _ x:UInt16, mod m:UInt16)->UInt16 {
+        return UInt32.powmod(b.asUInt32!, x.asUInt32!, mod:m.asUInt32!).asUInt16!
+    }
 }
 extension UInt8:    POUInt {
     public typealias IntType = Int8
     public var asSigned:IntType? { return UInt8(Int8.max) < self ? nil : IntType(self) }
+    public static func powmod(b:UInt8, _ x:UInt8, mod m:UInt8)->UInt8 {
+        return UInt16.powmod(b.asUInt16!, x.asUInt16!, mod:m.asUInt16!).asUInt8!
+    }
 }
 extension UInt:     POUInt {
     public typealias IntType = Int
     public var asSigned:IntType? { return UInt(Int.max) < self ? nil : IntType(self) }
+    public static func powmod(b:UInt, _ x:UInt, mod m:UInt)->UInt {
+        return BigUInt.powmod(b.asBigUInt!, x.asBigUInt!, mod:m.asBigUInt!).asUInt!
+    }
 }
 
 public typealias POSwiftInt = SignedIntegerType

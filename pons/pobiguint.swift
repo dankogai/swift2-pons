@@ -422,7 +422,8 @@ public func %(lhs:BigUInt, rhs:BigUInt)->BigUInt {
 extension BigUInt: POUInt {
     public typealias IntType = BigInt
     public var asSigned:IntType? { return BigInt(unsignedValue:self) }
+    public var asBigUInt:BigUInt? { return self }
 }
 extension POUInt {
-    public var asBigUInt:BigUInt { return BigUInt(self.toUIntMax()) }
+    public var asBigUInt:BigUInt? { return BigUInt(self.toUIntMax()) }
 }

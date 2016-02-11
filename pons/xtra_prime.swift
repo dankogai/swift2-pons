@@ -141,10 +141,6 @@ public extension BigUInt {
     public var isSurelyPrime:(Bool, surely:Bool) {   // a little more stringent tests
         if self < 2      { return (false, true) }
         if self & 1 == 0 { return (self == 2, true) }
-        if let _ = self.asUInt32 { // small guys are handled by small types
-            // print("\(__FILE__):\(__LINE__): self = \(u32) > UInt32.max")
-            return (self.asUInt64!.isPrime, true)   // that way it never overlows
-        }
         if self % 3 == 0 { return (self == 3, true) }
         if self % 5 == 0 { return (self == 5, true) }
         if self % 7 == 0 { return (self == 7, true) }
