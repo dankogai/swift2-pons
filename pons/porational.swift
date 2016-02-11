@@ -10,7 +10,6 @@
 public extension POInteger {
     public static func gcd(lhs: Self, _ rhs:Self)->Self {
         var (r, q) = lhs < rhs ? (lhs, rhs) : (rhs, lhs)
-        if r == 0 { fatalError("To divide by zero, call Chuck Norris") }
         while r > 0 {
             (q, r) = (r, q % r)
         }

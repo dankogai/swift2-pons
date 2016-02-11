@@ -202,7 +202,14 @@ test.eq(Bool.xor(true,   true), false,  "xor(true, true)   == false")
 test.eq(Bool.xor(true,  false), true,   "xor(true, false)  == true")
 test.eq(Bool.xor(false,  true), true,   "xor(false, false) == true")
 test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
-
+// print(3369738766071892021.primeFactors)
+// print(UIntMax.max.prevPrime)
+//let u32pmax0  = UInt(UInt32.max).prevPrime!
+//let u32pmax1  = u32pmax0.prevPrime!
+//print( (u32pmax0*u32pmax1).primeFactors )
+//let i32pmax0  = UInt(Int32.max).prevPrime!
+//let i32pmax1  = i32pmax0.prevPrime!
+//print((i32pmax0*i32pmax1).primeFactors)
 test.done()
 
 

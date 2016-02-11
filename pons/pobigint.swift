@@ -167,3 +167,10 @@ extension BigInt : POInt {
 public extension POInt {
     public var asBigInt:BigInt? { return BigInt(self.toIntMax()) }
 }
+public extension POUInt {
+    public var asBigInt:BigInt? {
+        if let bu = self as? BigUInt { return bu.asSigned }
+        // print("\(__LINE__):\(__FILE__):self=\(self)")
+        return BigInt(self.asBigUInt!)
+    }
+}

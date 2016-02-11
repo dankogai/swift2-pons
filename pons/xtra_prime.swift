@@ -9,12 +9,11 @@
 public extension POUtil {
     public class Prime : SequenceType {
         public init(){}
-        public func generate()->AnyGenerator<BigUInt> {
-            var currPrime = BigUInt(0)
+        public func generate()->AnyGenerator<BigInt> {
+            var currPrime = BigInt(0)
             return anyGenerator {
-                let nextPrime = currPrime.nextPrime
-                if nextPrime > currPrime {
-                    currPrime = nextPrime;
+                if let nextPrime = currPrime.nextPrime {
+                    currPrime = nextPrime
                     return currPrime
                 }
                 return nil
@@ -23,11 +22,11 @@ public extension POUtil {
     }
 }
 public extension POUtil.Prime {
-    /// primes less than 2048
+    /// primes less than 64
     public static let tinyPrimes:[Int] = {
         var ps = [2, 3]
         var n = 5
-        while n < 2048 {
+        while n < 64 {
             for p in ps {
                 if n % p == 0 { break }
                 if p * p > n  { ps.append(n); break }
@@ -58,6 +57,9 @@ public extension POUtil.Prime {
     ]
 }
 public extension POUInt {
+    //
+    //  Primarity Test
+    //
     /// [Miller-Rabin] test `n` for `base`
     ///
     /// [Miller-Rabin]: https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test
@@ -76,7 +78,6 @@ public extension POUInt {
             t <<= 1
         }
         // print("\(__FILE__):\(__LINE__): base=\(base),self=\(self),y=\(y),t=\(t)")
-
         return y == self-1 || t & 1 == 1
     }
     /// [Lucas–Lehmer primality test] on `self`
@@ -84,7 +85,7 @@ public extension POUInt {
     /// [Lucas–Lehmer primality test]: https://en.wikipedia.org/wiki/Lucas%E2%80%93Lehmer_primality_test
     /// - returns: `true` if Mersenne Prime, `false` if not. Oe `nil` if self is not even a Mersenne Number.
     public var isMersennePrime:Bool? {
-        let p = Self(self.msbAt + 1) // mersenne number = number of bits
+        let p = Self(min(self.msbAt + 1, Self.precision - 1)) // mersenne number = number of bits
         // print("\(__FILE__):\(__LINE__): p = \(p), self = \(self)")
         guard self == Self(1)<<p - 1 else {
             return nil  // self is not 2**n - 1
@@ -114,28 +115,24 @@ public extension POUInt {
         }
         return true
     }
-    public var nextPrime:Self {
+    public var nextPrime:Self? {
         if self < 2 { return 2 }
         var u = self + (self & 1 == 0 ? 1 : 2)
         while !u.isPrime { u = u + 2 }
         return u
     }
-    public var prevPrime:Self {
-        if self < 2 { return 2 }
+    public var prevPrime:Self? {
+        if self <= 2 { return nil }
+        if self == 3 { return 2 }
         var u = self - (self & 1 == 0 ? 1 : 2)
         while !u.isPrime { u = u - 2 }
         return u
     }
 }
 public extension POInt {
-    public var isPrime:Bool { return self.toUIntMax().isPrime }
-    public var nextPrime:Self { return Self(self.toUIntMax().nextPrime) }
-    public var prevPrime:Self { return Self(self.toUIntMax().prevPrime) }
-}
-public extension BigInt {
-    public var isPrime:Bool { return self.asUnsigned!.isPrime }
-    public var nextPrime:BigInt { return self.asUnsigned!.nextPrime.asSigned! }
-    public var prevPrime:BigInt { return self.asUnsigned!.prevPrime.asSigned! }
+    public var isPrime:Bool { return self.abs.asUnsigned!.isPrime }
+    public var nextPrime:Self? { return Self(self.abs.asUnsigned!.nextPrime!) }
+    public var prevPrime:Self? { return self <= 2 ? nil : Self(self.abs.asUnsigned!.prevPrime!) }
 }
 public extension BigUInt {
     public static let A014233_12 = BigUInt("318665857834031151167461")

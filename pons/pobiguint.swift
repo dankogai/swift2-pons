@@ -425,10 +425,33 @@ extension BigUInt: POUInt {
     public var asBigUInt:BigUInt? { return self }
 }
 public extension POUInt {
+    public init(_ bu:BigUInt) {
+        self.init(bu.asUInt64!)
+    }
     public var asBigUInt:BigUInt? {
         if let bu = self as? BigUInt { return bu }
         // print("\(__LINE__):\(__FILE__):self=\(self)")
         return BigUInt(self.asUInt64!)
+    }
+    /// - returns: `(x * y) % m` witout overflow in exchange for speed
+    public static func mulmod(x:Self, _ y:Self, _ m:Self)->Self {
+        if (m == 0) { fatalError("modulo by zero") }
+        if (m == 1) { return 1 }
+        if Self.self == BigUInt.self {
+            return (x * y) % m  // no overflow
+        }
+        var a = x % m;
+        if a == 0 { return 0 }
+        var b = y % m;
+        if b == 0 { return 0 }
+        var r:Self = 0;
+        while a > 0 {
+            if a & 1 == 1 { r = (r &+ b) % m }
+            a >>= 1
+            b = (b << 1) % m
+        }
+        return r
+        
     }
     // powmod related codes //
     public static func pow(lhs:Self, _ rhs:Self, mod:Self=Self(1))->Self {
@@ -463,49 +486,35 @@ public extension POUInt {
         let t = (n + ((n * minv) & mask) * m) >> bits
         return t >= m ? t - m : t
     }
-    /// - returns: `(x * y) % m` witout overflow in exchange for speed
-    public static func mulmod(x:Self, _ y:Self, _ m:Self)->Self {
-        if (m == 0) { fatalError("modulo by zero") }
-        if (m == 1) { return 1 }
-        if (m == 2) { return x & 1 }  // just odd or even
-        let xyo = Self.multiplyWithOverflow(x, y)
-        if !xyo.1 { return xyo.0 % m }
-        var a = x % m;
-        if a == 0 { return 0 }
-        var b = y % m;
-        if b == 0 { return 0 }
-        var r:Self = 0;
-        while a > 0 {
-            if a & 1 == 1 { r = (r + b) % m }
-            a >>= 1
-            b = (b << 1) % m
-        }
-        return r
-    }
     ///
     /// Modular exponentiation. a.k.a `modpow`.
     ///
     /// - returns: `b ** x mod m`
     public static func powmod(b:Self, _ x:Self, mod m:Self)->Self {
         // return b < 1 ? 1 : power(b, x){ mulmod($0, $1, m) }
-        let bits = Self(m.msbAt + 1)
-        if Self.self != BigUInt.self && 32 < bits { // to avoid overflow
-            return Self(BigUInt.powmod(b.asBigUInt!, x.asBigUInt!, mod:m.asBigUInt!).asUInt64!)
+        if Self.self != BigUInt.self  { // force BigUInt to avoid overflow
+            let totalbits = (b.msbAt + 1) + (x.msbAt + 1) + (m.msbAt + 1)
+            if 64 <= totalbits {
+                return Self(BigUInt.powmod(b.asBigUInt!, x.asBigUInt!, mod:m.asBigUInt!).asUInt64!)
+            }
         }
+        let bits = Self(m.msbAt + 1)
         let mask = (Self(1) << bits) - 1
         let minv = m.modinv
-        let r1 = (Self(1) << bits) % m
-        let r2 = mulmod(r1, r1, m)  // to avoid overflow
+        let r1 = Self(1) << bits
+        let r2 = Self.mulmod(r1, r1, m)
         let innerRedc:Self->Self = { n in
-            let t = (n + ((n * minv) & mask) * m) >> bits
+            // print("\(__FILE__):\(__LINE__): n=\(n),bits=\(bits), minv=\(minv)")
+            let t = (n + ((n &* minv) & mask) * m) >> bits
             return t >= m ? t - m : t
         }
         let innerMulMod:(Self,Self)->Self = { (a, b) in
-            // return innerRedc(innerRedc(a * b) * r2)
-            let ma = innerRedc(a * r2)
-            let mb = innerRedc(b * r2)
-            return innerRedc(innerRedc(ma * mb))
+            //let ma = innerRedc(a * r2)
+            //let mb = innerRedc(b * r2)
+            //return innerRedc(innerRedc(ma * mb))
+            return innerRedc(innerRedc(a * b) * r2)
         }
+        // print("\(__FILE__):\(__LINE__): m=\(m), bits=\(bits), minv=\(minv), r2=\(r2)")
         if b < Self(1) {
             fatalError("negative exponent unsupported")
         }
