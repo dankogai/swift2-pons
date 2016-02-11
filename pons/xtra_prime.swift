@@ -92,9 +92,10 @@ public extension POUInt {
         guard p.isPrime else {  // if n is composite, so is Mn
             return false
         }
-        var s:Self = 4
+        var s:BigUInt = 4
+        let d = self.asBigUInt!
         for _ in 0..<(p-2) {
-            s = (s * s - 2) % self
+            s = (s * s - 2) % d // BigUInt is used to avoid overflow at s * s
         }
         return s == 0
     }

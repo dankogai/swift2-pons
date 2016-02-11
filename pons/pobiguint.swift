@@ -430,6 +430,30 @@ public extension POUInt {
         // print("\(__LINE__):\(__FILE__):self=\(self)")
         return BigUInt(self.asUInt64!)
     }
+    // powmod related codes //
+    public static func pow(lhs:Self, _ rhs:Self, mod:Self=Self(1))->Self {
+        return rhs < Self(1) ? Self(1)
+            // : mod == L(1) ? power(lhs, rhs, op:&*) : power(lhs, rhs){ ($0 &* $1) % mod }
+            : mod == Self(1) ? power(lhs, rhs, op:&*) : power(lhs, rhs){ powmod($0, $1, mod:mod) }
+    }
+    /// modular reciprocal of `self`
+    public var modinv:Self {
+        var m = Self(0)
+        var t = Self(0)
+        var r = Self(2) << Self(self.msbAt)
+        var i = Self(1)
+        // print("\(__FILE__):\(__LINE__): t=\(t),r=\(r),i=\(i)")
+        while r > Self(1) {
+            if t & Self(1) == Self(0) {
+                t += self
+                m += i
+            }
+            t >>= Self(1)
+            r >>= Self(1)
+            i <<= Self(1)
+        }
+        return m
+    }
     /// montgomery reduction
     public static func redc(n:Self, _ m:Self)->Self {
         let bits = Self(m.msbAt + 1)
@@ -465,7 +489,7 @@ public extension POUInt {
     public static func powmod(b:Self, _ x:Self, mod m:Self)->Self {
         // return b < 1 ? 1 : power(b, x){ mulmod($0, $1, m) }
         let bits = Self(m.msbAt + 1)
-        if Self.self != BigUInt.self && 32 < bits {
+        if Self.self != BigUInt.self && 32 < bits { // to avoid overflow
             return Self(BigUInt.powmod(b.asBigUInt!, x.asBigUInt!, mod:m.asBigUInt!).asUInt64!)
         }
         let mask = (Self(1) << bits) - 1

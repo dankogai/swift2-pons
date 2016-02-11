@@ -291,29 +291,6 @@ public extension POUInt {
         return rhs < Self(1) ? L(1) : power(lhs, rhs, op:&*)
 
     }
-    public static func pow(lhs:Self, _ rhs:Self, mod:Self=Self(1))->Self {
-        return rhs < Self(1) ? Self(1)
-            // : mod == L(1) ? power(lhs, rhs, op:&*) : power(lhs, rhs){ ($0 &* $1) % mod }
-            : mod == Self(1) ? power(lhs, rhs, op:&*) : power(lhs, rhs){ powmod($0, $1, mod:mod) }
-    }
-    /// modular reciprocal of n
-    public var modinv:Self {
-        var m = Self(0)
-        var t = Self(0)
-        var r = Self(2) << Self(self.msbAt)
-        var i = Self(1)
-        // print("\(__FILE__):\(__LINE__): t=\(t),r=\(r),i=\(i)")
-        while r > Self(1) {
-            if t & Self(1) == Self(0) {
-                t += self
-                m += i
-            }
-            t >>= Self(1)
-            r >>= Self(1)
-            i <<= Self(1)
-        }
-        return m
-    }
 }
 extension UInt64:   POUInt {
     public typealias IntType = Int64
