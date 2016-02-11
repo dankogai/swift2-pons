@@ -140,6 +140,7 @@ public extension BigUInt {
     public static let A014233_12 = BigUInt("318665857834031151167461")
     public var isSurelyPrime:(Bool, surely:Bool) {   // a little more stringent tests
         if self < 2      { return (false, true) }
+        if let self64 = self.asUInt64 { return (self64.isPrime, true) }
         if self & 1 == 0 { return (self == 2, true) }
         if self % 3 == 0 { return (self == 3, true) }
         if self % 5 == 0 { return (self == 5, true) }

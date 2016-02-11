@@ -424,6 +424,76 @@ extension BigUInt: POUInt {
     public var asSigned:IntType? { return BigInt(unsignedValue:self) }
     public var asBigUInt:BigUInt? { return self }
 }
-extension POUInt {
-    public var asBigUInt:BigUInt? { return BigUInt(self.toUIntMax()) }
+public extension POUInt {
+    public var asBigUInt:BigUInt? {
+        if let bu = self as? BigUInt { return bu }
+        // print("\(__LINE__):\(__FILE__):self=\(self)")
+        return BigUInt(self.asUInt64!)
+    }
+    /// montgomery reduction
+    public static func redc(n:Self, _ m:Self)->Self {
+        let bits = Self(m.msbAt + 1)
+        let mask = (Self(1) << bits) - 1
+        let minv = m.modinv
+        // print("\(__FILE__):\(__LINE__): n=\(n),bits=\(bits), minv=\(minv)")
+        let t = (n + ((n * minv) & mask) * m) >> bits
+        return t >= m ? t - m : t
+    }
+    /// - returns: `(x * y) % m` witout overflow in exchange for speed
+    public static func mulmod(x:Self, _ y:Self, _ m:Self)->Self {
+        if (m == 0) { fatalError("modulo by zero") }
+        if (m == 1) { return 1 }
+        if (m == 2) { return x & 1 }  // just odd or even
+        let xyo = Self.multiplyWithOverflow(x, y)
+        if !xyo.1 { return xyo.0 % m }
+        var a = x % m;
+        if a == 0 { return 0 }
+        var b = y % m;
+        if b == 0 { return 0 }
+        var r:Self = 0;
+        while a > 0 {
+            if a & 1 == 1 { r = (r + b) % m }
+            a >>= 1
+            b = (b << 1) % m
+        }
+        return r
+    }
+    ///
+    /// Modular exponentiation. a.k.a `modpow`.
+    ///
+    /// - returns: `b ** x mod m`
+    public static func powmod(b:Self, _ x:Self, mod m:Self)->Self {
+        // return b < 1 ? 1 : power(b, x){ mulmod($0, $1, m) }
+        let bits = Self(m.msbAt + 1)
+        if Self.self != BigUInt.self && 32 < bits {
+            return Self(BigUInt.powmod(b.asBigUInt!, x.asBigUInt!, mod:m.asBigUInt!).asUInt64!)
+        }
+        let mask = (Self(1) << bits) - 1
+        let minv = m.modinv
+        let r1 = (Self(1) << bits) % m
+        let r2 = mulmod(r1, r1, m)  // to avoid overflow
+        let innerRedc:Self->Self = { n in
+            let t = (n + ((n * minv) & mask) * m) >> bits
+            return t >= m ? t - m : t
+        }
+        let innerMulMod:(Self,Self)->Self = { (a, b) in
+            // return innerRedc(innerRedc(a * b) * r2)
+            let ma = innerRedc(a * r2)
+            let mb = innerRedc(b * r2)
+            return innerRedc(innerRedc(ma * mb))
+        }
+        if b < Self(1) {
+            fatalError("negative exponent unsupported")
+        }
+        var r = b
+        var t = b, n = x - Self(1)
+        while n > Self(0) {
+            if n & Self(1) == Self(1) {
+                r = innerMulMod(r, t)
+            }
+            n >>= Self(1)
+            t = innerMulMod(t, t)
+        }
+        return r
+    }
 }

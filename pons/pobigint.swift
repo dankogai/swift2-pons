@@ -164,6 +164,6 @@ extension BigInt : POInt {
     public var asUnsigned:UIntType? { return self < 0 ? nil : self.unsignedValue }
     public var asBigInt:BigInt? { return self }
 }
-extension POInt {
+public extension POInt {
     public var asBigInt:BigInt? { return BigInt(self.toIntMax()) }
 }
