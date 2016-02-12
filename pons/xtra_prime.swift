@@ -41,7 +41,7 @@ public extension POUtil.Prime {
     /// on bases <= n-th prime does not reveal compositeness.
     ///
     /// [A014233]: https://oeis.org/A014233
-    public static let A014233 = [
+    public static let A014233:[UIntMax] = [
         2047,                   // p0   = 2
         1373653,                // p1   = 3
         25326001,               // p2   = 5
@@ -101,6 +101,9 @@ public extension POUInt {
         return s == 0
     }
     public var isPrime:Bool {
+        if let bu = self as? BigUInt {
+            return bu.isSurelyPrime.0
+        }
         if self < 2      { return false }
         if self & 1 == 0 { return self == 2 }
         if self % 3 == 0 { return self == 3 }
@@ -111,27 +114,45 @@ public extension POUInt {
         for i in 0..<PP.A014233.count {
             // print("\(__FILE__):\(__LINE__): \(self).millerRabinTest(\(PP.tinyPrimes[i]))")
             if self.millerRabinTest(PP.tinyPrimes[i]) == false { return false }
-            if self < Self(PP.A014233[i]) { break }
+            if self.asUInt64! < PP.A014233[i] { break }
         }
         return true
     }
     public var nextPrime:Self? {
         if self < 2 { return 2 }
-        var u = self + (self & 1 == 0 ? 1 : 2)
-        while !u.isPrime { u = u + 2 }
+        var (u, o):(Self, Bool)
+        (u, o) = Self.addWithOverflow(self, self & 1 == 0 ? 1 : 2)
+        if o { return nil }
+        while !u.isPrime {
+            (u, o) = Self.addWithOverflow(u, 2)
+            if o { return nil }
+        }
         return u
     }
     public var prevPrime:Self? {
         if self <= 2 { return nil }
         if self == 3 { return 2 }
         var u = self - (self & 1 == 0 ? 1 : 2)
-        while !u.isPrime { u = u - 2 }
+        while !u.isPrime {
+            u = u - 2
+        }
         return u
     }
 }
 public extension POInt {
     public var isPrime:Bool { return self.abs.asUnsigned!.isPrime }
-    public var nextPrime:Self? { return Self(self.abs.asUnsigned!.nextPrime!) }
+    // appears to be the same as POUInt version but addWithOveerflow is internally different
+    public var nextPrime:Self? {
+        if self < 2 { return 2 }
+        var (u, o):(Self, Bool)
+        (u, o) = Self.addWithOverflow(self, self & 1 == 0 ? 1 : 2)
+        if o { return nil }
+        while !u.isPrime {
+            (u, o) = Self.addWithOverflow(u, 2)
+            if o { return nil }
+        }
+        return u
+    }
     public var prevPrime:Self? { return self <= 2 ? nil : Self(self.abs.asUnsigned!.prevPrime!) }
 }
 public extension BigUInt {
@@ -152,8 +173,5 @@ public extension BigUInt {
         }
         if self.millerRabinTest(37) == false { return (false, true) }   // one more thing for sure!
         return (self.millerRabinTest(41), self <= BigUInt.A014233_12)   // no longer surely prime beyond A014233_12
-    }
-    public var isPrime:Bool {
-        return self.isSurelyPrime.0
     }
 }

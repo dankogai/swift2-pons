@@ -385,7 +385,7 @@ public extension POInt {
     ///
     /// absolute value of `self`
     ///
-    public var abs:Self { return Swift.abs(self) }
+    public var abs:Self { return self < 0 ? -self : self }
     ///
     /// Stringifies `self` with base `radix` which defaults to `10`
     ///

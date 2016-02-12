@@ -249,7 +249,7 @@ public extension BigUInt {
     public static func addWithOverflow(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, overflow:Bool) {
         if rhs == 0 { return (lhs, false) }
         var l = lhs
-        l += lhs
+        l += rhs
         return (l, overflow:false)  // never overlows but protocol demands this
     }
     /// since BigUInt is unsigned, it overflows when `lhs < rhs`.
@@ -496,6 +496,9 @@ public extension POUInt {
             let totalbits = (b.msbAt + 1) + (x.msbAt + 1) + (m.msbAt + 1)
             if 64 <= totalbits {
                 return Self(BigUInt.powmod(b.asBigUInt!, x.asBigUInt!, mod:m.asBigUInt!).asUInt64!)
+            }
+            if Self.precision < totalbits {
+                return Self(UIntMax.powmod(b.asUInt64!, x.asUInt64!, mod:m.asUInt64!))
             }
         }
         let bits = Self(m.msbAt + 1)

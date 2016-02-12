@@ -17,4 +17,4 @@ func mersennePrimeSearch(n:Int)->() {
     }
 }
 mersennePrimeSearch(127)
-//: [Next](@next)
+UInt8.max.prevPrime!.nextPrime//: [Next](@next)
