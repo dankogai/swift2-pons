@@ -6,7 +6,7 @@ MODSRC=pons/*.swift
 MODULE=$(MOD).swiftmodule
 DOC=$(MOD).swiftdoc
 SWIFTC=swiftc
-SWIFTCFLAGS=-O
+SWIFTCFLAGS=
 SWIFT=swift
 ifdef SWIFTPATH
 	SWIFTC=$(SWIFTPATH)/swiftc
