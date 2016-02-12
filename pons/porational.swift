@@ -26,9 +26,6 @@ public protocol PORational : POReal {
 public extension PORational {
     public var numerator:UIntType.IntType   { return num.asSigned! }
     public var denominator:UIntType.IntType { return den.asSigned! }
-    public static var precision:Int {
-        return UIntType.precision
-    }
     public func toIntMax()->IntMax {
         return (sgn ? -1 : 1) * (num / den).toIntMax()
     }
@@ -86,7 +83,7 @@ public extension PORational {
             let g = UIntType.gcd(n, lhs.den)
             result.sgn = lhs.num < rhs.num ? rhs.sgn: lhs.sgn
             result.num = g == 1 ? n : n / g
-            if g == 1 { result.den /= g }
+            if g != 1 { result.den /= g }
             return (result, overflow:nof)
         } else {
             var l = lhs, r = rhs
@@ -113,6 +110,11 @@ public struct Rational<U:POUInt> : PORational, FloatLiteralConvertible {
     public var sgn:Bool = false
     public var num:U = 0
     public var den:U = 1
+    public var precision:Int {
+        return U.self == BigUInt.self
+            ? Swift.max(32, max(num.msbAt, den.msbAt) + 1)
+            : Swift.min(32, den.msbAt + 1)
+    }
     public init(_ s:Bool, _ n:U, _ d:U, isNormal:Bool = false) {
         // print("\(__FILE__):\(__LINE__): n=\(n),d=\(d),isNormal=\(isNormal)")
         (sgn, num, den) = isNormal ? (s, n, d)

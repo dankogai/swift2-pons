@@ -237,7 +237,4 @@ test.eq(Bool.xor(true,   true), false,  "xor(true,   true) == false")
 test.eq(Bool.xor(true,  false), true,   "xor(true,  false) ==  true")
 test.eq(Bool.xor(false,  true), true,   "xor(false, false) ==  true")
 test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
-//
-print(Rational.sqrt(BigInt(1).over(BigInt(1)<<256)))
-print(Rational.sqrt(BigInt(1).over(BigInt(2))))
 test.done()

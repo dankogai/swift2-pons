@@ -15,6 +15,9 @@ public protocol POReal : POSignedNumber {
     var isNaN:Bool       { get }
     var isSignMinus:Bool { get }
     var isZero:Bool      { get }
+    static var NaN:Self      { get }
+    static var infinity:Self { get }
+    var precision:Int { get }
 }
 public extension POReal {
     public var isFinite:Bool { return !isInfinite }
@@ -49,10 +52,45 @@ extension POReal {
     public static func asinh(x:Self)->Self  { return Self(Glibc.asinh(x.toDouble())) }
     public static func atanh(x:Self)->Self  { return Self(Glibc.atanh(x.toDouble())) }
     #else
-    public static func sqrt(x:Self)->Self   { return Self(Darwin.sqrt(x.toDouble())) }
+    // public static func sqrt(x:Self)->Self   { return Self(Darwin.sqrt(x.toDouble())) }
+    /// - returns: square root of `x` to precision `precision`
+    public static func sqrt(x:Self, precision:Int=0)->Self {
+        if x < 0  { return Self.NaN }
+        if x == 0 { return 0 }
+        if x == 1 { return 1 }
+        let px = max(precision, x.precision)
+        var r0 = Self(Darwin.sqrt(x.toDouble()))
+        var p  = 1.0.precision
+        var r = r0
+        while p < px {
+            // print("p=\(p), px=\(px), r=\(r)")
+            r = (x/r0 + r0) / 2
+            if r0 == r { break }
+            r0 = r
+            p *= 2 // precision is now doubled!
+        }
+        return r
+    }
     public static func hypot(x:Self, _ y:Self)->Self { return Self(Darwin.hypot(x.toDouble(), y.toDouble())) }
     public static func log(x:Self)->Self    { return Self(Darwin.log(x.toDouble())) }
-    public static func exp(x:Self)->Self    { return Self(Darwin.exp(x.toDouble())) }
+    // public static func exp(x:Self)->Self    { return Self(Darwin.exp(x.toDouble())) }
+    public static func exp(x:Self, precision:Int=0)->Self {
+        if x == 0 { return 1 }
+        // if x == 1 { return x }
+        let px = max(precision, x.precision)
+        // var r0 = Self(Darwin.exp(x.toDouble()))
+        let ax = x < 0 ? -x : x
+        var r:Self = 1
+        var d:Self = 1  // 1 / (i!)
+        for i in 1...precision {
+            // print("p=\(p), px=\(px), r=\(r)")
+            // if px < d.msbAt + 1 { break }
+            d /= Self(i)
+            r += ax * d
+            if px < d.precision { break }
+        }
+        return x < 0 ? -r : r
+    }
     public static func pow(x:Self, _ y:Self)->Self  { return Self(Darwin.pow(x.toDouble(), y.toDouble())) }
     public static func cos(x:Self)->Self    { return Self(Darwin.cos(x.toDouble())) }
     public static func sin(x:Self)->Self    { return Self(Darwin.sin(x.toDouble())) }
@@ -77,12 +115,12 @@ extension POReal {
     public static var SQRT1_2:Self  { return Self(M_SQRT1_2) }
     public static var SQRT2:Self    { return Self(M_SQRT2) }
 }
-
 extension Double : POFloat {
     public func toDouble()->Double { return self }
     public func toIntMax()->IntMax { return IntMax(self) }
     /// number of significant bits == 52
     public static let precision = 52
+    public var precision:Int { return Double.precision }
     #if os(Linux)
     public static func frexp(d:Double)->(Double, Int) {
         // return Glibc.frexp(d)
@@ -97,13 +135,15 @@ extension Double : POFloat {
     #else
     public static func frexp(d:Double)->(Double, Int)   { return Darwin.frexp(d) }
     public static func ldexp(m:Double, _ e:Int)->Double { return Darwin.ldexp(m, e) }
+    public static func sqrt(x:Double, precision:Int=0)->Double { return Darwin.sqrt(x) }
+    public static func exp(x:Double, precision:Int=0)->Double   { return Darwin.exp(x) }
     #endif
 }
-
 extension Float : POFloat {
     public func toDouble()->Double { return Double(self) }
     public func toIntMax()->IntMax { return IntMax(self) }
     /// number of significant bits == 23
     public static let precision = 23
+    public var precision:Int { return Float.precision }
 }
 
