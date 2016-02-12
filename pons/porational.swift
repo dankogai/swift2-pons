@@ -108,7 +108,7 @@ public extension PORational {
         return addWithOverflow(lhs, -rhs)
     }
 }
-public struct Rational<U:POUInt> : PORational {
+public struct Rational<U:POUInt> : PORational, FloatLiteralConvertible {
     public typealias UIntType = U
     public var sgn:Bool = false
     public var num:U = 0
@@ -141,6 +141,11 @@ public struct Rational<U:POUInt> : PORational {
     public typealias IntegerLiteralType = Int.IntegerLiteralType
     public init(integerLiteral:IntegerLiteralType) {
         self.init(integerLiteral)
+    }
+    // FloatLiteralConvertible
+    public typealias FloatLiteralType = Double.FloatLiteralType
+    public init(floatLiteral:FloatLiteralType) {
+        self.init(floatLiteral)
     }
 }
 public func ==<Q:PORational>(lhs:Q, rhs:Q) -> Bool {

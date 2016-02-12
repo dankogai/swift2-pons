@@ -424,6 +424,7 @@ extension BigUInt: POUInt {
     public var asSigned:IntType? { return BigInt(unsignedValue:self) }
     public var asBigUInt:BigUInt? { return self }
 }
+// And add methods to POUInt that depends on BigUInt
 public extension POUInt {
     public init(_ bu:BigUInt) {
         self.init(bu.asUInt64!)

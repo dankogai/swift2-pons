@@ -6,5 +6,6 @@
         <page name='BigInt'/>
         <page name='Complex'/>
         <page name='Prime'/>
+        <page name='Scratchpad'/>
     </pages>
 </playground>

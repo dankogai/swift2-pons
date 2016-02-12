@@ -291,6 +291,17 @@ public extension POUInt {
         return rhs < Self(1) ? L(1) : power(lhs, rhs, op:&*)
 
     }
+    /// Integer Square Root of `n`
+    public static func sqrt(n:Self)->Self {
+        if n == 0 { return 0 }
+        if n == 1 { return 1 }
+        var xk = n
+        repeat {
+            let xk1 = (xk + n / xk) >> 1
+            if xk1 >= xk { return xk }
+            xk = xk1
+        } while true
+    }
 }
 extension UInt64:   POUInt {
     public typealias IntType = Int64
@@ -436,6 +447,12 @@ public extension POInt {
     /// - returns: `lhs ** rhs`
     public static func pow<L:POReal>(lhs:L, _ rhs:Self)->L {
         return L.pow(lhs, L(rhs.toDouble()))
+    }
+    /// Integer Square Root of `n`
+    ///
+    /// fatalError for negative `n`.
+    public static func sqrt(n:Self)->Self {
+        return Self(UIntType.sqrt(n.asUnsigned!))
     }
 }
 extension Int64:    POInt {
