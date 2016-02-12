@@ -34,10 +34,6 @@ public protocol POFloat : POReal {
 // public protocol POElementaryFunctional : POReal {}
 extension POReal {
     #if os(Linux)
-    public static func sqrt(x:Self)->Self   { return Self(Glibc.sqrt(x.toDouble())) }
-    public static func hypot(x:Self, _ y:Self)->Self { return Self(Glibc.hypot(x.toDouble(), y.toDouble())) }
-    public static func log(x:Self)->Self    { return Self(Glibc.log(x.toDouble())) }
-    public static func exp(x:Self)->Self    { return Self(Glibc.exp(x.toDouble())) }
     public static func pow(x:Self, _ y:Self)->Self  { return Self(Glibc.pow(x.toDouble(), y.toDouble())) }
     public static func cos(x:Self)->Self    { return Self(Glibc.cos(x.toDouble())) }
     public static func sin(x:Self)->Self    { return Self(Glibc.sin(x.toDouble())) }
@@ -53,6 +49,21 @@ extension POReal {
     public static func asinh(x:Self)->Self  { return Self(Glibc.asinh(x.toDouble())) }
     public static func atanh(x:Self)->Self  { return Self(Glibc.atanh(x.toDouble())) }
     #else
+    public static func pow(x:Self, _ y:Self)->Self  { return Self(Darwin.pow(x.toDouble(), y.toDouble())) }
+    public static func cos(x:Self)->Self    { return Self(Darwin.cos(x.toDouble())) }
+    public static func sin(x:Self)->Self    { return Self(Darwin.sin(x.toDouble())) }
+    public static func tan(x:Self)->Self    { return Self(Darwin.tan(x.toDouble())) }
+    public static func atan2(y:Self, _ x:Self)->Self { return Self(Darwin.atan2(y.toDouble(), x.toDouble())) }
+    public static func acos(x:Self)->Self   { return Self(Darwin.acos(x.toDouble())) }
+    public static func asin(x:Self)->Self   { return Self(Darwin.asin(x.toDouble())) }
+    public static func atan(x:Self)->Self   { return Self(Darwin.atan(x.toDouble())) }
+    public static func cosh(x:Self)->Self   { return Self(Darwin.cosh(x.toDouble())) }
+    public static func sinh(x:Self)->Self   { return Self(Darwin.sinh(x.toDouble())) }
+    public static func tanh(x:Self)->Self   { return Self(Darwin.tanh(x.toDouble())) }
+    public static func acosh(x:Self)->Self  { return Self(Darwin.acosh(x.toDouble())) }
+    public static func asinh(x:Self)->Self  { return Self(Darwin.asinh(x.toDouble())) }
+    public static func atanh(x:Self)->Self  { return Self(Darwin.atanh(x.toDouble())) }
+    #endif
     // public static func sqrt(x:Self)->Self   { return Self(Darwin.sqrt(x.toDouble())) }
     /// - returns: square root of `x` to precision `precision`
     public static func sqrt(x:Self, precision:Int = 64)->Self {
@@ -62,7 +73,7 @@ extension POReal {
         if x == 1 { return 1 }
         let px = Swift.max(x.precision, precision)
         let iter = max((px / 1.0.precision).msbAt + 1, 1)
-        var r0 = Self(Darwin.sqrt(x.toDouble()))
+        var r0 = Self(Double.sqrt(x.toDouble()))
         var r = r0
         // print("\(__FILE__):\(__LINE__) iter=\(iter)")
         for _ in 0...iter {
@@ -136,21 +147,6 @@ extension POReal {
         }
         return 2 * r.truncate(px)
     }
-    public static func pow(x:Self, _ y:Self)->Self  { return Self(Darwin.pow(x.toDouble(), y.toDouble())) }
-    public static func cos(x:Self)->Self    { return Self(Darwin.cos(x.toDouble())) }
-    public static func sin(x:Self)->Self    { return Self(Darwin.sin(x.toDouble())) }
-    public static func tan(x:Self)->Self    { return Self(Darwin.tan(x.toDouble())) }
-    public static func atan2(y:Self, _ x:Self)->Self { return Self(Darwin.atan2(y.toDouble(), x.toDouble())) }
-    public static func acos(x:Self)->Self   { return Self(Darwin.acos(x.toDouble())) }
-    public static func asin(x:Self)->Self   { return Self(Darwin.asin(x.toDouble())) }
-    public static func atan(x:Self)->Self   { return Self(Darwin.atan(x.toDouble())) }
-    public static func cosh(x:Self)->Self   { return Self(Darwin.cosh(x.toDouble())) }
-    public static func sinh(x:Self)->Self   { return Self(Darwin.sinh(x.toDouble())) }
-    public static func tanh(x:Self)->Self   { return Self(Darwin.tanh(x.toDouble())) }
-    public static func acosh(x:Self)->Self  { return Self(Darwin.acosh(x.toDouble())) }
-    public static func asinh(x:Self)->Self  { return Self(Darwin.asinh(x.toDouble())) }
-    public static func atanh(x:Self)->Self  { return Self(Darwin.atanh(x.toDouble())) }
-    #endif
     public static var PI:Self       { return Self(M_PI) }
     public static var E:Self        { return Self(M_E) }
     public static var LN2:Self      { return Self(M_LN2) }
@@ -177,9 +173,15 @@ extension Double : POFloat {
         // return Glibc.ldexp(m, e)
         return Glibc.ldexp(m, Int32(e))
     }
+    //
+    public static func sqrt(x:Double, precision:Int=0)->Double { return Glibc.sqrt(x) }
+    public static func hypot(x:Double, _ y:Double, precision:Int=0)->Double { return Glibc.hypot(x, y) }
+    public static func exp(x:Double, precision:Int=0)->Double   { return Glibc.exp(x) }
+    public static func log(x:Double, precision:Int=0)->Double   { return Glibc.log(x) }
     #else
     public static func frexp(d:Double)->(Double, Int)   { return Darwin.frexp(d) }
     public static func ldexp(m:Double, _ e:Int)->Double { return Darwin.ldexp(m, e) }
+    //
     public static func sqrt(x:Double, precision:Int=0)->Double { return Darwin.sqrt(x) }
     public static func hypot(x:Double, _ y:Double, precision:Int=0)->Double { return Darwin.hypot(x, y) }
     public static func exp(x:Double, precision:Int=0)->Double   { return Darwin.exp(x) }
