@@ -55,7 +55,7 @@ extension POReal {
     #else
     // public static func sqrt(x:Self)->Self   { return Self(Darwin.sqrt(x.toDouble())) }
     /// - returns: square root of `x` to precision `precision`
-    public static func sqrt(x:Self, precision:Int=64)->Self {
+    public static func sqrt(x:Self, precision:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.sqrt(dx)) }
         if x < 0  { return Self.NaN }
         if x == 0 { return 0 }
@@ -78,7 +78,7 @@ extension POReal {
         return Self.sqrt(x * x + y * y, precision:precision)
     }
     // public static func exp(x:Self)->Self    { return Self(Darwin.exp(x.toDouble())) }
-    public static func exp(x:Self, precision:Int=64)->Self {
+    public static func exp(x:Self, precision:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.exp(dx)) }
         if x == 0 { return 1 }
         let ax = x < 0 ? -x : x
@@ -117,7 +117,7 @@ extension POReal {
         return r
     }
     /// ![](https://upload.wikimedia.org/math/1/7/5/17534a763ff4b0fd87ce62556ebcc3d7.png)
-    public static func log(x:Self, precision:Int=64)->Self {
+    public static func log(x:Self, precision:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.log(dx)) }
         if x < 0  { return Self.NaN }
         if x == 0 { return 1 }

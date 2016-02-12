@@ -11,3 +11,4 @@ BigInt(1).over(bi).precision
 
 var v:Rational<BigUInt> = 0.5
 v + v//: [Next](@next)
+Rational.sqrt(v)
