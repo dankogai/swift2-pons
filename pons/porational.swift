@@ -54,6 +54,12 @@ public extension PORational {
         let bits = sizeof(Int) * 4
         return (sgn ? -1 : 1) * (((num.hashValue >> bits) << bits) | (den.hashValue >> bits))
     }
+    public mutating func truncate(bits:Int)->Self {
+        num <<= UIntType(bits)
+        num /= den
+        den = UIntType(1) << UIntType(bits)
+        return self
+    }
     public static func multiplyWithOverflow(lhs:Self, _ rhs:Self)->(Self, overflow:Bool) {
         if lhs.isZero || rhs.isZero { return (zero, false) }
         var ln = lhs.num, ld = lhs.den, rn = rhs.num, rd = rhs.den;
@@ -74,32 +80,63 @@ public extension PORational {
     }
     public static func addWithOverflow(lhs:Self, _ rhs:Self)->(Self, overflow:Bool) {
         if lhs.den == rhs.den {
-            let (n, nof) = Bool.xor(lhs.sgn, rhs.sgn)
+            let (n, o) = Bool.xor(lhs.sgn, rhs.sgn)
                 ? lhs.num < rhs.num ? UIntType.subtractWithOverflow(rhs.num, lhs.num)
                     : UIntType.subtractWithOverflow(lhs.num, rhs.num)
                     : UIntType.addWithOverflow(lhs.num, rhs.num)
             if n == 0 { return (zero, false) }
-            var result = lhs
+            var r = lhs
             let g = UIntType.gcd(n, lhs.den)
-            result.sgn = lhs.num < rhs.num ? rhs.sgn: lhs.sgn
-            result.num = g == 1 ? n : n / g
-            if g != 1 { result.den /= g }
-            return (result, overflow:nof)
+            r.sgn = lhs.num < rhs.num ? rhs.sgn: lhs.sgn
+            r.num = n
+            if g != 1 {
+                r.num /= g
+                r.den /= g
+            }
+            return (r, o)
         } else {
-            var l = lhs, r = rhs
-            var (o0, o1, o2, o3) = (false, false, false, false)
-            var d = UIntType(0), fin = lhs
-            // print("add:", l, r)
-            let g = UIntType.gcd(lhs.den, rhs.den)
-            // print("__FILE__:__LINE__:", g)
-            (d, o0) = UIntType.multiplyWithOverflow(l.den, r.den / g)
-            (l.num, o1) = UIntType.multiplyWithOverflow(l.num, r.den / g)
-            (r.num, o2) = UIntType.multiplyWithOverflow(r.num, l.den / g)
-            l.den = d ; r.den = d
-            // print("add:", l, r)
-            (fin, o3) = addWithOverflow(l, r)
-            return (fin, overflow: o0 || o1 || o2 || o3)
+            let (ln, ol) = UIntType.multiplyWithOverflow(lhs.num, rhs.den)
+            let (rn, or) = UIntType.multiplyWithOverflow(rhs.num, lhs.den)
+            if Bool.xor(lhs.sgn, rhs.sgn) && ln == rn { return (zero, ol||or) }
+            let (an, oa) = Bool.xor(lhs.sgn, rhs.sgn)
+                ? ln < rn   ? UIntType.subtractWithOverflow(rn, ln)
+                            : UIntType.subtractWithOverflow(ln, rn)
+                : UIntType.addWithOverflow(ln, rn)
+            let (ad, od) = UIntType.multiplyWithOverflow(lhs.den, rhs.den)
+            let g = UIntType.gcd(an, ad)
+            var r = lhs
+            r.sgn = lhs.num < rhs.num ? rhs.sgn: lhs.sgn
+            r.num = an / g
+            r.den = ad / g
+            return (r, ol||or||oa||od)
         }
+//        if lhs.den == rhs.den {
+//            let (n, nof) = Bool.xor(lhs.sgn, rhs.sgn)
+//                ? lhs.num < rhs.num ? UIntType.subtractWithOverflow(rhs.num, lhs.num)
+//                    : UIntType.subtractWithOverflow(lhs.num, rhs.num)
+//                    : UIntType.addWithOverflow(lhs.num, rhs.num)
+//            if n == 0 { return (zero, false) }
+//            var result = lhs
+//            let g = UIntType.gcd(n, lhs.den)
+//            result.sgn = lhs.num < rhs.num ? rhs.sgn: lhs.sgn
+//            result.num = g == 1 ? n : n / g
+//            if g != 1 { result.den /= g }
+//            return (result, overflow:nof)
+//        } else {
+//            var l = lhs, r = rhs
+//            var (o0, o1, o2, o3) = (false, false, false, false)
+//            var d = UIntType(0), fin = lhs
+//            // print("add:", l, r)
+//            let g = UIntType.gcd(lhs.den, rhs.den)
+//            // print("__FILE__:__LINE__:", g)
+//            (d, o0) = UIntType.multiplyWithOverflow(l.den, r.den / g)
+//            (l.num, o1) = UIntType.multiplyWithOverflow(l.num, r.den / g)
+//            (r.num, o2) = UIntType.multiplyWithOverflow(r.num, l.den / g)
+//            l.den = d ; r.den = d
+//            // print("add:", l, r)
+//            (fin, o3) = addWithOverflow(l, r)
+//            return (fin, overflow: o0 || o1 || o2 || o3)
+//        }
     }
     public static func subtractWithOverflow(lhs:Self, _ rhs:Self)->(Self, overflow:Bool) {
         return addWithOverflow(lhs, -rhs)
@@ -134,7 +171,7 @@ public struct Rational<U:POUInt> : PORational, FloatLiteralConvertible {
         let (m, e) = Double.frexp(r)
         // print("\(__FILE__):\(__LINE__): m=\(m),e=\(e)")
         let b = Swift.min(Double.precision, UIntType.precision - 1)
-        let n = UInt64(m * Double(1 << b))
+        let n = UInt64(Swift.abs(m) * Double(1 << b))
         self.init(r.isSignMinus, UIntType(n), UIntType(1 << b))
         if e < 0    { self.den <<= UIntType(abs(e)) }
         else        { self.num <<= UIntType(abs(e)) }
@@ -155,7 +192,9 @@ public func ==<Q:PORational>(lhs:Q, rhs:Q) -> Bool {
         && lhs.sgn == rhs.sgn && lhs.num == rhs.num && lhs.den == rhs.den
 }
 public func < <Q:PORational>(lhs:Q, rhs:Q) -> Bool {
-    return (lhs - rhs).sgn
+    if lhs == rhs { return true }
+    if lhs.sgn != rhs.sgn { return lhs.sgn }
+    return lhs.num * rhs.den < rhs.num * lhs.den ? rhs.sgn : lhs.sgn
 }
 public prefix func +<Q:PORational>(q:Q) -> Q {
     return q
