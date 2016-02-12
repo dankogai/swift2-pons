@@ -102,7 +102,11 @@ public extension POUInt {
     }
     public var isPrime:Bool {
         if let bu = self as? BigUInt {
-            return bu.isSurelyPrime.0
+            if let u64 = bu.asUInt64 {
+                return u64.isPrime
+            } else {
+                return bu.isSurelyPrime.0
+            }
         }
         if self < 2      { return false }
         if self & 1 == 0 { return self == 2 }
@@ -140,7 +144,9 @@ public extension POUInt {
     }
 }
 public extension POInt {
-    public var isPrime:Bool { return self.abs.asUnsigned!.isPrime }
+    public var isPrime:Bool {
+        return self < 2 ? false : self.abs.asUnsigned!.isPrime
+    }
     // appears to be the same as POUInt version but addWithOveerflow is internally different
     public var nextPrime:Self? {
         if self < 2 { return 2 }
@@ -153,10 +159,12 @@ public extension POInt {
         }
         return u
     }
-    public var prevPrime:Self? { return self <= 2 ? nil : Self(self.abs.asUnsigned!.prevPrime!) }
+    public var prevPrime:Self? {
+        return self <= 2 ? nil : Self(self.abs.asUnsigned!.prevPrime!)
+    }
 }
 public extension BigUInt {
-    public static let A014233_12 = BigUInt("318665857834031151167461")
+    public static let A014233_11 = BigUInt("318665857834031151167461")
     public var isSurelyPrime:(Bool, surely:Bool) {   // a little more stringent tests
         if self < 2      { return (false, true) }
         if let self64 = self.asUInt64 { return (self64.isPrime, true) }
@@ -172,6 +180,6 @@ public extension BigUInt {
             if self < BigUInt(PP.A014233[i]) { break }
         }
         if self.millerRabinTest(37) == false { return (false, true) }   // one more thing for sure!
-        return (self.millerRabinTest(41), self <= BigUInt.A014233_12)   // no longer surely prime beyond A014233_12
+        return (self.millerRabinTest(41), self <= BigUInt.A014233_11)   // no longer surely prime beyond A014233_11
     }
 }

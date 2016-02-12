@@ -497,7 +497,7 @@ public extension POUInt {
             if 64 <= totalbits {
                 return Self(BigUInt.powmod(b.asBigUInt!, x.asBigUInt!, mod:m.asBigUInt!).asUInt64!)
             }
-            if Self.precision < totalbits {
+            if Self.precision < 64 {
                 return Self(UIntMax.powmod(b.asUInt64!, x.asUInt64!, mod:m.asUInt64!))
             }
         }

@@ -202,7 +202,7 @@ test.eq(UInt8.max.nextPrime,  nil, "UInt8.max.prevPrime is nil")
 test.eq(UInt.min.prevPrime,   nil, "UInt.min.prevPrime is nil")
 test.eq(UInt.min.nextPrime,    2,  "UInt.min.nextPrime is 2")
 test.eq(BigUInt(2).prevPrime, nil, "BigUInt(2).prevPrime is nil")
-test.eq(BigUInt(0).prevPrime,   2, "BigUInt(0).nextPrime is 2")
+test.eq(BigUInt(0).nextPrime,   2, "BigUInt(0).nextPrime is 2")
 test.eq(UInt.max.nextPrime,   nil, "UInt.max.prevPrime is nil")
 test.eq(Int64.min.prevPrime,  nil, "Int64.min.prevPrime is nil")
 test.eq(Int64.min.nextPrime,    2, "Int64.min.nextPrime is 2")
@@ -233,10 +233,9 @@ test.ne(IntMax.max.asBigInt!.nextPrime,   nil, "IntMax.max.asBigInt!.nextPrime i
     test.eq(sp.1, $0.1.1, "for sure ? \($0.1.1)")
 }
 // Bool.xor
-test.eq(Bool.xor(true,   true), false,  "xor(true, true)   == false")
-test.eq(Bool.xor(true,  false), true,   "xor(true, false)  == true")
-test.eq(Bool.xor(false,  true), true,   "xor(false, false) == true")
+test.eq(Bool.xor(true,   true), false,  "xor(true,   true) == false")
+test.eq(Bool.xor(true,  false), true,   "xor(true,  false) ==  true")
+test.eq(Bool.xor(false,  true), true,   "xor(false, false) ==  true")
 test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
+//
 test.done()
-
-
