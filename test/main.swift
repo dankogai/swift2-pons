@@ -245,7 +245,14 @@ test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
 typealias BigRat = Rational<BigUInt>
 func approx<Q:PORational>(q:Q, _ fq:(Q,precision:Int)->Q, _ fd:Double->Double)->Bool {
     // print(fq(q,precision:64).toDouble() - fd(q.toDouble()))
-    return Swift.abs(fq(q,precision:64).toDouble() - fd(q.toDouble())) <= 0x2p-52
+    let qd = fq(q,precision:64).toDouble()
+    let dd = fd(q.toDouble())
+    let diff = Swift.abs(qd - dd)
+    if Swift.abs(qd - dd) > 0x2p-52 {
+        print("qd = \(qd), dd=\(dd), diff=\(diff)")
+        return false
+    }
+    return true
 }
 test.eq(Rational.sqrt(-BigInt(1).over(1)).isNaN, true,  "sqrt(-1/1) is NaN")
 test.eq(Rational.log(-BigInt(1).over(1)).isNaN, true,   "log(-1/1) is NaN")
@@ -259,8 +266,17 @@ for i in 1...16 {
     test.eq(approx(qp, BigRat.log,  Double.log),  true,  "Rational vs Double: log(\(qp))")
     test.eq(approx(qp, BigRat.exp,  Double.exp),  true,  "Rational vs Double: exp(\(qp))")
     test.eq(approx(qm, BigRat.exp,  Double.exp),  true,  "Rational vs Double: exp(\(qm))")
+    //test.eq(approx(qp, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(qp))")
+    //test.eq(approx(qm, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(qm))")
 }
+//print(POUtil.constants)
+//print(BigRat.exp(BigInt(1).over(1)))
+//print(BigRat.exp(BigInt(1).over(1)))
 
-print(Rational.atan(BigInt(1).over(1), precision:128) * 4)
+//func machin(p:Int)->BigRat {
+//    return 4*BigRat.atan(BigInt(1).over(5), precision:p) - BigRat.atan(BigInt(1).over(239), precision:p)
+//}
+//
+//print(4 * machin(256))
 
 test.done()

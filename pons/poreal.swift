@@ -62,6 +62,21 @@ extension POReal {
     public static func asinh(x:Self)->Self  { return Self(Darwin.asinh(x.toDouble())) }
     public static func atanh(x:Self)->Self  { return Self(Darwin.atanh(x.toDouble())) }
     #endif
+    ////
+    public static func getSetConstant(
+        name:String, _ arg:Self, _ precision:Int, setter:Self->Self
+        )->Self
+    {
+        let key = "\(Self.self).\(name)(\(arg), precision:\(precision))"
+        // print("\(__FILE__):\(__LINE__) fetching \(key)")
+        if let value = POUtil.constants[key] {
+            return value as! Self
+        }
+        let value = setter(arg)
+        // print("\(__FILE__):(__LINE__) storing \(key) => \(value)")
+        POUtil.constants[key] = value
+        return value
+    }
     // public static func sqrt(x:Self)->Self   { return Self(Darwin.sqrt(x.toDouble())) }
     /// - returns: square root of `x` to precision `precision`
     public static func sqrt(x:Self, precision:Int = 64)->Self {
@@ -70,32 +85,24 @@ extension POReal {
         if x == 0 { return 0 }
         if x.isInfinite { return Self.infinity }
         let px = Swift.max(x.precision, precision)
-        let typename = "\(Self.infinity.dynamicType)"
-        typealias PC = POUtil.Constants
-        if x == 2 {
-            if let d = PC.SQRT2[typename] {
-                if let v = d[px] {
-                    return v as! Self
-                }
-            } else {
-                PC.SQRT2[typename] = [Int:Any]()
-            }
-        }
-        var r0 = x < 1 ? 1 : x
-        var r = r0
         let iter = max(px.msbAt + 1, 1)
-        // return r.truncate(px)
-        // print("\(__FILE__):\(__LINE__): px=\(px), iter=\(iter)")
-        for _ in 0...iter {
-            r = (x/r0 + r0) / 2
-            if r == r0 { break }
-            r.truncate(px + 32)
-            r0 = r
+        let inner_sqrt:Self->Self = { x in
+            var r0 = x < 1 ? 1 : x
+            var r = r0
+            // return r.truncate(px)
+            // print("\(__FILE__):\(__LINE__): px=\(px), iter=\(iter)")
+            for _ in 0...iter {
+                r = (x/r0 + r0) / 2
+                if r == r0 { break }
+                r.truncate(px + 32)
+                r0 = r
+            }
+            return r
         }
         if x == 2 {
-            PC.SQRT2[typename]![px] = r
-            return PC.SQRT2[typename]![px] as! Self
+            return getSetConstant("sqrt", 2, px, setter:inner_sqrt)
         }
+        var r = inner_sqrt(x)
         return r.truncate(px)
     }
     public static func hypot(x:Self, _ y:Self, precision:Int=64)->Self {
@@ -112,7 +119,7 @@ extension POReal {
         let ax = x < 0 ? -x : x
         let ix = ax.toIntMax().asInt!
         let fx = ax - Self(ix)
-        let epsilon = Double.ldexp(1.0, -px)
+        let epsilon = Self(Double.ldexp(1.0, -px))
         // print("\(Self.self).exp(\(x), precision:\(precision)):ax=\(ax), ix=\(ix), fx=\(fx)")
         let inner_exp:Self->Self = { x in
             var (r, t) = (Self(1), Self(1))
@@ -121,24 +128,12 @@ extension POReal {
                 t.truncate(px + 32)
                 r += t
                 r.truncate(px + 32)
-                if t.toDouble() < epsilon { break }
+                if t < epsilon { break }
                 // print("\(Self.self).inner_exp(\(x)):i=\(i), x=\(x.toDouble()),r=\(r.toDouble())")
             }
             return r
         }
-        let e:Self = {
-            let typename = "\(Self.infinity.dynamicType)"
-            typealias PC = POUtil.Constants
-            if let d = PC.E[typename] {
-                if let v = d[px] {
-                    return v as! Self
-                }
-            } else {
-                PC.E[typename] = [Int:Any]()
-            }
-            PC.E[typename]![px] = inner_exp(1)
-            return PC.E[typename]![px] as! Self
-        }()
+        let e = getSetConstant("exp", Self(1), px, setter:inner_exp)
         //let ir = ix == 0 ? Self(1) : Int.power(inner_exp(1), ix, op:*)
         let ir = ix == 0 ? Self(1) : Int.power(e, ix, op:*)
         let fr = fx == 0 ? Self(1) : inner_exp(fx)
@@ -158,40 +153,25 @@ extension POReal {
             if x < 1 { t = -t }
             let t2 = t * t
             var r:Self = t
-            let epsilon = Double.ldexp(1.0, -px)
+            let epsilon = Self(Double.ldexp(1.0, -px))
             for i in 1...px*2 {
                 t *= t2
                 t.truncate(px + 32)
                 r += t / Self(2*i + 1)
                 // print("POReal#log: i=\(i), px=\(px), t=\(t.toDouble()), r=\(r.toDouble())")
                 r.truncate(px + 32)
-                if t.toDouble() < epsilon { break }
+                if t < epsilon { break }
             }
             return 2 * (x < 1 ? -r : r)
         }
-        let ln2:Self = {
-            let typename = "\(Self.infinity.dynamicType)"
-            typealias PC = POUtil.Constants
-            if let d = PC.LN2[typename] {
-                // print("\(__FILE__):\(__LINE__):LN2[\"\(typename)\"] existent")
-                if let v = d[px] {
-                    // print("\(__FILE__):\(__LINE__):returning LN2[\"\(typename)\"][px]")
-                    return v as! Self
-                }
-            } else {
-                // print("\(__FILE__):\(__LINE__): creating LN2[\"\(typename)\"]")
-                PC.LN2[typename] = [Int:Any]()
-            }
-            // print("\(__FILE__):\(__LINE__): setting LN2[\(typename)][\(px)]")
-            PC.LN2[typename]![px] = 2 * inner_log(sqrt(2, precision:px+32))
-            return PC.LN2[typename]![px] as! Self
-        }()
+        let ln2 = getSetConstant("log", 2, px, setter:inner_log)
         let il = x.toIntMax().msbAt
         let fl = x / Self(Double.ldexp(1.0, il))
         let ir = il == 0 ? 0 : ln2 * Self(il)
         let fr = fl == 0 ? 0 : inner_log(fl)
         var r =  ir + fr
-        // print("ln(\(x.toDouble())) =~ ln(\(Double.ldexp(1.0,il)))+ln(\(fl.toDouble())) = \(ir.toDouble())+\(fr.toDouble())")
+        //print("ln(\(x.toDouble())) =~ ln(\(Double.ldexp(1.0,il)))+ln(\(fl.toDouble()))"
+        //    + " = \(ir.toDouble())+\(fr.toDouble()) = \(r.toDouble())")
         return r.truncate(px)
     }
     /// Arc tangent
@@ -225,6 +205,7 @@ extension POReal {
     public static var SQRT2:Self    { return Self(M_SQRT2) }
 }
 public extension POUtil {
+    public static var constants = [String:Any]()
     public class Constants {
         public static var LN2   = [String:[Int:Any]]()
         public static var E     = [String:[Int:Any]]()

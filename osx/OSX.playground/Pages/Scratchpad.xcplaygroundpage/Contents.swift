@@ -20,10 +20,11 @@ sizeofValue(1.over(2))
 //r
 let umax128 = BigUInt(1) << 128 - 1
 let umax64 = BigUInt(1) << 64 - 1
-BigUInt.gcd(umax128,umax64)
+//BigUInt.gcd(umax128,umax64)
 // POUtil.Constants.E["Rational<BigUInt>"]![128]
 // Rational.exp(BigInt(1).over(1))
 // Rational.exp(BigInt(2).over(1))
 // Rational.exp(BigInt(1).over(1), precision:1024)
 // POUtil.Constants.E
-Rational.atan(BigInt(1).over(1), precision:128)*4
+//Rational.atan(BigInt(1).over(1), precision:128)*4
+Rational.exp(BigInt(1).over(1))
