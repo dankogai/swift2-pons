@@ -172,6 +172,9 @@ extension POReal {
     public static var SQRT1_2:Self  { return Self(M_SQRT1_2) }
     public static var SQRT2:Self    { return Self(M_SQRT2) }
 }
+public extension POUtil {
+    public static var _LN2 = [Int:Rational<BigUInt>]()
+}
 extension Double : POFloat {
     public func toDouble()->Double { return self }
     public func toIntMax()->IntMax { return IntMax(self) }
@@ -206,6 +209,14 @@ extension Double : POFloat {
     public func truncate(bits:Int)->Double {
         return self
     }
+    public static var PI      = M_PI
+    public static var E       = M_E
+    public static var LN2     = M_LN2
+    public static var LN10    = M_LN10
+    public static var LOG2E   = M_LOG2E
+    public static var LOG10E  = M_LOG10E
+    public static var SQRT1_2 = M_SQRT1_2
+    public static var SQRT2   = M_SQRT2
 }
 extension Float : POFloat {
     public func toDouble()->Double { return Double(self) }

@@ -379,7 +379,7 @@ public extension BigUInt {
     /// binary long division
     ///
     /// cf. https://en.wikipedia.org/wiki/Division_algorithm#Integer_division_.28unsigned.29_with_remainder
-    public static func divmodLong(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, BigUInt) {
+    public static func divmodLongBit(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, BigUInt) {
         var q = BigUInt(0)
         var r = BigUInt(0)
         for i in (0...lhs.msbAt).lazy.reverse() {
@@ -391,6 +391,7 @@ public extension BigUInt {
             }
         }
         return (q, r)
+        
     }
     /// - returns: (quotient, remainder)
     public static func divmod(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, BigUInt) {
@@ -401,7 +402,8 @@ public extension BigUInt {
             let (q, r) = divmod32(lhs, rhs.asUInt32!)
             return (q, BigUInt(r))
         }
-        return divmodLong(lhs, rhs)
+        return divmodLongBit(lhs, rhs)
+        // return divmodNR(lhs, rhs)
     }
     // no overflow
     public static func divideWithOverflow(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, overflow:Bool) {

@@ -11,4 +11,15 @@ BigInt(1).over(bi).precision
 
 var v:Rational<BigUInt> = 0.5
 v + v//: [Next](@next)
-Rational.sqrt(v)
+Rational<BigUInt>.log(10)
+sizeofValue(1.over(2))
+//let M61 = BigUInt(1)<<61 - 1
+//let M127 = BigUInt(1)<<127 - 1
+//let (q, r) = BigUInt.divmod(M127, M61)
+//q
+//r
+let umax128 = BigUInt(1) << 128 - 1
+let umax64 = BigUInt(1) << 64 - 1
+BigUInt.bgcd(umax128,umax64)
+
+

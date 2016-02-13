@@ -142,7 +142,7 @@ for i in 1...42 {
     test.eq(C.log10(100.i).re, 2.0,             "log10(100.i).re == 2.0")
     test.eq(C.log10(100.i).im, C.log10(1.0.i).im, "log10(100.i).im == log10(1.i).im")
     test.eq(2.0 * 3.0 ** 4.0, 162.0,            "2.0*3.0**4.0 == 2.0 * (3.0 ** 4.0)")
-    test.eq((R.e()+0.0.i)**R.PI.i, C.exp(R.PI.i), "exp(z) == e ** z")
+    test.eq((R.E+0.0.i)**R.PI.i, C.exp(R.PI.i), "exp(z) == e ** z")
     test.eq(C.sqrt(-1.0), 1.0.i,                "sqrt(-1) == i")
     test.eq(C.sqrt(2.0.i),    1.0+1.0.i,        "sqrt(2i) == 1+i")
     test.eq(2.0.i **  2.5, -4.0-4.0.i,          "z **  2.5  == z*z*sqrt(z)")
@@ -242,10 +242,10 @@ test.eq(Bool.xor(true,  false), true,   "xor(true,  false) ==  true")
 test.eq(Bool.xor(false,  true), true,   "xor(false, false) ==  true")
 test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
 //
-print("sqrt(-1/1)==",   Rational.sqrt(-BigInt(1).over(1), precision:64))
-print("sqrt(+1/1)==",   Rational.sqrt(+BigInt(1).over(1), precision:64))
-print("sqrt(+2/1)==",   Rational.sqrt(+BigInt(2).over(1), precision:64))
-print("sqrt(+1/2)==",   Rational.sqrt(+BigInt(1).over(2), precision:64))
+print("sqrt(-1/1) ==",   Rational.sqrt(-BigInt(1).over(1), precision:64))
+print("sqrt(+1/1) ==",   Rational.sqrt(+BigInt(1).over(1), precision:64))
+print("sqrt(+2/1) ==",   Rational.sqrt(+BigInt(2).over(1), precision:64))
+print("sqrt(+1/2) ==",   Rational.sqrt(+BigInt(1).over(2), precision:64))
 for i in 0...4 {
     let qp = +BigInt(i).over(2)
     let qm = -BigInt(i).over(2)
@@ -259,5 +259,8 @@ for i in 0...4 {
     print("log(exp(\(i)/2)) - (\(i)/2) ~=",  (qp - lx).toDouble())
 }
 print("log(10)) ==", Rational.log(BigInt(10).over(1)))
-
+//let M61 = BigUInt(1)<<61 - 1
+//let M127 = BigUInt(1)<<127 - 1
+//let (q, r) = BigUInt.divmod(M127, M61)
+//let (q2,r2)=BigUInt.divmodNR(M127, M61)
 test.done()

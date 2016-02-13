@@ -8,12 +8,44 @@
 
 // add gcd()
 public extension POInteger {
-    public static func gcd(lhs: Self, _ rhs:Self)->Self {
+    /// GCD by Euclid's algorithm
+    ///
+    /// used to be default but gave way to binary algorithm
+    ///
+    /// - returns greatest common divisor of `lhs` and `rhs`
+    public static func egcd(lhs: Self, _ rhs:Self)->Self {
         var (r, q) = lhs < rhs ? (lhs, rhs) : (rhs, lhs)
         while r > 0 {
             (q, r) = (r, q % r)
         }
         return q
+    }
+    /// GCD by binary algorithm
+    ///
+    /// cf . https://en.wikipedia.org/wiki/Binary_GCD_algorithm
+    //
+    /// - returns greatest common divisor of `lhs` and `rhs`
+    public static func gcd(lhs: Self, _ rhs:Self)->Self {
+        if lhs == 0 { return rhs }
+        if rhs == 0 { return lhs }
+        var (u, v) = (lhs, rhs)
+        var twos = 0
+        while (u | v) & 1 == 0 {
+            u >>= 1
+            v >>= 1
+            twos += 1
+        }
+        while u & 1 == 0 {
+            u >>= 1
+        }
+        repeat {    // u is odd
+            while v & 1 == 0 {  // v is odd
+                v >>= 1
+            }
+            if u > v { (u, v) = (v, u) } // keep u <= v
+            v -= u
+        } while v != 0
+        return u << Self(twos)
     }
 }
 public protocol PORational : POReal {
