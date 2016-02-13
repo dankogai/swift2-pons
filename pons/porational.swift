@@ -55,9 +55,11 @@ public extension PORational {
         return (sgn ? -1 : 1) * (((num.hashValue >> bits) << bits) | (den.hashValue >> bits))
     }
     public mutating func truncate(bits:Int)->Self {
-        num <<= UIntType(bits)
-        num /= den
-        den = UIntType(1) << UIntType(bits)
+        if bits < num.msbAt + 1 {
+            num <<= UIntType(bits)
+            num /= den
+            den = UIntType(1) << UIntType(bits)
+        }
         return self
     }
     public static func multiplyWithOverflow(lhs:Self, _ rhs:Self)->(Self, overflow:Bool) {
@@ -79,11 +81,14 @@ public extension PORational {
         return multiplyWithOverflow(lhs, rhs.reciprocal)
     }
     public static func addWithOverflow(lhs:Self, _ rhs:Self)->(Self, overflow:Bool) {
+        if rhs.isZero { return (lhs, false) }
+        if lhs.isZero { return (rhs, false) }
+        if lhs == rhs { return (0, false) }
         if lhs.den == rhs.den {
             let (n, o) = Bool.xor(lhs.sgn, rhs.sgn)
                 ? lhs.num < rhs.num ? UIntType.subtractWithOverflow(rhs.num, lhs.num)
                     : UIntType.subtractWithOverflow(lhs.num, rhs.num)
-                    : UIntType.addWithOverflow(lhs.num, rhs.num)
+                : UIntType.addWithOverflow(lhs.num, rhs.num)
             if n == 0 { return (zero, false) }
             var r = lhs
             let g = UIntType.gcd(n, lhs.den)
@@ -105,41 +110,14 @@ public extension PORational {
             let (ad, od) = UIntType.multiplyWithOverflow(lhs.den, rhs.den)
             let g = UIntType.gcd(an, ad)
             var r = lhs
-            r.sgn = lhs.num < rhs.num ? rhs.sgn: lhs.sgn
+            r.sgn = ln < rn ? rhs.sgn: lhs.sgn
             r.num = an / g
             r.den = ad / g
             return (r, ol||or||oa||od)
         }
-//        if lhs.den == rhs.den {
-//            let (n, nof) = Bool.xor(lhs.sgn, rhs.sgn)
-//                ? lhs.num < rhs.num ? UIntType.subtractWithOverflow(rhs.num, lhs.num)
-//                    : UIntType.subtractWithOverflow(lhs.num, rhs.num)
-//                    : UIntType.addWithOverflow(lhs.num, rhs.num)
-//            if n == 0 { return (zero, false) }
-//            var result = lhs
-//            let g = UIntType.gcd(n, lhs.den)
-//            result.sgn = lhs.num < rhs.num ? rhs.sgn: lhs.sgn
-//            result.num = g == 1 ? n : n / g
-//            if g != 1 { result.den /= g }
-//            return (result, overflow:nof)
-//        } else {
-//            var l = lhs, r = rhs
-//            var (o0, o1, o2, o3) = (false, false, false, false)
-//            var d = UIntType(0), fin = lhs
-//            // print("add:", l, r)
-//            let g = UIntType.gcd(lhs.den, rhs.den)
-//            // print("__FILE__:__LINE__:", g)
-//            (d, o0) = UIntType.multiplyWithOverflow(l.den, r.den / g)
-//            (l.num, o1) = UIntType.multiplyWithOverflow(l.num, r.den / g)
-//            (r.num, o2) = UIntType.multiplyWithOverflow(r.num, l.den / g)
-//            l.den = d ; r.den = d
-//            // print("add:", l, r)
-//            (fin, o3) = addWithOverflow(l, r)
-//            return (fin, overflow: o0 || o1 || o2 || o3)
-//        }
     }
     public static func subtractWithOverflow(lhs:Self, _ rhs:Self)->(Self, overflow:Bool) {
-        return addWithOverflow(lhs, -rhs)
+        return rhs.isZero ? (lhs, false) : addWithOverflow(lhs, -rhs)
     }
 }
 public struct Rational<U:POUInt> : PORational, FloatLiteralConvertible {
@@ -162,10 +140,10 @@ public struct Rational<U:POUInt> : PORational, FloatLiteralConvertible {
         (sgn, num, den) = (q.sgn, q.num, q.den)
     }
     public init(_ n:Int, _ d:Int, isNormal:Bool = false) {
-        self.init(Bool.xor(n.isSignMinus, d.isSignMinus), U(n), U(d), isNormal:isNormal)
+        self.init(Bool.xor(n.isSignMinus, d.isSignMinus), U(n.abs), U(d.abs), isNormal:isNormal)
     }
     public init(_ n:Int) {
-        self.init(n, 1, isNormal:true)
+        self.init(n < 0, U(n.abs), 1, isNormal:true)
     }
     public init(_ r:Double) {
         let (m, e) = Double.frexp(r)
@@ -192,9 +170,7 @@ public func ==<Q:PORational>(lhs:Q, rhs:Q) -> Bool {
         && lhs.sgn == rhs.sgn && lhs.num == rhs.num && lhs.den == rhs.den
 }
 public func < <Q:PORational>(lhs:Q, rhs:Q) -> Bool {
-    if lhs == rhs { return true }
-    if lhs.sgn != rhs.sgn { return lhs.sgn }
-    return lhs.num * rhs.den < rhs.num * lhs.den ? rhs.sgn : lhs.sgn
+    return (lhs - rhs).sgn
 }
 public prefix func +<Q:PORational>(q:Q) -> Q {
     return q
@@ -240,7 +216,7 @@ public extension POInt {
             denominator.abs.asUnsigned!
         )
     }
-    public var asRational:Rational<Self.UIntType> {
+    public var asRational:Rational<Self.UIntType>? {
         return self.toRational()
     }
     public func over(dominator:Self)->Rational<UIntType> {

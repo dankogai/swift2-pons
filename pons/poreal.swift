@@ -68,13 +68,13 @@ extension POReal {
     /// - returns: square root of `x` to precision `precision`
     public static func sqrt(x:Self, precision:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.sqrt(dx)) }
-        if x < 0  { return Self.NaN }
-        if x == 0 { return 0 }
-        if x == 1 { return 1 }
+        let dx = Double.sqrt(x.toDouble())
+        if dx.isNaN      { return Self.NaN }
+        if dx.isInfinite { return dx.isSignMinus ? -Self.infinity : Self.infinity }
         let px = Swift.max(x.precision, precision)
-        let iter = max((px / 1.0.precision).msbAt + 1, 1)
-        var r0 = Self(Double.sqrt(x.toDouble()))
+        var r0 = Self(dx)
         var r = r0
+        let iter = max((px / 1.0.precision).msbAt + 1, 1)
         // print("\(__FILE__):\(__LINE__) iter=\(iter)")
         for _ in 0...iter {
             r = (x/r0 + r0) / 2
@@ -91,61 +91,43 @@ extension POReal {
     // public static func exp(x:Self)->Self    { return Self(Darwin.exp(x.toDouble())) }
     public static func exp(x:Self, precision:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.exp(dx)) }
-        if x == 0 { return 1 }
-        let ax = x < 0 ? -x : x
+        if x.isZero { return 1 }
+        let ax = x.isSignMinus ? -x : x
         let px = Swift.max(x.precision, precision)
-        let iax = Int(ax.toIntMax())
-        let fax = ax - Self(iax)
-        var eiax = Self(1)
-        if iax != 0 {
-            let e:Self = {
-                var (r, t):(Self, Self) = (1, 1)
-                for i in 1...px {
-                    t /= Self(i)
-                    r += t
-                    if px <= t.precision { break }
-                }
-                return r
-            }()
-            eiax = Int.power(e, iax, op:*)
-            eiax.truncate(px * 2)
-            if fax == 0 { return x < 0 ? (1 / eiax) : eiax }
-        }
-        var efax:Self = 1
+        var r:Self = 1
         var t:Self = 1
         let epsilon = Double.ldexp(1.0, -px)
-        // print("epsilon=\(epsilon.toDouble()), fax=\(fax.toDouble())")
         for i in 1...px {
-            // print("i=\(i), epsilon=\(epsilon), t.precision=\(t.toDouble())")
-            t *= fax / Self(i)
-            t.truncate(px + 1)
-            efax += t
-            efax.truncate(px * 2)
+            t *= ax / Self(i)
+            t.truncate(px * 2)
+            r += t
+            r.truncate(px * 2)
             if t.toDouble() < epsilon { break }
         }
-        var r = x < 0 ? 1 / (eiax * efax) : (eiax * efax)
         r.truncate(px)
-        return r
+        return x.isSignMinus ? 1 / r : r
     }
     /// ![](https://upload.wikimedia.org/math/1/7/5/17534a763ff4b0fd87ce62556ebcc3d7.png)
     public static func log(x:Self, precision:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.log(dx)) }
-        if x < 0  { return Self.NaN }
-        if x == 0 { return 1 }
+        if x.isSignMinus { return Self.NaN }
+        if x.isZero      { return 1 }
         let px = Swift.max(x.precision, precision)
-        var t = (x - 1) / (x + 1)
+        var t = x < 1 ? (1 - x)/(1 + x) : (x - 1)/(x + 1)
         let t2 = t * t
         var r:Self = t
         let epsilon = Double.ldexp(1.0, -px)
-        for i in 1...px {
-            // print("i=\(i), epsilon=\(epsilon), r=\(r.toDouble())")
+        for i in 1...px*2 {
             t *= t2
-            t.truncate(px + 1)
+            t.truncate(px * 2)
             r += t / Self(2*i + 1)
+            // print("POReal#log: i=\(i), px=\(px), t=\(t.toDouble()), r=\(r.toDouble())")
             r.truncate(px * 2)
             if t.toDouble() < epsilon { break }
         }
-        return 2 * r.truncate(px)
+        r *= 2
+        r.truncate(px)
+        return x < 1 ? -r : r
     }
     public static var PI:Self       { return Self(M_PI) }
     public static var E:Self        { return Self(M_E) }
@@ -174,18 +156,18 @@ extension Double : POFloat {
         return Glibc.ldexp(m, Int32(e))
     }
     //
-    public static func sqrt(x:Double, precision:Int=0)->Double { return Glibc.sqrt(x) }
-    public static func hypot(x:Double, _ y:Double, precision:Int=0)->Double { return Glibc.hypot(x, y) }
-    public static func exp(x:Double, precision:Int=0)->Double   { return Glibc.exp(x) }
-    public static func log(x:Double, precision:Int=0)->Double   { return Glibc.log(x) }
+    public static func sqrt(x:Double)->Double { return Glibc.sqrt(x) }
+    public static func hypot(x:Double, _ y:Double)->Double { return Glibc.hypot(x, y) }
+    public static func exp(x:Double)->Double   { return Glibc.exp(x) }
+    public static func log(x:Double)->Double   { return Glibc.log(x) }
     #else
     public static func frexp(d:Double)->(Double, Int)   { return Darwin.frexp(d) }
     public static func ldexp(m:Double, _ e:Int)->Double { return Darwin.ldexp(m, e) }
     //
-    public static func sqrt(x:Double, precision:Int=0)->Double { return Darwin.sqrt(x) }
-    public static func hypot(x:Double, _ y:Double, precision:Int=0)->Double { return Darwin.hypot(x, y) }
-    public static func exp(x:Double, precision:Int=0)->Double   { return Darwin.exp(x) }
-    public static func log(x:Double, precision:Int=0)->Double   { return Darwin.log(x) }
+    public static func sqrt(x:Double)->Double { return Darwin.sqrt(x) }
+    public static func hypot(x:Double, _ y:Double)->Double { return Darwin.hypot(x, y) }
+    public static func exp(x:Double)->Double   { return Darwin.exp(x) }
+    public static func log(x:Double)->Double   { return Darwin.log(x) }
     #endif
     public func truncate(bits:Int)->Double {
         return self
