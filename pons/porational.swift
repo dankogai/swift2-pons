@@ -149,10 +149,19 @@ public struct Rational<U:POUInt> : PORational, FloatLiteralConvertible {
         let (m, e) = Double.frexp(r)
         // print("\(__FILE__):\(__LINE__): m=\(m),e=\(e)")
         let b = Swift.min(Double.precision, UIntType.precision - 1)
-        let n = UInt64(Swift.abs(m) * Double(1 << b))
-        self.init(r.isSignMinus, UIntType(n), UIntType(1 << b))
-        if e < 0    { self.den <<= UIntType(abs(e)) }
-        else        { self.num <<= UIntType(abs(e)) }
+        let d = Swift.abs(m) * Double(1 << b)
+        if d.isNaN {
+            self.init(Rational.NaN)
+        }
+        else if d.isInfinite {
+            self.init(d.isSignMinus ? -Rational.infinity : Rational.infinity)
+        }
+        else {
+            let n = UInt64(d)
+            self.init(r.isSignMinus, UIntType(n), UIntType(1 << b))
+            if e < 0    { self.den <<= UIntType(abs(e)) }
+            else        { self.num <<= UIntType(abs(e)) }
+        }
     }
     // IntegerLiteralConvertible
     public typealias IntegerLiteralType = Int.IntegerLiteralType

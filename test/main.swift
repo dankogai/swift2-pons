@@ -254,7 +254,7 @@ for i in 0...4 {
 //print("log(+1/2)==",    Rational.log(+BigInt(1).over(2), precision:64))
 //print("log(+10/1)==",   Rational.log(+BigInt(10).over(1), precision:64))
 //print("log(+1/10)==",   Rational.log(+BigInt(1).over(10), precision:64))
-print("log(+5/4)==",    Rational.log(+BigInt(5).over(4), precision:64))
+//print("log(+5/4)==",    Rational.log(+BigInt(5).over(4), precision:64))
 // print(Rational.exp((1).over(1)))
 // print(Rational.log(BigInt(5).over(1), precision:64))
 test.done()

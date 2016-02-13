@@ -67,28 +67,38 @@ extension POReal {
     // public static func sqrt(x:Self)->Self   { return Self(Darwin.sqrt(x.toDouble())) }
     /// - returns: square root of `x` to precision `precision`
     public static func sqrt(x:Self, precision:Int = 64)->Self {
-        if let dx = x as? Double { return Self(Double.sqrt(dx)) }
-        let dx = Double.sqrt(x.toDouble())
-        if dx.isNaN      { return Self.NaN }
-        if dx.isInfinite { return dx.isSignMinus ? -Self.infinity : Self.infinity }
+        #if false
+        return Self(Darwin.sqrt(x.toDouble()))
+        #else
+        if let d = x as? Double { return Self(Double.sqrt(d)) }
+        if x < 0 { return Self.NaN }
+        if x.isInfinite { return Self.infinity }
         let px = Swift.max(x.precision, precision)
-        var r0 = Self(dx)
-        var r = r0
+        let xd = Self(Double.sqrt(x.toDouble()))
+        var (r, r0) = (xd, xd)
         let iter = max((px / 1.0.precision).msbAt + 1, 1)
+        // return r.truncate(px)
         // print("\(__FILE__):\(__LINE__): px=\(px), iter=\(iter)")
         for _ in 0...iter {
             r = (x/r0 + r0) / 2
-            if r0 == r { break }
+            if r == r0 { break }
             r.truncate(px + 32)
             r0 = r
         }
         return r.truncate(px)
+        #endif
     }
     public static func hypot(x:Self, _ y:Self, precision:Int=64)->Self {
+        #if false
+        return Self(Darwin.hypot(x.toDouble(), y.toDouble()))
+        #else
         return Self.sqrt(x * x + y * y, precision:precision)
+        #endif
     }
-    // public static func exp(x:Self)->Self    { return Self(Darwin.exp(x.toDouble())) }
     public static func exp(x:Self, precision:Int = 64)->Self {
+        #if false
+        return Self(Darwin.exp(x.toDouble()))
+        #else
         if let dx = x as? Double { return Self(Double.exp(dx)) }
         if x.isZero { return 1 }
         let px = Swift.max(x.precision, precision)
@@ -114,10 +124,14 @@ extension POReal {
         var r = ir * fr
         //print("ir=\(ir.toDouble()), fr=\(fr.toDouble()), r=\(r.toDouble())")
         return x.isSignMinus ? 1/r.truncate(px) : r.truncate(px)
+        #endif
     }
     /// ![](https://upload.wikimedia.org/math/1/7/5/17534a763ff4b0fd87ce62556ebcc3d7.png)
     public static func log(x:Self, precision:Int = 64)->Self {
-        if let dx = x as? Double { return Self(Double.log(dx)) }
+        #if false
+        return Self(Darwin.log(x.toDouble()))
+        #else
+       if let dx = x as? Double { return Self(Double.log(dx)) }
         if x.isSignMinus { return Self.NaN }
         if x.isZero      { return 1 }
         let px = Swift.max(x.precision, precision)
@@ -137,6 +151,7 @@ extension POReal {
         r *= 2
         r.truncate(px)
         return x < 1 ? -r : r
+        #endif
     }
     public static var PI:Self       { return Self(M_PI) }
     public static var E:Self        { return Self(M_E) }
