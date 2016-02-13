@@ -74,9 +74,6 @@ extension POReal {
         if x < 0 { return Self.NaN }
         if x.isInfinite { return Self.infinity }
         let px = Swift.max(x.precision, precision)
-        // let xd = Self(Double.sqrt(x.toDouble()))
-        // var (r, r0) = (xd, xd)
-        // let iter = max((px / 1.0.precision).msbAt + 1, 1)
         var r0 = x < 1 ? 1 : x
         var r = r0
         let iter = max(px.msbAt + 1, 1)
@@ -136,7 +133,8 @@ extension POReal {
         #else
         if let dx = x as? Double { return Self(Double.log(dx)) }
         if x.isSignMinus { return Self.NaN }
-        if x.isZero      { return 1 }
+        if x.isZero      { return -Self.infinity }
+        if x == 1        { return 0 }
         let px = Swift.max(x.precision, precision)
         let inner_log:Self->Self = { x in
             var t = (x - 1)/(x + 1)
@@ -152,16 +150,21 @@ extension POReal {
                 r.truncate(px + 32)
                 if t.toDouble() < epsilon { break }
             }
-            return 2 * (x < 1 ? -r.truncate(px) : r.truncate(px))
+            return 2 * (x < 1 ? -r : r)
         }
-        let xd = Self(Double.sqrt(x.toDouble()))
-        let exd = exp(xd)
-        // print("\(Self.self).log: xd=\(xd.toDouble()), exd=\(exd.toDouble())")
-        return xd + inner_log(x/exd)
+        let il = x.toIntMax().msbAt
+        let fl = x / Self(Double.ldexp(1.0, il))
+        let ir = il == 0 ? 1 : 2 * inner_log(sqrt(2, precision:precision)) * Self(il)
+        let fr = fl == 0 ? 1 : inner_log(fl)
+        var r =  ir + fr
+        //print("ln(\(x.toDouble())) =~ ln(\(Double.ldexp(1.0,il)))+ln(\(fl.toDouble())) = \(ir.toDouble())+\(fr.toDouble())")
+        return r.truncate(px)
         #endif
     }
     public static var PI:Self       { return Self(M_PI) }
-    public static var E:Self        { return Self(M_E) }
+    public static func e(precision:Int = 64)->Self {
+        return Self.exp(1, precision:precision)
+    }
     public static var LN2:Self      { return Self(M_LN2) }
     public static var LN10:Self     { return Self(M_LN10) }
     public static var LOG2E:Self    { return Self(M_LOG2E) }
