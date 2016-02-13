@@ -67,13 +67,21 @@ extension POReal {
     // public static func sqrt(x:Self)->Self   { return Self(Darwin.sqrt(x.toDouble())) }
     /// - returns: square root of `x` to precision `precision`
     public static func sqrt(x:Self, precision:Int = 64)->Self {
-        #if false
-        return Self(Darwin.sqrt(x.toDouble()))
-        #else
         if let d = x as? Double { return Self(Double.sqrt(d)) }
         if x < 0 { return Self.NaN }
         if x.isInfinite { return Self.infinity }
         let px = Swift.max(x.precision, precision)
+        let typename = "\(Self.infinity.dynamicType)"
+        typealias PC = POUtil.Constants
+        if x == 2 {
+            if let d = PC.SQRT2[typename] {
+                if let v = d[px] {
+                    return v as! Self
+                }
+            } else {
+                PC.SQRT2[typename] = [Int:Any]()
+            }
+        }
         var r0 = x < 1 ? 1 : x
         var r = r0
         let iter = max(px.msbAt + 1, 1)
@@ -85,8 +93,11 @@ extension POReal {
             r.truncate(px + 32)
             r0 = r
         }
+        if x == 2 {
+            PC.SQRT2[typename]![px] = r
+            return PC.SQRT2[typename]![px] as! Self
+        }
         return r.truncate(px)
-        #endif
     }
     public static func hypot(x:Self, _ y:Self, precision:Int=64)->Self {
         #if false
@@ -96,9 +107,6 @@ extension POReal {
         #endif
     }
     public static func exp(x:Self, precision:Int = 64)->Self {
-        #if false
-        return Self(Darwin.exp(x.toDouble()))
-        #else
         if let dx = x as? Double { return Self(Double.exp(dx)) }
         if x.isZero { return 1 }
         let px = Swift.max(x.precision, precision)
@@ -119,18 +127,28 @@ extension POReal {
             }
             return r
         }
-        let ir = ix == 0 ? Self(1) : Int.power(inner_exp(1), ix, op:*)
+        let e:Self = {
+            let typename = "\(Self.infinity.dynamicType)"
+            typealias PC = POUtil.Constants
+            if let d = PC.E[typename] {
+                if let v = d[px] {
+                    return v as! Self
+                }
+            } else {
+                PC.E[typename] = [Int:Any]()
+            }
+            PC.E[typename]![px] = inner_exp(1)
+            return PC.E[typename]![px] as! Self
+        }()
+        //let ir = ix == 0 ? Self(1) : Int.power(inner_exp(1), ix, op:*)
+        let ir = ix == 0 ? Self(1) : Int.power(e, ix, op:*)
         let fr = fx == 0 ? Self(1) : inner_exp(fx)
         var r = ir * fr
         //print("ir=\(ir.toDouble()), fr=\(fr.toDouble()), r=\(r.toDouble())")
         return x.isSignMinus ? 1/r.truncate(px) : r.truncate(px)
-        #endif
     }
     /// ![](https://upload.wikimedia.org/math/1/7/5/17534a763ff4b0fd87ce62556ebcc3d7.png)
     public static func log(x:Self, precision:Int = 64)->Self {
-        #if false
-        return Self(Darwin.log(x.toDouble()))
-        #else
         if let dx = x as? Double { return Self(Double.log(dx)) }
         if x.isSignMinus { return Self.NaN }
         if x.isZero      { return -Self.infinity }
@@ -152,19 +170,32 @@ extension POReal {
             }
             return 2 * (x < 1 ? -r : r)
         }
+        let ln2:Self = {
+            let typename = "\(Self.infinity.dynamicType)"
+            typealias PC = POUtil.Constants
+            if let d = PC.LN2[typename] {
+                // print("\(__FILE__):\(__LINE__):LN2[\"\(typename)\"] existent")
+                if let v = d[px] {
+                    // print("\(__FILE__):\(__LINE__):returning LN2[\"\(typename)\"][px]")
+                    return v as! Self
+                }
+            } else {
+                // print("\(__FILE__):\(__LINE__): creating LN2[\"\(typename)\"]")
+                PC.LN2[typename] = [Int:Any]()
+            }
+            // print("\(__FILE__):\(__LINE__): setting LN2[\(typename)][\(px)]")
+            PC.LN2[typename]![px] = 2 * inner_log(sqrt(2, precision:px+32))
+            return PC.LN2[typename]![px] as! Self
+        }()
         let il = x.toIntMax().msbAt
         let fl = x / Self(Double.ldexp(1.0, il))
-        let ir = il == 0 ? 1 : 2 * inner_log(sqrt(2, precision:precision)) * Self(il)
-        let fr = fl == 0 ? 1 : inner_log(fl)
+        let ir = il == 0 ? 0 : ln2 * Self(il)
+        let fr = fl == 0 ? 0 : inner_log(fl)
         var r =  ir + fr
-        //print("ln(\(x.toDouble())) =~ ln(\(Double.ldexp(1.0,il)))+ln(\(fl.toDouble())) = \(ir.toDouble())+\(fr.toDouble())")
+        // print("ln(\(x.toDouble())) =~ ln(\(Double.ldexp(1.0,il)))+ln(\(fl.toDouble())) = \(ir.toDouble())+\(fr.toDouble())")
         return r.truncate(px)
-        #endif
     }
     public static var PI:Self       { return Self(M_PI) }
-    public static func e(precision:Int = 64)->Self {
-        return Self.exp(1, precision:precision)
-    }
     public static var LN2:Self      { return Self(M_LN2) }
     public static var LN10:Self     { return Self(M_LN10) }
     public static var LOG2E:Self    { return Self(M_LOG2E) }
@@ -173,7 +204,11 @@ extension POReal {
     public static var SQRT2:Self    { return Self(M_SQRT2) }
 }
 public extension POUtil {
-    public static var _LN2 = [Int:Rational<BigUInt>]()
+    public class Constants {
+        public static var LN2   = [String:[Int:Any]]()
+        public static var E     = [String:[Int:Any]]()
+        public static var SQRT2 = [String:[Int:Any]]()
+    }
 }
 extension Double : POFloat {
     public func toDouble()->Double { return self }

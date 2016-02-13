@@ -20,6 +20,13 @@ sizeofValue(1.over(2))
 //r
 let umax128 = BigUInt(1) << 128 - 1
 let umax64 = BigUInt(1) << 64 - 1
-BigUInt.bgcd(umax128,umax64)
-
-
+BigUInt.gcd(umax128,umax64)
+Rational<BigUInt>.getE()
+Rational<BigUInt>.getE()
+Rational<BigUInt>.getE()
+Rational<BigUInt>.getE(128)
+Rational<BigUInt>.getE(128)
+Rational<BigUInt>.getE(128)
+Rational<BigUInt>.getE(256)
+// POUtil.Constants.E["Rational<BigUInt>"]![128]
+POUtil.Constants.E
