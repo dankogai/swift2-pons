@@ -68,7 +68,8 @@ extension POReal {
     /// - returns: square root of `x` to precision `precision`
     public static func sqrt(x:Self, precision:Int = 64)->Self {
         if let d = x as? Double { return Self(Double.sqrt(d)) }
-        if x < 0 { return Self.NaN }
+        if x < 0  { return Self.NaN }
+        if x == 0 { return 0 }
         if x.isInfinite { return Self.infinity }
         let px = Swift.max(x.precision, precision)
         let typename = "\(Self.infinity.dynamicType)"
