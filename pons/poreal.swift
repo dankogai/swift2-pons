@@ -181,20 +181,25 @@ extension POReal {
         // return Self(Darwin.atan(x.toDouble()))
         if let dx = x as? Double { return Self(Double.atan(dx)) }
         let px = Swift.max(x.precision, precision)
-        let x2 = x*x
-        let x2p1 = 1 + x2
-        var (t, r) = (Self(1), Self(1))
         let epsilon = Self(Double.ldexp(1.0, -px))
-        for i in 1...px*4 {
-            t *= 2 * Self(i) * x2 / (Self(2 * i + 1) * x2p1)
-            t.truncate(px + 32)
-            r += t
-            // print("POReal#log: i=\(i), px=\(px), t=\(t.toDouble()), r=\(r.toDouble())")
-            r.truncate(px + 32)
-            if t < epsilon { break }
+        let inner_atan:Self->Self = { x in
+            let x2 = x*x
+            let x2p1 = 1 + x2
+            var (t, r) = (Self(1), Self(1))
+            for i in 1...px*4 {
+                t *= 2 * Self(i) * x2 / (Self(2 * i + 1) * x2p1)
+                t.truncate(px + 32)
+                r += t
+                // print("POReal#log: i=\(i), px=\(px), t=\(t.toDouble()), r=\(r.toDouble())")
+                r.truncate(px + 32)
+                if t < epsilon { break }
+            }
+            return r * x / x2p1
         }
-        r *= x / x2p1
-        return r.truncate(px)
+        let pi_4 = getSetConstant("atan", 1, px, setter:inner_atan)
+        let ax = x < 0 ? -x : x
+        var r = ax < 1 ? inner_atan(ax) : 2*pi_4 - inner_atan(1/ax)
+        return x < 0 ? -r.truncate(px) : r.truncate(px)
     }
     public static var PI:Self       { return Self(M_PI) }
     public static var LN2:Self      { return Self(M_LN2) }

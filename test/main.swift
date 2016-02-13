@@ -266,9 +266,10 @@ for i in 1...16 {
     test.eq(approx(qp, BigRat.log,  Double.log),  true,  "Rational vs Double: log(\(qp))")
     test.eq(approx(qp, BigRat.exp,  Double.exp),  true,  "Rational vs Double: exp(\(qp))")
     test.eq(approx(qm, BigRat.exp,  Double.exp),  true,  "Rational vs Double: exp(\(qm))")
-    //test.eq(approx(qp, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(qp))")
-    //test.eq(approx(qm, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(qm))")
+    test.eq(approx(qp, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(qp))")
+    test.eq(approx(qm, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(qm))")
 }
+//print(BigRat.atan(BigInt(1).over(1)))
 //print(POUtil.constants)
 //print(BigRat.exp(BigInt(1).over(1)))
 //print(BigRat.exp(BigInt(1).over(1)))
