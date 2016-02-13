@@ -83,7 +83,7 @@ public extension PORational {
     public static func addWithOverflow(lhs:Self, _ rhs:Self)->(Self, overflow:Bool) {
         if rhs.isZero { return (lhs, false) }
         if lhs.isZero { return (rhs, false) }
-        if lhs == rhs { return (0, false) }
+        if lhs == rhs { return (lhs.sgn ? 0 : 2 * lhs, false) }
         if lhs.den == rhs.den {
             let (n, o) = Bool.xor(lhs.sgn, rhs.sgn)
                 ? lhs.num < rhs.num ? UIntType.subtractWithOverflow(rhs.num, lhs.num)

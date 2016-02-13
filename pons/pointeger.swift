@@ -381,11 +381,11 @@ public extension POInt {
         let ix = self.toIntMax()
         return ix < 0 ? nil : UInt(ix)
     }
-    public var asInt64:Int64? { return Int64(self.toUIntMax()) }
-    public var asInt32:Int32? { return Int32(self.toUIntMax()) }
-    public var asInt16:Int16? { return Int16(self.toUIntMax()) }
-    public var asInt8:Int8?   { return Int8(self.toUIntMax()) }
-    public var asInt:Int?     { return Int(self.toUIntMax()) }
+    public var asInt64:Int64? { return Int64(self.toIntMax()) }
+    public var asInt32:Int32? { return Int32(self.toIntMax()) }
+    public var asInt16:Int16? { return Int16(self.toIntMax()) }
+    public var asInt8:Int8?   { return Int8(self.toIntMax()) }
+    public var asInt:Int?     { return Int(self.toIntMax()) }
     public func toDouble()->Double { return Double(self.toIntMax()) }
     ///
     /// Returns the index of the most significant bit of `self`

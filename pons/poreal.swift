@@ -75,15 +75,14 @@ extension POReal {
         var r0 = Self(dx)
         var r = r0
         let iter = max((px / 1.0.precision).msbAt + 1, 1)
-        // print("\(__FILE__):\(__LINE__) iter=\(iter)")
+        // print("\(__FILE__):\(__LINE__): px=\(px), iter=\(iter)")
         for _ in 0...iter {
             r = (x/r0 + r0) / 2
             if r0 == r { break }
-            r.truncate(px * 2)
+            r.truncate(px + 32)
             r0 = r
         }
         return r.truncate(px)
-
     }
     public static func hypot(x:Self, _ y:Self, precision:Int=64)->Self {
         return Self.sqrt(x * x + y * y, precision:precision)
@@ -94,18 +93,35 @@ extension POReal {
         if x.isZero { return 1 }
         let ax = x.isSignMinus ? -x : x
         let px = Swift.max(x.precision, precision)
-        var r:Self = 1
+        let ix = x.toIntMax().asInt!
+        let fx = ax - Self(ix)
+        // print("\(Self.self).exp(\(x), precision:\(precision)): ix=\(ix), fx=\(fx)")
+        var (ir, fr) = (Self(1), Self(1))
+        if ix != 0 {    // integer part
+            let e:Self = {
+                var (r, t) = (Self(2), Self(1))
+                for i in 2...px {
+                    t /= Self(i)
+                    r = r + t
+                    if px < t.precision { break }
+                }
+                return r
+            }()
+            ir = Int.pow(e, ix.abs)
+            if fx == 0 { return x < 0 ? 1 / ir.truncate(px) :  ir.truncate(px)}
+            ir.truncate(px + 32)
+        }
         var t:Self = 1
         let epsilon = Double.ldexp(1.0, -px)
-        for i in 1...px {
+        for i in 1...px {   // fractional part
             t *= ax / Self(i)
-            t.truncate(px * 2)
-            r += t
-            r.truncate(px * 2)
+            t.truncate(px + 32)
+            fr += t
+            fr.truncate(px + 32)
             if t.toDouble() < epsilon { break }
         }
-        r.truncate(px)
-        return x.isSignMinus ? 1 / r : r
+        var r = ir * fr
+        return x.isSignMinus ? 1 / r.truncate(px) : r.truncate(px)
     }
     /// ![](https://upload.wikimedia.org/math/1/7/5/17534a763ff4b0fd87ce62556ebcc3d7.png)
     public static func log(x:Self, precision:Int = 64)->Self {
@@ -120,10 +136,10 @@ extension POReal {
         let epsilon = Double.ldexp(1.0, -px)
         for i in 1...px*2 {
             t *= t2
-            t.truncate(px * 2)
+            t.truncate(px + 32)
             r += t / Self(2*i + 1)
             // print("POReal#log: i=\(i), px=\(px), t=\(t.toDouble()), r=\(r.toDouble())")
-            r.truncate(px * 2)
+            r.truncate(px + 32)
             if t.toDouble() < epsilon { break }
         }
         r *= 2
