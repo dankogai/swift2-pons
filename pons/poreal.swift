@@ -91,37 +91,29 @@ extension POReal {
     public static func exp(x:Self, precision:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.exp(dx)) }
         if x.isZero { return 1 }
-        let ax = x.isSignMinus ? -x : x
         let px = Swift.max(x.precision, precision)
-        let ix = x.toIntMax().asInt!
+        let ax = x < 0 ? -x : x
+        let ix = ax.toIntMax().asInt!
         let fx = ax - Self(ix)
-        // print("\(Self.self).exp(\(x), precision:\(precision)): ix=\(ix), fx=\(fx)")
-        var (ir, fr) = (Self(1), Self(1))
-        if ix != 0 {    // integer part
-            let e:Self = {
-                var (r, t) = (Self(2), Self(1))
-                for i in 2...px {
-                    t /= Self(i)
-                    r = r + t
-                    if px < t.precision { break }
-                }
-                return r
-            }()
-            ir = Int.pow(e, ix.abs)
-            if fx == 0 { return x < 0 ? 1 / ir.truncate(px) :  ir.truncate(px)}
-            ir.truncate(px + 32)
-        }
-        var t:Self = 1
         let epsilon = Double.ldexp(1.0, -px)
-        for i in 1...px {   // fractional part
-            t *= ax / Self(i)
-            t.truncate(px + 32)
-            fr += t
-            fr.truncate(px + 32)
-            if t.toDouble() < epsilon { break }
+        // print("\(Self.self).exp(\(x), precision:\(precision)):ax=\(ax), ix=\(ix), fx=\(fx)")
+        let inner_exp:Self->Self = { x in
+            var (r, t) = (Self(1), Self(1))
+            for i in 1...px {
+                t *= x / Self(i)
+                t.truncate(px + 32)
+                r += t
+                r.truncate(px + 32)
+                if t.toDouble() < epsilon { break }
+                // print("\(Self.self).inner_exp(\(x)):i=\(i), x=\(x.toDouble()),r=\(r.toDouble())")
+            }
+            return r
         }
+        let ir = ix == 0 ? Self(1) : Int.power(inner_exp(1), ix, op:*)
+        let fr = fx == 0 ? Self(1) : inner_exp(fx)
         var r = ir * fr
-        return x.isSignMinus ? 1 / r.truncate(px) : r.truncate(px)
+        //print("ir=\(ir.toDouble()), fr=\(fr.toDouble()), r=\(r.toDouble())")
+        return x.isSignMinus ? 1/r.truncate(px) : r.truncate(px)
     }
     /// ![](https://upload.wikimedia.org/math/1/7/5/17534a763ff4b0fd87ce62556ebcc3d7.png)
     public static func log(x:Self, precision:Int = 64)->Self {
