@@ -74,9 +74,12 @@ extension POReal {
         if x < 0 { return Self.NaN }
         if x.isInfinite { return Self.infinity }
         let px = Swift.max(x.precision, precision)
-        let xd = Self(Double.sqrt(x.toDouble()))
-        var (r, r0) = (xd, xd)
-        let iter = max((px / 1.0.precision).msbAt + 1, 1)
+        // let xd = Self(Double.sqrt(x.toDouble()))
+        // var (r, r0) = (xd, xd)
+        // let iter = max((px / 1.0.precision).msbAt + 1, 1)
+        var r0 = x < 1 ? 1 : x
+        var r = r0
+        let iter = max(px.msbAt + 1, 1)
         // return r.truncate(px)
         // print("\(__FILE__):\(__LINE__): px=\(px), iter=\(iter)")
         for _ in 0...iter {
@@ -131,26 +134,30 @@ extension POReal {
         #if false
         return Self(Darwin.log(x.toDouble()))
         #else
-       if let dx = x as? Double { return Self(Double.log(dx)) }
+        if let dx = x as? Double { return Self(Double.log(dx)) }
         if x.isSignMinus { return Self.NaN }
         if x.isZero      { return 1 }
         let px = Swift.max(x.precision, precision)
-        var t = (x - 1)/(x + 1)
-        if x < 1 { t = -t }
-        let t2 = t * t
-        var r:Self = t
-        let epsilon = Double.ldexp(1.0, -px)
-        for i in 1...px*2 {
-            t *= t2
-            t.truncate(px + 32)
-            r += t / Self(2*i + 1)
-            // print("POReal#log: i=\(i), px=\(px), t=\(t.toDouble()), r=\(r.toDouble())")
-            r.truncate(px + 32)
-            if t.toDouble() < epsilon { break }
+        let inner_log:Self->Self = { x in
+            var t = (x - 1)/(x + 1)
+            if x < 1 { t = -t }
+            let t2 = t * t
+            var r:Self = t
+            let epsilon = Double.ldexp(1.0, -px)
+            for i in 1...px*2 {
+                t *= t2
+                t.truncate(px + 32)
+                r += t / Self(2*i + 1)
+                // print("POReal#log: i=\(i), px=\(px), t=\(t.toDouble()), r=\(r.toDouble())")
+                r.truncate(px + 32)
+                if t.toDouble() < epsilon { break }
+            }
+            return 2 * (x < 1 ? -r.truncate(px) : r.truncate(px))
         }
-        r *= 2
-        r.truncate(px)
-        return x < 1 ? -r : r
+        let xd = Self(Double.sqrt(x.toDouble()))
+        let exd = exp(xd)
+        // print("\(Self.self).log: xd=\(xd.toDouble()), exd=\(exd.toDouble())")
+        return xd + inner_log(x/exd)
         #endif
     }
     public static var PI:Self       { return Self(M_PI) }
