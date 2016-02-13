@@ -242,30 +242,25 @@ test.eq(Bool.xor(true,  false), true,   "xor(true,  false) ==  true")
 test.eq(Bool.xor(false,  true), true,   "xor(false, false) ==  true")
 test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
 // Generic Math
+typealias BigRat = Rational<BigUInt>
 func approx<Q:PORational>(q:Q, _ fq:(Q,precision:Int)->Q, _ fd:Double->Double)->Bool {
     // print(fq(q,precision:64).toDouble() - fd(q.toDouble()))
     return Swift.abs(fq(q,precision:64).toDouble() - fd(q.toDouble())) <= 0x2p-52
 }
 test.eq(Rational.sqrt(-BigInt(1).over(1)).isNaN, true,  "sqrt(-1/1) is NaN")
 test.eq(Rational.log(-BigInt(1).over(1)).isNaN, true,   "log(-1/1) is NaN")
-test.eq(Rational.log(+BigInt(0).over(1)), -Rational<BigUInt>.infinity,   "log(0/1) is -inf")
-
-
+test.eq(Rational.log(+BigInt(0).over(1)), -BigRat.infinity,   "log(0/1) is -inf")
 test.eq(Rational.sqrt(+BigInt(0).over(1)), BigInt(0).over(1),   "sqrt(0/1) == 0")
 test.eq(Rational.sqrt(+BigInt(1).over(1)), BigInt(1).over(1),   "sqrt(1/1) == 1")
-for i in 0...5 {
-    let qp = +BigInt(i).over(2)
-    let qm = -BigInt(i).over(2)
-    //let ep = Rational.exp(qp)
-    //let em = Rational.exp(qm)
-    test.eq(approx(qp, Rational<BigUInt>.sqrt, Double.sqrt), true,  "Rational vs Double: sqrt(\(qp))")
-    if i != 0 { test.eq(approx(qp, Rational<BigUInt>.log,  Double.log),  true,  "Rational vs Double: log(\(qp))") }
-    test.eq(approx(qp, Rational<BigUInt>.exp,  Double.exp),  true,  "Rational vs Double: exp(\(qp))")
-    test.eq(approx(qm, Rational<BigUInt>.exp,  Double.exp),  true,  "Rational vs Double: exp(\(qm))")
+for i in 1...16 {
+    let qp = +BigInt(i).over(4)
+    let qm = -BigInt(i).over(4)
+    test.eq(approx(qp, BigRat.sqrt, Double.sqrt), true,  "Rational vs Double: sqrt(\(qp))")
+    test.eq(approx(qp, BigRat.log,  Double.log),  true,  "Rational vs Double: log(\(qp))")
+    test.eq(approx(qp, BigRat.exp,  Double.exp),  true,  "Rational vs Double: exp(\(qp))")
+    test.eq(approx(qm, BigRat.exp,  Double.exp),  true,  "Rational vs Double: exp(\(qm))")
 }
-//test.eq(approx(+BigInt(10).over(1), Rational<BigUInt>.log, Double.log), true,  "log(10)")
-//let M61 = BigUInt(1)<<61 - 1
-//let M127 = BigUInt(1)<<127 - 1
-//let (q, r) = BigUInt.divmod(M127, M61)
-//let (q2,r2)=BigUInt.divmodNR(M127, M61)
+
+print(Rational.atan(BigInt(1).over(1), precision:128) * 4)
+
 test.done()

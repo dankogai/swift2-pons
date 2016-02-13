@@ -41,7 +41,6 @@ extension POReal {
     public static func atan2(y:Self, _ x:Self)->Self { return Self(Glibc.atan2(y.toDouble(), x.toDouble())) }
     public static func acos(x:Self)->Self   { return Self(Glibc.acos(x.toDouble())) }
     public static func asin(x:Self)->Self   { return Self(Glibc.asin(x.toDouble())) }
-    public static func atan(x:Self)->Self   { return Self(Glibc.atan(x.toDouble())) }
     public static func cosh(x:Self)->Self   { return Self(Glibc.cosh(x.toDouble())) }
     public static func sinh(x:Self)->Self   { return Self(Glibc.sinh(x.toDouble())) }
     public static func tanh(x:Self)->Self   { return Self(Glibc.tanh(x.toDouble())) }
@@ -56,7 +55,6 @@ extension POReal {
     public static func atan2(y:Self, _ x:Self)->Self { return Self(Darwin.atan2(y.toDouble(), x.toDouble())) }
     public static func acos(x:Self)->Self   { return Self(Darwin.acos(x.toDouble())) }
     public static func asin(x:Self)->Self   { return Self(Darwin.asin(x.toDouble())) }
-    public static func atan(x:Self)->Self   { return Self(Darwin.atan(x.toDouble())) }
     public static func cosh(x:Self)->Self   { return Self(Darwin.cosh(x.toDouble())) }
     public static func sinh(x:Self)->Self   { return Self(Darwin.sinh(x.toDouble())) }
     public static func tanh(x:Self)->Self   { return Self(Darwin.tanh(x.toDouble())) }
@@ -196,6 +194,28 @@ extension POReal {
         // print("ln(\(x.toDouble())) =~ ln(\(Double.ldexp(1.0,il)))+ln(\(fl.toDouble())) = \(ir.toDouble())+\(fr.toDouble())")
         return r.truncate(px)
     }
+    /// Arc tangent
+    ///
+    /// ![](https://upload.wikimedia.org/math/8/2/a/82a9938b7482d8d2ac5b2d7f3bce11fe.png)
+    public static func atan(x:Self, precision:Int = 64)->Self {
+        // return Self(Darwin.atan(x.toDouble()))
+        if let dx = x as? Double { return Self(Double.atan(dx)) }
+        let px = Swift.max(x.precision, precision)
+        let x2 = x*x
+        let x2p1 = 1 + x2
+        var (t, r) = (Self(1), Self(1))
+        let epsilon = Self(Double.ldexp(1.0, -px))
+        for i in 1...px*4 {
+            t *= 2 * Self(i) * x2 / (Self(2 * i + 1) * x2p1)
+            t.truncate(px + 32)
+            r += t
+            // print("POReal#log: i=\(i), px=\(px), t=\(t.toDouble()), r=\(r.toDouble())")
+            r.truncate(px + 32)
+            if t < epsilon { break }
+        }
+        r *= x / x2p1
+        return r.truncate(px)
+    }
     public static var PI:Self       { return Self(M_PI) }
     public static var LN2:Self      { return Self(M_LN2) }
     public static var LN10:Self     { return Self(M_LN10) }
@@ -241,6 +261,9 @@ extension Double : POFloat {
     public static func hypot(x:Double, _ y:Double)->Double { return Darwin.hypot(x, y) }
     public static func exp(x:Double)->Double   { return Darwin.exp(x) }
     public static func log(x:Double)->Double   { return Darwin.log(x) }
+    
+    public static func atan(x:Double)->Double   { return Darwin.atan(x) }
+
     #endif
     public func truncate(bits:Int)->Double {
         return self
