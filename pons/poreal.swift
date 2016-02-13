@@ -113,7 +113,8 @@ extension POReal {
         if x.isSignMinus { return Self.NaN }
         if x.isZero      { return 1 }
         let px = Swift.max(x.precision, precision)
-        var t = x < 1 ? (1 - x)/(1 + x) : (x - 1)/(x + 1)
+        var t = (x - 1)/(x + 1)
+        if x < 1 { t = -t }
         let t2 = t * t
         var r:Self = t
         let epsilon = Double.ldexp(1.0, -px)
