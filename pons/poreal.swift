@@ -34,19 +34,19 @@ public protocol POFloat : POReal {
 // public protocol POElementaryFunctional : POReal {}
 public extension POReal {
     #if os(Linux)
-    public static func pow(x:Self, _ y:Self)->Self  { return Self(Glibc.pow(x.toDouble(), y.toDouble())) }
-    public static func cos(x:Self)->Self    { return Self(Glibc.cos(x.toDouble())) }
-    public static func sin(x:Self)->Self    { return Self(Glibc.sin(x.toDouble())) }
-    public static func tan(x:Self)->Self    { return Self(Glibc.tan(x.toDouble())) }
-    public static func atan2(y:Self, _ x:Self)->Self { return Self(Glibc.atan2(y.toDouble(), x.toDouble())) }
-    public static func acos(x:Self)->Self   { return Self(Glibc.acos(x.toDouble())) }
-    public static func asin(x:Self)->Self   { return Self(Glibc.asin(x.toDouble())) }
-    public static func cosh(x:Self)->Self   { return Self(Glibc.cosh(x.toDouble())) }
-    public static func sinh(x:Self)->Self   { return Self(Glibc.sinh(x.toDouble())) }
-    public static func tanh(x:Self)->Self   { return Self(Glibc.tanh(x.toDouble())) }
-    public static func acosh(x:Self)->Self  { return Self(Glibc.acosh(x.toDouble())) }
-    public static func asinh(x:Self)->Self  { return Self(Glibc.asinh(x.toDouble())) }
-    public static func atanh(x:Self)->Self  { return Self(Glibc.atanh(x.toDouble())) }
+    public static func pow(x:Self, _ y:Self, precision:Int = 64)->Self  { return Self(Glibc.pow(x.toDouble(), y.toDouble())) }
+    public static func cos(x:Self, precision:Int = 64)->Self    { return Self(Glibc.cos(x.toDouble())) }
+    public static func sin(x:Self, precision:Int = 64)->Self    { return Self(Glibc.sin(x.toDouble())) }
+    public static func tan(x:Self, precision:Int = 64)->Self    { return Self(Glibc.tan(x.toDouble())) }
+    public static func atan2(y:Self, _ x:Self, precision:Int = 64)->Self { return Self(Glibc.atan2(y.toDouble(), x.toDouble())) }
+    public static func acos(x:Self, precision:Int = 64)->Self   { return Self(Glibc.acos(x.toDouble())) }
+    public static func asin(x:Self, precision:Int = 64)->Self   { return Self(Glibc.asin(x.toDouble())) }
+    public static func cosh(x:Self, precision:Int = 64)->Self   { return Self(Glibc.cosh(x.toDouble())) }
+    public static func sinh(x:Self, precision:Int = 64)->Self   { return Self(Glibc.sinh(x.toDouble())) }
+    public static func tanh(x:Self, precision:Int = 64)->Self   { return Self(Glibc.tanh(x.toDouble())) }
+    public static func acosh(x:Self, precision:Int = 64)->Self  { return Self(Glibc.acosh(x.toDouble())) }
+    public static func asinh(x:Self, precision:Int = 64)->Self  { return Self(Glibc.asinh(x.toDouble())) }
+    public static func atanh(x:Self, precision:Int = 64)->Self  { return Self(Glibc.atanh(x.toDouble())) }
     #else
     public static func pow(x:Self, _ y:Self, precision:Int = 64)->Self  { return Self(Darwin.pow(x.toDouble(), y.toDouble())) }
     public static func cos(x:Self, precision:Int = 64)->Self    { return Self(Darwin.cos(x.toDouble())) }
