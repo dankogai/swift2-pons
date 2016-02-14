@@ -27,4 +27,16 @@ let umax64 = BigUInt(1) << 64 - 1
 // Rational.exp(BigInt(1).over(1), precision:1024)
 // POUtil.Constants.E
 //Rational.atan(BigInt(1).over(1), precision:128)*4
-Rational.exp(BigInt(1).over(1))
+let rbone = BigInt(1).over(1)
+Rational.exp(rbone)
+Rational.atan(rbone)
+Rational.atan2(-rbone, rbone)
+Rational.atan2(Rational.infinity, rbone).toDouble()
+
+import Foundation
+String(format:"%a", Double.pi())
+String(format:"%a", Double.PI)
+String(format:"%a", Rational<BigUInt>.pi().toDouble() - Double.PI)
+
+POUtil.constants
+Double.sqrt(2)

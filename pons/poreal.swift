@@ -52,7 +52,6 @@ public extension POReal {
     public static func cos(x:Self)->Self    { return Self(Darwin.cos(x.toDouble())) }
     public static func sin(x:Self)->Self    { return Self(Darwin.sin(x.toDouble())) }
     public static func tan(x:Self)->Self    { return Self(Darwin.tan(x.toDouble())) }
-    public static func atan2(y:Self, _ x:Self)->Self { return Self(Darwin.atan2(y.toDouble(), x.toDouble())) }
     public static func acos(x:Self)->Self   { return Self(Darwin.acos(x.toDouble())) }
     public static func asin(x:Self)->Self   { return Self(Darwin.asin(x.toDouble())) }
     public static func cosh(x:Self)->Self   { return Self(Darwin.cosh(x.toDouble())) }
@@ -80,7 +79,6 @@ public extension POReal {
     // public static func sqrt(x:Self)->Self   { return Self(Darwin.sqrt(x.toDouble())) }
     /// - returns: square root of `x` to precision `precision`
     public static func sqrt(x:Self, precision:Int = 64)->Self {
-        if let d = x as? Double { return Self(Double.sqrt(d)) }
         if x < 0  { return Self.NaN }
         if x == 0 { return 0 }
         if x.isInfinite { return Self.infinity }
@@ -106,14 +104,10 @@ public extension POReal {
         return r.truncate(px)
     }
     public static func hypot(x:Self, _ y:Self, precision:Int=64)->Self {
-        #if false
-        return Self(Darwin.hypot(x.toDouble(), y.toDouble()))
-        #else
+        // return Self(Darwin.hypot(x.toDouble(), y.toDouble()))
         return Self.sqrt(x * x + y * y, precision:precision)
-        #endif
     }
     public static func exp(x:Self, precision:Int = 64)->Self {
-        if let dx = x as? Double { return Self(Double.exp(dx)) }
         if x.isZero { return 1 }
         let px = Swift.max(x.precision, precision)
         let ax = x < 0 ? -x : x
@@ -143,7 +137,6 @@ public extension POReal {
     }
     /// ![](https://upload.wikimedia.org/math/1/7/5/17534a763ff4b0fd87ce62556ebcc3d7.png)
     public static func log(x:Self, precision:Int = 64)->Self {
-        if let dx = x as? Double { return Self(Double.log(dx)) }
         if x.isSignMinus { return Self.NaN }
         if x.isZero      { return -Self.infinity }
         if x == 1        { return 0 }
@@ -181,7 +174,6 @@ public extension POReal {
     /// ![](https://upload.wikimedia.org/math/8/2/a/82a9938b7482d8d2ac5b2d7f3bce11fe.png)
     public static func atan(x:Self, precision:Int = 64)->Self {
         // return Self(Darwin.atan(x.toDouble()))
-        if let dx = x as? Double { return Self(Double.atan(dx)) }
         let px = Swift.max(x.precision, precision)
         let epsilon = Self(Double.ldexp(1.0, -px))
         let inner_atan:(Self, Int)->Self = { x , px in
@@ -198,37 +190,64 @@ public extension POReal {
             }
             return r * x / x2p1
         }
-        let pi_2 = 2 * getSetConstant("atan", 1, px, setter:{_, px in pi(px)/4 })
+        let pi_4 = getSetConstant("atan", 1, px, setter:{_, px in pi(px)/4 })
+        if x == 1 { return pi_4 }
         let ax = x < 0 ? -x : x
-        var r = ax < 1 ? inner_atan(ax, px) : pi_2 - inner_atan(1/ax, px)
+        var r = ax < 1 ? inner_atan(ax, px) : 2 * pi_4 - inner_atan(1/ax, px)
         return x < 0 ? -r.truncate(px) : r.truncate(px)
+    }
+    public static func atan2(y:Self, _ x:Self, precision:Int = 64)->Self {
+        if let dy = y as? Double { return Self(Double.atan2(dy, x as! Double)) }
+        let px = Swift.max(x.precision, precision)
+        if x.isNaN || y.isNaN { return Self.NaN }
+        if x.isZero || y.isZero || x.isInfinite || y.isInfinite {   // let us consult Double.atan2 this case
+            switch Double.atan2(y.toDouble(), x.toDouble()) {
+            case   +Double.PI/4 : return +pi(px)/4
+            case   -Double.PI/4 : return -pi(px)/4
+            case   +Double.PI/2 : return +pi(px)/2
+            case   -Double.PI/2 : return -pi(px)/2
+            case +3*Double.PI/4 : return +3*pi(px)/4
+            case -3*Double.PI/4 : return -3*pi(px)/4
+            case   +Double.PI   : return +pi(px)
+            case   -Double.PI   : return -pi(px)
+            case let d where d.isSignMinus : return -0
+            default:                         return +0
+            }
+        }
+        if x < 0 {
+            return atan(y/x, precision:px) + (y < 0 ? -pi(px) : +pi(px))
+        } else {
+            return atan(y/x, precision:px)
+        }
     }
     ///
     /// https://en.wikipedia.org/wiki/Bellard%27s_formula
     ///
     /// ![](https://upload.wikimedia.org/math/d/b/f/dbf2d4355c108f6b3388985be4976799.png)
-    public static func pi(precision:Int = 64, verbose:Bool=false)->Self {
-        let px = precision
-        let epsilon = Self(Double.ldexp(1.0, -px))
-        var p64 = Self(0)
-        for i in 0..<px {
-            var t = Self(0)
-            t -= Self(1<<5) /  Self(4 * i + 1)
-            t -= Self(1<<0) /  Self(4 * i + 3)
-            t += Self(1<<8) / Self(10 * i + 1)
-            t -= Self(1<<6) / Self(10 * i + 3)
-            t -= Self(1<<2) / Self(10 * i + 5)
-            t -= Self(1<<2) / Self(10 * i + 7)
-            t += Self(1<<0) / Self(10 * i + 9)
-            if 0 < i { t /= Int.power(Self(2), 10 * i, op:*) }
-            p64 += i & 1 == 1 ? -t : t
-            if verbose {
-                print("\(__FILE__):\(__LINE__): iter = \(i); t.precision = \(t.precision);")
+    public static func pi(px:Int = 64, verbose:Bool=false)->Self {
+        // if Self.self == Double.self { return Self(Double.PI) }
+        return 4 * getSetConstant("atan", 1, px) { _, px in
+            let epsilon = Self(Double.ldexp(1.0, -px))
+            var p64 = Self(0)
+            for i in 0..<px {
+                var t = Self(0)
+                t -= Self(1<<5) /  Self(4 * i + 1)
+                t -= Self(1<<0) /  Self(4 * i + 3)
+                t += Self(1<<8) / Self(10 * i + 1)
+                t -= Self(1<<6) / Self(10 * i + 3)
+                t -= Self(1<<2) / Self(10 * i + 5)
+                t -= Self(1<<2) / Self(10 * i + 7)
+                t += Self(1<<0) / Self(10 * i + 9)
+                if 0 < i { t /= Int.power(Self(2), 10 * i, op:*) }
+                p64 += i & 1 == 1 ? -t : t
+                if verbose {
+                    print("\(__FILE__):\(__LINE__): iter = \(i); "
+                        + "p64.precision = \(p64.precision), t.precision = \(t.precision);")
+                }
+                if t < epsilon { break }
             }
-            if t < epsilon { break }
+            return p64.truncate(px) / Self(1<<8)
         }
-        return p64 / Self(1<<6)
-
     }
     public static var PI:Self       { return Self(M_PI) }
     public static var LN2:Self      { return Self(M_LN2) }
@@ -259,21 +278,20 @@ extension Double : POFloat {
         return Glibc.ldexp(m, Int32(e))
     }
     //
-    public static func sqrt(x:Double)->Double { return Glibc.sqrt(x) }
-    public static func hypot(x:Double, _ y:Double)->Double { return Glibc.hypot(x, y) }
-    public static func exp(x:Double)->Double   { return Glibc.exp(x) }
-    public static func log(x:Double)->Double   { return Glibc.log(x) }
+    public static func sqrt(x:Double, precision:Int=52)->Double { return Glibc.sqrt(x) }
+    public static func hypot(x:Double, _ y:Double, precision:Int=52)->Double { return Glibc.hypot(x, y) }
+    public static func exp(x:Double, precision:Int=52)->Double   { return Glibc.exp(x) }
+    public static func log(x:Double, precision:Int=52)->Double   { return Glibc.log(x) }
     #else
     public static func frexp(d:Double)->(Double, Int)   { return Darwin.frexp(d) }
     public static func ldexp(m:Double, _ e:Int)->Double { return Darwin.ldexp(m, e) }
     //
-    public static func sqrt(x:Double)->Double { return Darwin.sqrt(x) }
-    public static func hypot(x:Double, _ y:Double)->Double { return Darwin.hypot(x, y) }
-    public static func exp(x:Double)->Double   { return Darwin.exp(x) }
-    public static func log(x:Double)->Double   { return Darwin.log(x) }
-    
-    public static func atan(x:Double)->Double   { return Darwin.atan(x) }
-
+    public static func sqrt(x:Double, precision:Int=52)->Double { return Darwin.sqrt(x) }
+    public static func hypot(x:Double, _ y:Double, precision:Int=52)->Double { return Darwin.hypot(x, y) }
+    public static func exp(x:Double, precision:Int=52)->Double   { return Darwin.exp(x) }
+    public static func log(x:Double, precision:Int=52)->Double   { return Darwin.log(x) }
+    public static func atan(x:Double, precision:Int=52)->Double   { return Darwin.atan(x) }
+    public static func atan2(y:Double, _ x:Double, precision:Int=52)->Double { return Darwin.atan2(y, x) }
     #endif
     public func truncate(bits:Int)->Double {
         return self

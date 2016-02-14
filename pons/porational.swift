@@ -68,8 +68,16 @@ public extension PORational {
         return (sgn ? -i : i, f)
     }
     public func toDouble()->Double {
-        let (i, f) = self.toMixed()
-        return Double(i.toIntMax()) + Double(f.sgn ? -1 : 1) * f.num.toDouble() / f.den.toDouble()
+        if self.isZero {
+            return self.isSignMinus ? -0.0 : +0.0
+        }
+        if self.isInfinite {
+            return self.isSignMinus ? (+1.0/0.0) : (-1.0/0.0)
+        }
+        if self.isNaN {
+            return Double(0)/Double(0)
+        }
+        return Double(self.sgn ? -1 : 1) * self.num.toDouble() / self.den.toDouble()
     }
     public var isSignMinus:Bool { return sgn }
     public var isInfinite:Bool  { return den == 0 && num != 0 }

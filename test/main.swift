@@ -243,17 +243,31 @@ test.eq(Bool.xor(false,  true), true,   "xor(false, false) ==  true")
 test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
 // Generic Math
 typealias BigRat = Rational<BigUInt>
-func approx<Q:PORational>(q:Q, _ fq:(Q,precision:Int)->Q, _ fd:Double->Double)->Bool {
+func approx(q:BigRat, _ fq:(BigRat,precision:Int)->BigRat, _ fd:(Double,precision:Int)->Double)->Bool {
     // print(fq(q,precision:64).toDouble() - fd(q.toDouble()))
     let qd = fq(q,precision:64).toDouble()
-    let dd = fd(q.toDouble())
-    let diff = Swift.abs(qd - dd)
-    if Swift.abs(qd - dd) > 0x2p-52 {
+    let dd = fd(q.toDouble(),precision:52)
+    if qd == dd { return true }
+    let diff = Swift.abs(qd - dd) / Swift.abs(qd + dd)
+    if diff > 0x2p-52 {
         print("qd = \(qd), dd=\(dd), diff=\(diff)")
         return false
     }
     return true
 }
+func approx(q:BigRat, _ r:BigRat, _ fq:(BigRat,BigRat,precision:Int)->BigRat, _ fd:(Double,Double,precision:Int)->Double)->Bool {
+    // print(fq(q,precision:64).toDouble() - fd(q.toDouble()))
+    let qd = fq(q,r, precision:64).toDouble()
+    let dd = fd(q.toDouble(),r.toDouble(), precision:52)
+    if qd == dd { return true }
+    let diff = Swift.abs(qd - dd) / Swift.abs(qd + dd)
+    if diff > 0x2p-52 {
+        print("qd = \(qd), dd=\(dd), diff=\(diff)")
+        return false
+    }
+    return true
+}
+
 test.eq(Rational.sqrt(-BigInt(1).over(1)).isNaN, true,  "sqrt(-1/1) is NaN")
 test.eq(Rational.log(-BigInt(1).over(1)).isNaN, true,   "log(-1/1) is NaN")
 test.eq(Rational.log(+BigInt(0).over(1)), -BigRat.infinity,   "log(0/1) is -inf")
@@ -269,8 +283,14 @@ for i in 1...16 {
     test.eq(approx(qp, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(qp))")
     test.eq(approx(qm, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(qm))")
 }
-print("π ≅", BigRat.pi(256, verbose:true))
-
+let qzero = +BigInt(0).over(1)
+let qone  = +BigInt(1).over(1)
+for y in [-qone, -qzero, +qzero, +qone] {
+    for x in [-qone, -qzero, +qzero, +qone] {
+        test.eq(approx(y, x, BigRat.atan2, Double.atan2), true,  "Rational vs Double: atan2(\(y), \(x))")
+    }
+}
+// print("π ≅", BigRat.pi(256, verbose:true))
 //print(BigRat.atan(BigInt(1).over(1)))
 //print(POUtil.constants)
 //print(BigRat.exp(BigInt(1).over(1)))
