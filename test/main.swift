@@ -236,11 +236,6 @@ test.ne(IntMax.max.asBigInt!.nextPrime,   nil, "IntMax.max.asBigInt!.nextPrime i
     test.eq(sp.0, $0.1.0, "\($0.0) is prime? \($0.1.0)")
     test.eq(sp.1, $0.1.1, "for sure ? \($0.1.1)")
 }
-// Bool.xor
-test.eq(Bool.xor(true,   true), false,  "xor(true,   true) == false")
-test.eq(Bool.xor(true,  false), true,   "xor(true,  false) ==  true")
-test.eq(Bool.xor(false,  true), true,   "xor(false, false) ==  true")
-test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
 // Generic Math
 typealias BigRat = Rational<BigInt>
 func approx(q:BigRat, _ fq:(BigRat,precision:Int)->BigRat, _ fd:(Double,precision:Int)->Double)->Bool {
@@ -267,24 +262,36 @@ func approx(q:BigRat, _ r:BigRat, _ fq:(BigRat,BigRat,precision:Int)->BigRat, _ 
     }
     return true
 }
-
 test.eq(Rational.sqrt(-BigInt(1).over(1)).isNaN, true,  "sqrt(-1/1) is NaN")
 test.eq(Rational.log(-BigInt(1).over(1)).isNaN, true,   "log(-1/1) is NaN")
 test.eq(Rational.log(+BigInt(0).over(1)), -BigRat.infinity,   "log(0/1) is -inf")
-test.eq(Rational.sqrt(+BigInt(0).over(1)), BigInt(0).over(1),   "sqrt(0/1) == 0")
-test.eq(Rational.sqrt(+BigInt(1).over(1)), BigInt(1).over(1),   "sqrt(1/1) == 1")
-for i in 1...16 {
+for i in 0...16 {
     let q = +BigInt(i).over(4)
     test.eq(approx(+q, BigRat.sqrt, Double.sqrt), true,  "Rational vs Double: sqrt(\(+q))")
     test.eq(approx(+q, BigRat.log,  Double.log),  true,  "Rational vs Double: log(\(+q))")
     test.eq(approx(+q, BigRat.exp,  Double.exp),  true,  "Rational vs Double: exp(\(+q))")
-    test.eq(approx(-q, BigRat.exp,  Double.exp),  true,  "Rational vs Double: exp(\(-q))")
     test.eq(approx(+q, BigRat.cos,  Double.cos),  true,  "Rational vs Double: cos(\(+q))")
-    test.eq(approx(-q, BigRat.cos,  Double.cos),  true,  "Rational vs Double: cos(\(-q))")
     test.eq(approx(+q, BigRat.sin,  Double.sin),  true,  "Rational vs Double: sin(\(+q))")
-    test.eq(approx(-q, BigRat.sin,  Double.sin),  true,  "Rational vs Double: sin(\(-q))")
+    test.eq(approx(+q, BigRat.tan,  Double.tan),  true,  "Rational vs Double: tan(\(+q))")
     test.eq(approx(+q, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(+q))")
-    test.eq(approx(-q, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(-q))")
+    test.eq(approx(+q, BigRat.cosh,  Double.cosh),  true,  "Rational vs Double: cosh(\(+q))")
+    test.eq(approx(+q, BigRat.sinh,  Double.sinh),  true,  "Rational vs Double: sinh(\(+q))")
+    test.eq(approx(+q, BigRat.tanh,  Double.tanh),  true,  "Rational vs Double: tanh(\(+q))")
+    if q != 0 {
+        test.eq(approx(-q, BigRat.exp,  Double.exp),  true,  "Rational vs Double: exp(\(-q))")
+        test.eq(approx(-q, BigRat.cos,  Double.cos),  true,  "Rational vs Double: cos(\(-q))")
+        test.eq(approx(-q, BigRat.sin,  Double.sin),  true,  "Rational vs Double: sin(\(-q))")
+        test.eq(approx(-q, BigRat.tan,  Double.tan),  true,  "Rational vs Double: sin(\(-q))")
+        test.eq(approx(-q, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(-q))")
+    }
+    if q <= 1 {
+        test.eq(approx(+q, BigRat.acos, Double.acos), true,  "Rational vs Double: acos(\(+q))")
+        test.eq(approx(+q, BigRat.asin, Double.asin), true,  "Rational vs Double: asin(\(+q))")
+        if q != 0 {
+            test.eq(approx(-q, BigRat.acos, Double.acos), true,  "Rational vs Double: acos(\(-q))")
+            test.eq(approx(-q, BigRat.asin, Double.asin), true,  "Rational vs Double: asin(\(-q))")
+        }
+    }
 }
 let qzero = +BigInt(0).over(1)
 let qone  = +BigInt(1).over(1)
@@ -304,4 +311,9 @@ for y in [-qone, -qzero, +qzero, +qone] {
 //}
 //print(4 * machin(512))
 
+// Bool.xor
+test.eq(Bool.xor(true,   true), false,  "xor(true,   true) == false")
+test.eq(Bool.xor(true,  false), true,   "xor(true,  false) ==  true")
+test.eq(Bool.xor(false,  true), true,   "xor(false, false) ==  true")
+test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
 test.done()

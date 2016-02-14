@@ -216,8 +216,8 @@ public struct Rational<I:POInt> : PORational, FloatLiteralConvertible {
             typealias U = IntType.UIntType
             let n = UInt64(d)
             self.init(r.isSignMinus, U(n), U(1 << b))
-            if e < 0    { self.den <<= U(abs(e)) }
-            else        { self.num <<= U(abs(e)) }
+            if e < 0    { self.den <<= U(-e) }
+            else        { self.num <<= U(+e) }
         }
     }
     // IntegerLiteralConvertible
