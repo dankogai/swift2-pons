@@ -225,7 +225,7 @@ test.eq(BigUInt(2).prevPrime, nil, "BigUInt(2).prevPrime is nil")
 test.eq(BigUInt(0).nextPrime,   2, "BigUInt(0).nextPrime is 2")
 test.ne(UIntMax.max.asBigUInt!.nextPrime, nil, "UIntMax.max.asBigUInt!.nextPrime is not nil")
 test.eq(BigInt(2).prevPrime,  nil, "BigInt(2).prevPrime is nil")
-test.eq(BigInt(0).nextPrime,    2, "BigInt(0).prevPrime is 2")
+test.eq(BigInt(0).nextPrime,    2, "BigInt(≅0).prevPrime is 2")
 test.ne(IntMax.max.asBigInt!.nextPrime,   nil, "IntMax.max.asBigInt!.nextPrime is not nil")
 [
     BigUInt(3825123056546413051):(false,true),
@@ -269,6 +269,8 @@ for i in 1...16 {
     test.eq(approx(qp, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(qp))")
     test.eq(approx(qm, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(qm))")
 }
+print("π ≅", BigRat.pi(256, verbose:true))
+
 //print(BigRat.atan(BigInt(1).over(1)))
 //print(POUtil.constants)
 //print(BigRat.exp(BigInt(1).over(1)))
@@ -277,7 +279,6 @@ for i in 1...16 {
 //func machin(p:Int)->BigRat {
 //    return 4*BigRat.atan(BigInt(1).over(5), precision:p) - BigRat.atan(BigInt(1).over(239), precision:p)
 //}
-//
-//print(4 * machin(256))
+//print(4 * machin(512))
 
 test.done()
