@@ -5,13 +5,14 @@ let bi:BigInt = 1<<256-1
 var bq = BigInt(1).over(bi)
 // bq = 0.1
 bq / Rational(Double.sqrt(2.0))
-Rational<BigUInt>(2.0)
+typealias BigRat = Rational<BigInt>
+BigRat(2.0)
 2.0.precision
 BigInt(1).over(bi).precision
 
-var v:Rational<BigUInt> = 0.5
+var v:BigRat = 0.5
 v + v//: [Next](@next)
-Rational<BigUInt>.log(10)
+BigRat.log(10)
 sizeofValue(1.over(2))
 //let M61 = BigUInt(1)<<61 - 1
 //let M127 = BigUInt(1)<<127 - 1
@@ -36,7 +37,14 @@ Rational.atan2(Rational.infinity, rbone).toDouble()
 import Foundation
 String(format:"%a", Double.pi())
 String(format:"%a", Double.PI)
-String(format:"%a", Rational<BigUInt>.pi().toDouble() - Double.PI)
+String(format:"%a", BigRat.pi().toDouble() - Double.PI)
+Rational.exp(rbone, precision:512)
+
 
 POUtil.constants
 Double.sqrt(2)
+
+func fact<T:POInteger>(n:T)->T {
+    return n < 2 ? 1 : (2...n).reduce(1, combine:*)
+}
+

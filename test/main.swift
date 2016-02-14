@@ -242,7 +242,7 @@ test.eq(Bool.xor(true,  false), true,   "xor(true,  false) ==  true")
 test.eq(Bool.xor(false,  true), true,   "xor(false, false) ==  true")
 test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
 // Generic Math
-typealias BigRat = Rational<BigUInt>
+typealias BigRat = Rational<BigInt>
 func approx(q:BigRat, _ fq:(BigRat,precision:Int)->BigRat, _ fd:(Double,precision:Int)->Double)->Bool {
     // print(fq(q,precision:64).toDouble() - fd(q.toDouble()))
     let qd = fq(q,precision:64).toDouble()
@@ -290,7 +290,7 @@ for y in [-qone, -qzero, +qzero, +qone] {
         test.eq(approx(y, x, BigRat.atan2, Double.atan2), true,  "Rational vs Double: atan2(\(y), \(x))")
     }
 }
-// print("π ≅", BigRat.pi(256, verbose:true))
+//print("π ≅", BigRat.pi(1024, verbose:true))
 //print(BigRat.atan(BigInt(1).over(1)))
 //print(POUtil.constants)
 //print(BigRat.exp(BigInt(1).over(1)))

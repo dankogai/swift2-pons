@@ -49,23 +49,25 @@ public extension POInteger {
     }
 }
 public protocol PORational : POReal {
-    typealias UIntType:POUInt
+    typealias IntType:POInt
     var sgn:Bool { get set }
-    var num:UIntType { get set }
-    var den:UIntType { get set }
-    init(_:Bool, _:UIntType, _:UIntType, isNormal:Bool)
+    var num:IntType.UIntType { get set }
+    var den:IntType.UIntType { get set }
+    init(_:IntType, _:IntType, isNormal:Bool)
+    init(_:Bool, _:IntType.UIntType, _:IntType.UIntType, isNormal:Bool)
 }
 public extension PORational {
-    public var numerator:UIntType.IntType   { return num.asSigned! }
-    public var denominator:UIntType.IntType { return den.asSigned! }
+    public var numerator:IntType   { return IntType(num) }
+    public var denominator:IntType { return IntType(den) }
     public func toIntMax()->IntMax {
         return (sgn ? -1 : 1) * (num / den).toIntMax()
     }
-    public func toMixed()->(UIntType.IntType, Self) {
-        let i = (num / den).asSigned!
-        var f = self
-        f.num %= den
-        return (sgn ? -i : i, f)
+    public func toMixed()->(IntType, Self) {
+        typealias U = IntType.UIntType
+        let (u, f) = U.divmod(num, den)
+        var r = self
+        r.num = f
+        return ((self.isSignMinus ? -1 : 1) * IntType(u), r)
     }
     public func toDouble()->Double {
         if self.isZero {
@@ -95,21 +97,26 @@ public extension PORational {
         return (sgn ? -1 : 1) * (((num.hashValue >> bits) << bits) | (den.hashValue >> bits))
     }
     public mutating func truncate(bits:Int)->Self {
-        if bits < num.msbAt + 1 {
-            num <<= UIntType(bits)
-            num /= den
-            den = UIntType(1) << UIntType(bits)
+        if bits < self.precision + 1 {
+            num <<= IntType.UIntType(bits)
+            let (q, r) = IntType.UIntType.divmod(num, den)
+            num = q
+            if r * 2 >= den {  // round up
+                num += IntType.UIntType(1)
+            }
+            den = IntType.UIntType(1) << IntType.UIntType(bits)
         }
         return self
     }
     public static func multiplyWithOverflow(lhs:Self, _ rhs:Self)->(Self, overflow:Bool) {
+        typealias U = IntType.UIntType
         if lhs.isZero || rhs.isZero { return (zero, false) }
         var ln = lhs.num, ld = lhs.den, rn = rhs.num, rd = rhs.den;
-        let gn = UIntType.gcd(ln, rd), gd = UIntType.gcd(ld, rn);
+        let gn = U.gcd(ln, rd), gd = U.gcd(ld, rn);
         ln /= gn; rn /= gd;
         ld /= gd; rd /= gn;
-        let (n, nof) = UIntType.multiplyWithOverflow(ln, rn)
-        let (d, dof) = UIntType.multiplyWithOverflow(ld, rd)
+        let (n, nof) = U.multiplyWithOverflow(ln, rn)
+        let (d, dof) = U.multiplyWithOverflow(ld, rd)
         return (Self(Bool.xor(lhs.sgn, rhs.sgn), n, d, isNormal:true), overflow: nof || dof)
     }
     public var reciprocal:Self {
@@ -121,17 +128,18 @@ public extension PORational {
         return multiplyWithOverflow(lhs, rhs.reciprocal)
     }
     public static func addWithOverflow(lhs:Self, _ rhs:Self)->(Self, overflow:Bool) {
+        typealias U = IntType.UIntType
         if rhs.isZero { return (lhs, false) }
         if lhs.isZero { return (rhs, false) }
         if lhs == rhs { return (2 * lhs, false) }
         if lhs.den == rhs.den {
             let (n, o) = Bool.xor(lhs.sgn, rhs.sgn)
-                ? lhs.num < rhs.num ? UIntType.subtractWithOverflow(rhs.num, lhs.num)
-                    : UIntType.subtractWithOverflow(lhs.num, rhs.num)
-                : UIntType.addWithOverflow(lhs.num, rhs.num)
+                ? lhs.num < rhs.num ? U.subtractWithOverflow(rhs.num, lhs.num)
+                    : U.subtractWithOverflow(lhs.num, rhs.num)
+                : U.addWithOverflow(lhs.num, rhs.num)
             if n == 0 { return (zero, false) }
             var r = lhs
-            let g = UIntType.gcd(n, lhs.den)
+            let g = U.gcd(n, lhs.den)
             r.sgn = lhs.num < rhs.num ? rhs.sgn: lhs.sgn
             r.num = n
             if g != 1 {
@@ -140,15 +148,15 @@ public extension PORational {
             }
             return (r, o)
         } else {
-            let (ln, ol) = UIntType.multiplyWithOverflow(lhs.num, rhs.den)
-            let (rn, or) = UIntType.multiplyWithOverflow(rhs.num, lhs.den)
+            let (ln, ol) = U.multiplyWithOverflow(lhs.num, rhs.den)
+            let (rn, or) = U.multiplyWithOverflow(rhs.num, lhs.den)
             if Bool.xor(lhs.sgn, rhs.sgn) && ln == rn { return (zero, ol||or) }
             let (an, oa) = Bool.xor(lhs.sgn, rhs.sgn)
-                ? ln < rn   ? UIntType.subtractWithOverflow(rn, ln)
-                            : UIntType.subtractWithOverflow(ln, rn)
-                : UIntType.addWithOverflow(ln, rn)
-            let (ad, od) = UIntType.multiplyWithOverflow(lhs.den, rhs.den)
-            let g = UIntType.gcd(an, ad)
+                ? ln < rn   ? U.subtractWithOverflow(rn, ln)
+                            : U.subtractWithOverflow(ln, rn)
+                : U.addWithOverflow(ln, rn)
+            let (ad, od) = U.multiplyWithOverflow(lhs.den, rhs.den)
+            let g = U.gcd(an, ad)
             var r = lhs
             r.sgn = ln < rn ? rhs.sgn: lhs.sgn
             r.num = an / g
@@ -160,35 +168,43 @@ public extension PORational {
         return rhs.isZero ? (lhs, false) : addWithOverflow(lhs, -rhs)
     }
 }
-public struct Rational<U:POUInt> : PORational, FloatLiteralConvertible {
-    public typealias UIntType = U
+public struct Rational<I:POInt> : PORational, FloatLiteralConvertible {
+    public typealias IntType = I
     public var sgn:Bool = false
-    public var num:U = 0
-    public var den:U = 1
+    public var num:I.UIntType = 0
+    public var den:I.UIntType = 1
     public var precision:Int {
-        return U.self == BigUInt.self
+        return I.self == BigInt.self
             ? Swift.max(32, max(num.msbAt, den.msbAt) + 1)
             : Swift.min(32, den.msbAt + 1)
     }
-    public init(_ s:Bool, _ n:U, _ d:U, isNormal:Bool = false) {
+    public init(_ s:Bool, _ n:I.UIntType, _ d:I.UIntType, isNormal:Bool = false) {
         // print("\(__FILE__):\(__LINE__): n=\(n),d=\(d),isNormal=\(isNormal)")
+        typealias U = IntType.UIntType
         (sgn, num, den) = isNormal ? (s, n, d)
             : n == 0 ? (s, 0, d != 0 ? 1 : 0)
             : d == 0 ? (s, 1, 0) : { (s, n/$0, d/$0) }(U.gcd(n, d))
     }
-    public init(_ q:Rational<U>) {
+    public init(_ q:Rational<I>) {
         (sgn, num, den) = (q.sgn, q.num, q.den)
     }
-    public init(_ n:Int, _ d:Int, isNormal:Bool = false) {
-        self.init(Bool.xor(n.isSignMinus, d.isSignMinus), U(n.abs), U(d.abs), isNormal:isNormal)
+    public init(_ n:IntType, _ d:IntType, isNormal:Bool = false) {
+        self.init (
+            Bool.xor(n.isSignMinus, d.isSignMinus),
+            n.abs.asUnsigned!,
+            d.abs.asUnsigned!
+        )
+    }
+    public init(_ n:IntType) {
+        self.init(n.isSignMinus, n.abs.asUnsigned!, 1)
     }
     public init(_ n:Int) {
-        self.init(n < 0, U(n.abs), 1, isNormal:true)
+        self.init(n < 0, IntType(n).abs.asUnsigned!, 1)
     }
     public init(_ r:Double) {
         let (m, e) = Double.frexp(r)
         // print("\(__FILE__):\(__LINE__): m=\(m),e=\(e)")
-        let b = Swift.min(Double.precision, UIntType.precision - 1)
+        let b = Swift.min(Double.precision, I.UIntType.precision - 1)
         let d = Swift.abs(m) * Double(1 << b)
         if d.isNaN {
             self.init(Rational.NaN)
@@ -197,10 +213,11 @@ public struct Rational<U:POUInt> : PORational, FloatLiteralConvertible {
             self.init(d.isSignMinus ? -Rational.infinity : Rational.infinity)
         }
         else {
+            typealias U = IntType.UIntType
             let n = UInt64(d)
-            self.init(r.isSignMinus, UIntType(n), UIntType(1 << b))
-            if e < 0    { self.den <<= UIntType(abs(e)) }
-            else        { self.num <<= UIntType(abs(e)) }
+            self.init(r.isSignMinus, U(n), U(1 << b))
+            if e < 0    { self.den <<= U(abs(e)) }
+            else        { self.num <<= U(abs(e)) }
         }
     }
     // IntegerLiteralConvertible
@@ -258,17 +275,13 @@ public func /<Q:PORational>(lhs:Q, rhs:Q) -> Q {
 }
 // add .toRational() and .asNational
 public extension POInt {
-    public func toRational(denominator:Self = 1)->Rational<UIntType> {
-        return Rational(
-            Bool.xor(self.isSignMinus, denominator.isSignMinus),
-            self.abs.asUnsigned!,
-            denominator.abs.asUnsigned!
-        )
+    public func toRational(denominator:Self = 1)->Rational<Self> {
+        return Rational(self, denominator)
     }
-    public var asRational:Rational<Self.UIntType>? {
+    public var asRational:Rational<Self>? {
         return self.toRational()
     }
-    public func over(dominator:Self)->Rational<UIntType> {
+    public func over(dominator:Self)->Rational<Self> {
         return self.toRational(dominator)
     }
 }

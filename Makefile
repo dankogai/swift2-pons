@@ -16,17 +16,18 @@ OS := $(shell uname)
 ifeq ($(OS),Darwin)
 	SWIFTC=xcrun -sdk macosx swiftc
 endif
+COMPILE=$(SWIFTC) $(SWIFTCFLAGS)
 
 all: $(BIN)
 module: $(MODULE)
 clean:
 	-rm $(BIN) $(MODULE) $(DOC) lib$(MOD).*
 $(BIN): $(BINSRC) $(MODSRC)
-	$(SWIFTC) $(SWIFTCFLAGS) $(MODSRC) $(BINSRC)
+	$(COMPILE) $(MODSRC) $(BINSRC)
 test: $(BIN)
 	prove ./$(BIN)
 $(MODULE): $(MODSRC)
-	$(SWIFTC) -emit-library -emit-module $(MODSRC) -module-name $(MOD)
+	$(COMPILE) -emit-library -emit-module $(MODSRC) -module-name $(MOD)
 repl: $(MODULE)
 	$(SWIFT) -I. -L. -l$(MOD)
 graph:$(GRAPH).png
