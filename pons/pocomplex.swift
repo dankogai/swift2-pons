@@ -252,71 +252,76 @@ public extension POComplexReal {
         return rhs.isSignMinus ? Self(1, 0) / ap : ap
     }
     /// - returns: cosine of z in Complex
-    public static func cos(z:Self) -> Self {
+    public static func cos(z:Self, precision p:Int=64) -> Self {
         //return (exp(z.i) + exp(-z.i)) / 2
-        return Self(R.cos(z.re)*R.cosh(z.im), -R.sin(z.re)*R.sinh(z.im))
+        return Self(
+            +R.cos(z.re, precision:p) * R.cosh(z.im, precision:p),
+            -R.sin(z.re, precision:p) * R.sinh(z.im, precision:p)
+        )
     }
-    public static func cos(r:R) -> Self { return cos(Self(r, 0)) }
+    public static func cos(r:R, precision p:Int=64) -> Self { return cos(Self(r, 0), precision:p) }
     /// - returns: sine of z in Complex
-    public static func sin(z:Self) -> Self {
+    public static func sin(z:Self, precision p:Int=64) -> Self {
         // return -(exp(z.i) - exp(-z.i)).i / 2
-        return Self(R.sin(z.re)*R.cosh(z.im), +R.cos(z.re)*R.sinh(z.im))
+        return Self(
+            +R.sin(z.re, precision:p) * R.cosh(z.im, precision:p),
+            +R.cos(z.re, precision:p) * R.sinh(z.im, precision:p))
     }
-    public static func sin(r:R) -> Self { return sin(Self(r, 0)) }
+    public static func sin(r:R, precision p:Int=64) -> Self { return sin(Self(r, 0),  precision:p) }
     /// - returns: tangent of z in Complex
-    public static func tan(z:Self) -> Self {
-        return sin(z) / cos(z)
+    public static func tan(z:Self, precision p:Int=64) -> Self {
+        return sin(z, precision:p) / cos(z, precision:p)
     }
-    public static func tan(r:R) -> Self { return tan(Self(r, 0)) }
+    public static func tan(r:R,  precision p:Int=64) -> Self { return tan(Self(r, 0),  precision:p) }
     /// - returns: arc cosine of z in Complex
-    public static func acos(z:Self) -> Self {
-        return log(z - sqrt(1 - z*z).i).i
+    public static func acos(z:Self, precision p:Int=64) -> Self {
+        return log(z - sqrt(1 - z*z, precision:p).i,  precision:p).i
     }
-    public static func acos(r:R) -> Self { return acos(Self(r, 0)) }
+    public static func acos(r:R, precision p:Int=64) -> Self { return acos(Self(r, 0),  precision:p) }
     /// - returns: arc sine of z in Complex
-    public static func asin(z:Self) -> Self {
-        return -log(z.i + sqrt(1 - z*z)).i
+    public static func asin(z:Self,  precision p:Int=64) -> Self {
+        return -log(z.i + sqrt(1 - z*z, precision:p)).i
     }
-    public static func asin(r:R) -> Self { return asin(Self(r, 0)) }
+    public static func asin(r:R, precision p:Int=64) -> Self { return asin(Self(r, 0), precision:p) }
     /// - returns: arc tangent of z in Complex
-    public static func atan(z:Self) -> Self {
-        let lp = log(1 - z.i)
-        let lm = log(1 + z.i)
+    public static func atan(z:Self, precision p:Int=64) -> Self {
+        let lp = log(1 - z.i, precision:p)
+        let lm = log(1 + z.i, precision:p)
         return (lp - lm).i / 2
     }
     public static func atan(r:R) -> Self { return atan(Self(r, 0)) }
     /// - returns: hyperbolic cosine of z in Complex
-    public static func cosh(z:Self) -> Self {
+    public static func cosh(z:Self, precision p:Int=64) -> Self {
         // return (exp(z) + exp(-z)) / T(2)
-        return cos(z.i)
+        return cos(z.i, precision:p)
     }
-    public static func cosh(r:R) -> Self { return cosh(Self(r, 0)) }
+    public static func cosh(r:R, precision p:Int=64) -> Self { return cosh(Self(r, 0), precision:p) }
     /// - returns: hyperbolic sine of z in Complex
-    public static func sinh(z:Self) -> Self {
+    public static func sinh(z:Self, precision p:Int=64) -> Self {
         // return (exp(z) - exp(-z)) / T(2)
-        return -sin(z.i).i;
+        return -sin(z.i, precision:p).i;
     }
-    public static func sinh(r:R) -> Self { return sinh(Self(r, 0)) }
+    public static func sinh(r:R, precision p:Int=64) -> Self { return sinh(Self(r, 0), precision:p) }
     /// - returns: hyperbolic tangent of z in Complex
-    public static func tanh(z:Self) -> Self {
+    public static func tanh(z:Self, precision p:Int=64) -> Self {
         // let ez = exp(z), e_z = exp(-z)
         // return (ez - e_z) / (ez + e_z)
-        return sinh(z) / cosh(z)
+        return sinh(z, precision:p) / cosh(z, precision:p)
     }
-    public static func tanh(r:R) -> Self { return tanh(Self(r, 0)) }
+    public static func tanh(r:R, precision p:Int=64) -> Self { return tanh(Self(r, 0), precision:p) }
     /// - returns: inverse hyperbolic cosine of z in Complex
-    public static func acosh(z:Self) -> Self {
-        return log(z + sqrt(z*z - 1))
+    public static func acosh(z:Self, precision p:Int=64) -> Self {
+        return log(z + sqrt(z*z - 1, precision:p), precision:p)
     }
-    public static func acosh(r:R) -> Self { return acosh(Self(r, 0)) }
+    public static func acosh(r:R, precision p:Int=64) -> Self { return acosh(Self(r, 0), precision:p) }
     /// - returns: inverse hyperbolic sine of z in Complex
-    public static func asinh(z:Self) -> Self {
-        return log(z + sqrt(z*z + 1))
+    public static func asinh(z:Self, precision p:Int=64) -> Self {
+        return log(z + sqrt(z*z + 1, precision:p), precision:p)
     }
-    public static func asinh(r:R) -> Self { return asinh(Self(r, 0)) }
+    public static func asinh(r:R, precision p:Int=64) -> Self { return asinh(Self(r, 0), precision:p) }
     /// - returns: inverse hyperbolic tangent of z in Complex
-    public static func atanh(z:Self) -> Self {
+    public static func atanh(z:Self, precision p:Int=64) -> Self {
         return log((1 + z) / (1 - z)) / 2
     }
-    public static func atanh(r:R) -> Self { return atanh(Self(r, 0)) }
+    public static func atanh(r:R, precision p:Int=64) -> Self { return atanh(Self(r, 0), precision:p) }
 }
