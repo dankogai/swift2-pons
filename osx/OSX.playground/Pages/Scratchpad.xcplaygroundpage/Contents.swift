@@ -38,11 +38,22 @@ import Foundation
 String(format:"%a", Double.pi())
 String(format:"%a", Double.PI)
 String(format:"%a", BigRat.pi().toDouble() - Double.PI)
-Rational.exp(rbone, precision:512)
+// Rational.exp(rbone, precision:512)
 
 
 POUtil.constants
-Double.sqrt(2)
+Rational.sqrt(BigInt(1).over(2))
+let pi_4 = BigRat.pi(128)/4
+
+Rational.cos(BigInt(1).over(2))
+Rational.sin(BigInt(1).over(2))
+Rational.tan(BigInt(1).over(2))
+Rational.cos(pi_4)
+Rational.sin(pi_4)
+Rational.tan(pi_4)
+Rational.cos(-pi_4)
+Rational.sin(-pi_4)
+Rational.tan(-pi_4)
 
 func fact<T:POInteger>(n:T)->T {
     return n < 2 ? 1 : (2...n).reduce(1, combine:*)

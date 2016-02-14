@@ -200,34 +200,34 @@ public extension POReal {
 public extension POComplexReal {
     private typealias R = RealType  // for ease of coding
     /// - returns: square root of z in Complex
-    public static func sqrt(z:Self) -> Self {
+    public static func sqrt(z:Self, precision p:Int=64) -> Self {
         // return z ** 0.5
-        let d = R.hypot(z.re, z.im)
-        let r = R.sqrt((z.re + d)/R(2))
+        let d = R.hypot(z.re, z.im, precision:p)
+        let r = R.sqrt((z.re + d)/R(2), precision:p)
         if z.im < 0 {
-            return Self(r, -R.sqrt((-z.re + d)/2))
+            return Self(r, -R.sqrt((-z.re + d)/2, precision:p))
         } else {
-            return Self(r, +R.sqrt((-z.re + d)/2))
+            return Self(r, +R.sqrt((-z.re + d)/2, precision:p))
         }
     }
-    public static func sqrt(r:R) -> Self { return sqrt(Self(r, 0)) }
+    public static func sqrt(r:R, precision p:Int=64) -> Self { return sqrt(Self(r, 0), precision:p) }
     /// - returns: e ** z in Complex
-    public static func exp(z:Self) -> Self {
-        let r = R.exp(z.re)
+    public static func exp(z:Self, precision p:Int=64) -> Self {
+        let r = R.exp(z.re, precision:p)
         let a = z.im
-        return Self(r * R.cos(a), r * R.sin(a))
+        return Self(r * R.cos(a, precision:p), r * R.sin(a, precision:p))
     }
-    public static func exp(r:R) -> Self { return exp(Self(r, 0)) }
+    public static func exp(r:R, precision p:Int=64) -> Self { return exp(Self(r, 0), precision:p) }
     /// - returns: natural log of z in Complex
-    public static func log(z:Self) -> Self {
-        return Self(R.log(z.abs), z.arg)
+    public static func log(z:Self, precision p:Int=64) -> Self {
+        return Self(R.log(z.abs, precision:p), z.arg)
     }
-    public static func log(r:R) -> Self { return log(Self(r, 0)) }
+    public static func log(r:R, precision p:Int=64) -> Self { return log(Self(r, 0), precision:p) }
     /// - returns: log 10 of z in Complex
-    public static func log10(z:Self) -> Self {
-        return log(z) / R.LN10
+    public static func log10(z:Self, precision p:Int=64) -> Self {
+        return log(z, precision:p) / R.ln10(p)
     }
-    public static func log10(r:R) -> Self { return log10(Self(r, 0)) }
+    public static func log10(r:R, precision p:Int=64) -> Self { return log10(Self(r, 0), precision:p) }
     /// - returns: lhs ** rhs in Complex
     public static func pow(lhs:Self, _ rhs:Self) -> Self {
         return exp(log(lhs) * rhs)
