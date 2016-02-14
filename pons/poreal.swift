@@ -38,7 +38,6 @@ public extension POReal {
     public static func cos(x:Self, precision:Int = 64)->Self    { return Self(Glibc.cos(x.toDouble())) }
     public static func sin(x:Self, precision:Int = 64)->Self    { return Self(Glibc.sin(x.toDouble())) }
     public static func tan(x:Self, precision:Int = 64)->Self    { return Self(Glibc.tan(x.toDouble())) }
-    public static func atan2(y:Self, _ x:Self, precision:Int = 64)->Self { return Self(Glibc.atan2(y.toDouble(), x.toDouble())) }
     public static func acos(x:Self, precision:Int = 64)->Self   { return Self(Glibc.acos(x.toDouble())) }
     public static func asin(x:Self, precision:Int = 64)->Self   { return Self(Glibc.asin(x.toDouble())) }
     public static func cosh(x:Self, precision:Int = 64)->Self   { return Self(Glibc.cosh(x.toDouble())) }
