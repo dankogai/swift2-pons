@@ -35,14 +35,8 @@ public protocol POFloat : POReal {
 public extension POReal {
     #if os(Linux)
     public static func pow(x:Self, _ y:Self, precision:Int = 64)->Self  { return Self(Glibc.pow(x.toDouble(), y.toDouble())) }
-    public static func acosh(x:Self, precision:Int = 64)->Self  { return Self(Glibc.acosh(x.toDouble())) }
-    public static func asinh(x:Self, precision:Int = 64)->Self  { return Self(Glibc.asinh(x.toDouble())) }
-    public static func atanh(x:Self, precision:Int = 64)->Self  { return Self(Glibc.atanh(x.toDouble())) }
     #else
     public static func pow(x:Self, _ y:Self, precision:Int = 64)->Self  { return Self(Darwin.pow(x.toDouble(), y.toDouble())) }
-    public static func acosh(x:Self, precision:Int = 64)->Self  { return Self(Darwin.acosh(x.toDouble())) }
-    public static func asinh(x:Self, precision:Int = 64)->Self  { return Self(Darwin.asinh(x.toDouble())) }
-    public static func atanh(x:Self, precision:Int = 64)->Self  { return Self(Darwin.atanh(x.toDouble())) }
     #endif
     ////
     public static func getSetConstant(
@@ -204,21 +198,21 @@ public extension POReal {
         return x < 0 ? -r.truncate(px) : r.truncate(px)
     }
     ///
-    public static func tan(x:Self, precision:Int = 64)->Self {
+    public static func tan(x:Self, precision px:Int = 64)->Self {
         // return Self(Double.tan(x.toDouble()))
         if let dx = x as? Double { return Self(Double.tan(dx)) }
-        return sin(x, precision:precision) / cos(x, precision:precision)
+        return sin(x, precision:px) / cos(x, precision:px)
     }
     ///
-    public static func acos(x:Self, precision:Int = 64)->Self   {
+    public static func acos(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.acos(dx)) }
-        return pi(precision)/2 - asin(x, precision:precision)
+        return pi(px)/2 - asin(x, precision:px)
     }
     ///
-    public static func asin(x:Self, precision:Int = 64)->Self   {
+    public static func asin(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.acos(dx)) }
-        let a = x / (1 + sqrt(1 - x * x))
-        return 2 * atan(a, precision:precision)
+        let a = x / (1 + sqrt(1 - x * x, precision:px))
+        return 2 * atan(a, precision:px)
     }
     /// Arc tangent
     ///
@@ -291,6 +285,24 @@ public extension POReal {
         if let dx = x as? Double { return Self(Double.tanh(dx)) }
         let ex = exp(x, precision:px)
         return (ex - 1 / ex) / (ex + 1 / ex)
+    }
+    ///
+    public static func acosh(x:Self, precision px:Int = 64)->Self   {
+        if let dx = x as? Double { return Self(Double.acosh(dx)) }
+        let a = x + sqrt(x * x - 1, precision:px)
+        return log(a, precision:px)
+    }
+    ///
+    public static func asinh(x:Self, precision px:Int = 64)->Self   {
+        if let dx = x as? Double { return Self(Double.asinh(dx)) }
+        let a = x + sqrt(x * x + 1, precision:px)
+        return log(a, precision:px)
+    }
+    ///
+    public static func atanh(x:Self, precision px:Int = 64)->Self   {
+        if let dx = x as? Double { return Self(Double.atanh(dx)) }
+        let a = (1 + x) / (1 - x)
+        return log(a, precision:px) / 2
     }
     ///
     /// https://en.wikipedia.org/wiki/Bellard%27s_formula

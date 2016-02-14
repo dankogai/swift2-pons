@@ -277,12 +277,20 @@ for i in 0...16 {
     test.eq(approx(+q, BigRat.cosh,  Double.cosh),  true,  "Rational vs Double: cosh(\(+q))")
     test.eq(approx(+q, BigRat.sinh,  Double.sinh),  true,  "Rational vs Double: sinh(\(+q))")
     test.eq(approx(+q, BigRat.tanh,  Double.tanh),  true,  "Rational vs Double: tanh(\(+q))")
+    test.eq(approx(+q, BigRat.asinh,  Double.asinh),  true,  "Rational vs Double: asinh(\(+q))")
     if q != 0 {
         test.eq(approx(-q, BigRat.exp,  Double.exp),  true,  "Rational vs Double: exp(\(-q))")
         test.eq(approx(-q, BigRat.cos,  Double.cos),  true,  "Rational vs Double: cos(\(-q))")
         test.eq(approx(-q, BigRat.sin,  Double.sin),  true,  "Rational vs Double: sin(\(-q))")
         test.eq(approx(-q, BigRat.tan,  Double.tan),  true,  "Rational vs Double: sin(\(-q))")
         test.eq(approx(-q, BigRat.atan, Double.atan), true,  "Rational vs Double: atan(\(-q))")
+        test.eq(approx(-q, BigRat.asinh,  Double.asinh),  true,  "Rational vs Double: asinh(\(-q))")
+    }
+    if q < 1 {
+        test.eq(approx(+q, BigRat.atanh, Double.atanh), true,  "Rational vs Double: atanh(\(+q))")
+        if q != 0 {
+            test.eq(approx(-q, BigRat.atanh, Double.atanh), true,  "Rational vs Double: atanh(\(-q))")
+        }
     }
     if q <= 1 {
         test.eq(approx(+q, BigRat.acos, Double.acos), true,  "Rational vs Double: acos(\(+q))")
@@ -290,6 +298,11 @@ for i in 0...16 {
         if q != 0 {
             test.eq(approx(-q, BigRat.acos, Double.acos), true,  "Rational vs Double: acos(\(-q))")
             test.eq(approx(-q, BigRat.asin, Double.asin), true,  "Rational vs Double: asin(\(-q))")
+       }
+    } else {
+        test.eq(approx(+q, BigRat.acosh, Double.acosh), true,  "Rational vs Double: acosh(\(+q))")
+        if q != 0 {
+            test.eq(approx(-q, BigRat.acosh, Double.acosh), true,  "Rational vs Double: acosh(\(-q))")
         }
     }
 }
