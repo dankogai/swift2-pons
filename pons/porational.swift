@@ -88,13 +88,32 @@ public extension PORational {
     public static var NaN:Self  { return Self(false, 0, 0, isNormal:true) }
     public var isZero:Bool      { return den != 0 && num == 0 }
     public static var zero:Self  { return Self(false, 0, 1, isNormal:true) }
-    public var description:String {
+    public func toString(base:Int = 10)-> String {
         let s = sgn ? "-" : ""
-        return "\(s)(\(num)/\(den))"
+        return "\(s)(\(num.toString(base))/\(den.toString(base)))"
+    }
+    public var description:String {
+        return self.toString()
     }
     public var hashValue:Int {
         let bits = sizeof(Int) * 4
         return (sgn ? -1 : 1) * (((num.hashValue >> bits) << bits) | (den.hashValue >> bits))
+    }
+    public func toFPString(places:Int=20, base:Int=10)->String {
+        guard 2 <= base && base <= 36 else {
+            fatalError("base out of range. \(base) is not within 2...36")
+        }
+        let (i, f) = self.toMixed()
+        var v = f < 0 ? -f : f
+        var digits = [Int]()
+        for _ in 0..<places {
+            var r:IntType
+            v *= Self(base)
+            (r, v) = v.toMixed()
+            digits.append(r.asInt!)
+            if v == 0 { break }
+        }
+        return i.toString(base) + "." +  digits.map{"\(POUtil.int2char[$0])"}.joinWithSeparator("")
     }
     public mutating func truncate(bits:Int)->Self {
         if bits < self.precision + 1 {

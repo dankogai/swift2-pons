@@ -264,7 +264,7 @@ func approx(q:BigRat, _ r:BigRat, _ fq:(BigRat,BigRat,precision:Int)->BigRat, _ 
 test.eq(Rational.sqrt(-BigInt(1).over(1)).isNaN, true,  "sqrt(-1/1) is NaN")
 test.eq(Rational.log(-BigInt(1).over(1)).isNaN, true,   "log(-1/1) is NaN")
 test.eq(Rational.log(+BigInt(0).over(1)), -BigRat.infinity,   "log(0/1) is -inf")
-for i in 0...16 {
+for i in 0...1 {    // make 16 to make test more rigorous (but slow)
     let q = +BigInt(i).over(4)
     test.eq(approx(+q, BigRat.sqrt, Double.sqrt), true,  "Rational vs Double: sqrt(\(+q))")
     test.eq(approx(+q, BigRat.log,  Double.log),  true,  "Rational vs Double: log(\(+q))")
@@ -313,19 +313,14 @@ for y in [-qone, -qzero, +qzero, +qone] {
     }
 }
 //print("π ≅", BigRat.pi(1024, verbose:true))
-//print(BigRat.atan(BigInt(1).over(1)))
-//print(POUtil.constants)
-//print(BigRat.exp(BigInt(1).over(1)))
-//print(BigRat.exp(BigInt(1).over(1)))
-
 //func machin(p:Int)->BigRat {
 //    return 4*BigRat.atan(BigInt(1).over(5), precision:p) - BigRat.atan(BigInt(1).over(239), precision:p)
 //}
 //print(4 * machin(512))
-
 // Bool.xor
 test.eq(Bool.xor(true,   true), false,  "xor(true,   true) == false")
 test.eq(Bool.xor(true,  false), true,   "xor(true,  false) ==  true")
 test.eq(Bool.xor(false,  true), true,   "xor(false, false) ==  true")
 test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
 test.done()
+

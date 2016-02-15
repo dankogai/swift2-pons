@@ -1,6 +1,7 @@
 //: [Previous](@previous)
 import PONS
 
+/*
 let bi:BigInt = 1<<256-1
 var bq = BigInt(1).over(bi)
 // bq = 0.1
@@ -40,7 +41,6 @@ String(format:"%a", Double.PI)
 String(format:"%a", BigRat.pi().toDouble() - Double.PI)
 // Rational.exp(rbone, precision:512)
 
-
 POUtil.constants
 Rational.sqrt(BigInt(1).over(2))
 let pi_4 = BigRat.pi(128)/4
@@ -54,8 +54,11 @@ Rational.tan(pi_4)
 Rational.cos(-pi_4)
 Rational.sin(-pi_4)
 Rational.tan(-pi_4)
-
+print(POUtil.constants)
+*/
+/*
 func fact<T:POInteger>(n:T)->T {
     return n < 2 ? 1 : (2...n).reduce(1, combine:*)
 }
-
+*/
+BigRat(42.195).toFPString(99)
