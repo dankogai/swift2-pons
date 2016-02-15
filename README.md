@@ -45,14 +45,13 @@ bz * bz // ((0/1)+(2/340282366920938463500268095579187314689).i)
 bz / bz // ((1/1)+(0/1).i)
 ````
 
-[Elementary function]s (as in `<math.h>`) are supported as static functions, 
-By default it just converts to `Double`, let `Darwin` (or `Glibc` on Linux) do the work, 
-and convertsit back by default.
+[Elementary function]s (as in `<math.h>`) are supported as static functions. 
+
+`POReal` has defalut implementations so you don't have to implement them for your new number types!
+
+`Darwin` and `Glibc` implementations are attached to `Double` as static functions, too.
 
 [Elementary function]: https://en.wikipedia.org/wiki/Elementary_function
-
-
-*TODO*: rewrite elementary functions generically!
 
 ````swift
 Double.sqrt(-1)             // sadly NaN
