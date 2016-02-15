@@ -62,6 +62,9 @@ public extension PORational {
     public func toIntMax()->IntMax {
         return (sgn ? -1 : 1) * (num / den).toIntMax()
     }
+    public var asIntType:IntType? {
+        return self.toMixed().0
+    }
     public func toMixed()->(IntType, Self) {
         typealias U = IntType.UIntType
         let (u, f) = U.divmod(num, den)
@@ -98,22 +101,6 @@ public extension PORational {
     public var hashValue:Int {
         let bits = sizeof(Int) * 4
         return (sgn ? -1 : 1) * (((num.hashValue >> bits) << bits) | (den.hashValue >> bits))
-    }
-    public func toFPString(places:Int=20, base:Int=10)->String {
-        guard 2 <= base && base <= 36 else {
-            fatalError("base out of range. \(base) is not within 2...36")
-        }
-        let (i, f) = self.toMixed()
-        var v = f < 0 ? -f : f
-        var digits = [Int]()
-        for _ in 0..<places {
-            var r:IntType
-            v *= Self(base)
-            (r, v) = v.toMixed()
-            digits.append(r.asInt!)
-            if v == 0 { break }
-        }
-        return i.toString(base) + "." +  digits.map{"\(POUtil.int2char[$0])"}.joinWithSeparator("")
     }
     public mutating func truncate(bits:Int)->Self {
         if bits < self.precision + 1 {
@@ -284,6 +271,12 @@ public func *<Q:PORational>(lhs:Q, rhs:Q) -> Q {
     if overflow { fatalError("\(lhs) * \(rhs) overflows") }
     return result
 }
+public func *<Q:PORational>(lhs:Q, rhs:Q.IntType) -> Q {
+    return Q(Bool.xor(lhs.sgn, rhs.isSignMinus), lhs.num * rhs.asUnsigned!, lhs.den, isNormal:false)
+}
+public func *<Q:PORational>(lhs:Q.IntType, rhs:Q) -> Q {
+    return Q(Bool.xor(lhs.isSignMinus, rhs.sgn), lhs.asUnsigned! * rhs.num, rhs.den, isNormal:false)
+}
 public func &*<Q:PORational>(lhs:Q, rhs:Q) -> Q {
     return Q.multiplyWithOverflow(lhs, rhs).0
 }
@@ -291,6 +284,16 @@ public func /<Q:PORational>(lhs:Q, rhs:Q) -> Q {
     let (result, overflow) = Q.divideWithOverflow(lhs, rhs)
     if overflow { fatalError("\(lhs) / \(rhs) overflows") }
     return result
+}
+public func /<Q:PORational>(lhs:Q, rhs:Q.IntType) -> Q {
+    return Q(Bool.xor(lhs.sgn, rhs.isSignMinus), lhs.num, lhs.den * rhs.asUnsigned!, isNormal:false)
+}
+public func /<Q:PORational>(lhs:Q.IntType, rhs:Q) -> Q {
+    return Q(Bool.xor(lhs.isSignMinus, rhs.sgn), rhs.num, lhs.asUnsigned! * rhs.den, isNormal:false)
+}
+public func %<Q:PORational>(lhs:Q, rhs:Q) -> Q {
+    let i = Q.divideWithOverflow(lhs, rhs).0.asIntType!
+    return lhs - (rhs * i)
 }
 // add .toRational() and .asNational
 public extension POInt {

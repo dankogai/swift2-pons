@@ -61,4 +61,7 @@ func fact<T:POInteger>(n:T)->T {
     return n < 2 ? 1 : (2...n).reduce(1, combine:*)
 }
 */
-BigRat(42.195).toFPString(99)
+42.195.toFPString()
+BigRat(42.195).toFPString()
+42.195 - BigRat(42.195).toDouble()
+

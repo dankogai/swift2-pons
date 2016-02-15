@@ -9,8 +9,11 @@
 public typealias POSwiftReal = FloatingPointType
 
 public protocol POReal : POSignedNumber {
+    typealias IntType:POInt
     init(_:Double)
     func toDouble()->Double
+    func %(_:Self, _:Self)->Self
+    var asIntType:IntType? { get }
     var isInfinite:Bool  { get }
     var isNaN:Bool       { get }
     var isSignMinus:Bool { get }
@@ -33,6 +36,49 @@ public protocol POFloat : POReal {
 }
 // public protocol POElementaryFunctional : POReal {}
 public extension POReal {
+    public func toMixed()->(IntType, Self) {
+        return (self.asIntType!, self % Self(1) )
+    }
+    /// To floating-point string
+    public func toFPString(base:Int=10, places:Int=0)->String {
+        guard 2 <= base && base <= 36 else {
+            fatalError("base out of range. \(base) is not within 2...36")
+        }
+        var ndigits = places != 0 ? places
+            : Int( Double(self.precision) * Double.log(2) / Double.log(Double(base)) ) + 2
+        let (i, f) = self.toMixed()
+        if f == 0 { return i.toString(base) + ".0" }
+        var v = f < 0 ? -f : f
+        var digits = [Int]()
+        var started = false
+        while 0 < ndigits {
+            var r:IntType
+            v *= Self(base)
+            (r, v) = v.toMixed()
+            if r != 0 { started = true }
+            digits.append(r.asInt!)
+            if v == 0 { break }
+            if started { ndigits -= 1 }
+        }
+        // print("v=\(v.toDouble()), digits = \(digits.map{POUtil.int2char[$0]})")
+        if v * 2 >= 1 {   // round up!
+            var idx = digits.count
+            // print("BEFORE:digits = \(digits.map{POUtil.int2char[$0]})")
+            while 0 < idx {
+                if digits[idx - 1] < base - 1 {
+                    digits[idx - 1] += 1
+                    break
+                }
+                digits[idx - 1] = 0
+                idx -= 1
+            }
+            // print("AFTER:digits = \(digits.map{POUtil.int2char[$0]})")
+            if idx == 0 { // carried away :-)
+                return ((self.isSignMinus ? -1 : 1) + i).toString(base) + ".0"
+            }
+        }
+        return i.toString(base) + "." +  digits.map{"\(POUtil.int2char[$0])"}.joinWithSeparator("")
+    }
     #if os(Linux)
     public static func pow(x:Self, _ y:Self, precision:Int = 64)->Self  { return Self(Glibc.pow(x.toDouble(), y.toDouble())) }
     #else
@@ -284,7 +330,9 @@ public extension POReal {
     public static func tanh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.tanh(dx)) }
         let ex = exp(x, precision:px)
-        return (ex - 1 / ex) / (ex + 1 / ex)
+        let n = (ex - 1 / ex)
+        let d = (ex + 1 / ex)
+        return n / d
     }
     ///
     public static func acosh(x:Self, precision px:Int = 64)->Self   {
@@ -357,10 +405,12 @@ public extension POUtil {
     public static var constants = [String:Any]()
 }
 extension Double : POFloat {
+    public typealias IntType = Int
     public func toDouble()->Double { return self }
     public func toIntMax()->IntMax { return IntMax(self) }
-    /// number of significant bits == 52
-    public static let precision = 52
+    public var asIntType:IntType? { return IntType(self) }
+    /// number of significant bits == 53
+    public static let precision = 53
     public var precision:Int { return Double.precision }
     #if os(Linux)
     public static func frexp(d:Double)->(Double, Int) {
@@ -430,10 +480,12 @@ extension Double : POFloat {
     public static var SQRT2   = M_SQRT2
 }
 extension Float : POFloat {
+    public typealias IntType = Int
     public func toDouble()->Double { return Double(self) }
     public func toIntMax()->IntMax { return IntMax(self) }
+    public var asIntType:IntType? { return IntType(self) }
     /// number of significant bits == 23
-    public static let precision = 23
+    public static let precision = 24
     public var precision:Int { return Float.precision }
     public func truncate(bits:Int)->Float {
         return self
