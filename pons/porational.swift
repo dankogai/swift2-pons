@@ -82,7 +82,15 @@ public extension PORational {
         if self.isNaN {
             return Double(0)/Double(0)
         }
-        return Double(self.sgn ? -1 : 1) * self.num.toDouble() / self.den.toDouble()
+        let msb = min(self.num.msbAt, self.den.msbAt)
+        var n = self.num
+        var d = self.den
+        if msb > 64 {
+            let shift = IntType.UIntType(msb + 1 - 64)
+            n >>= shift
+            d >>= shift
+        }
+        return Double(self.sgn ? -1 : 1) * n.toDouble() / d.toDouble()
     }
     public var isSignMinus:Bool { return sgn }
     public var isInfinite:Bool  { return den == 0 && num != 0 }

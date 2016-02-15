@@ -332,5 +332,10 @@ test.eq(Bool.xor(true,   true), false,  "xor(true,   true) == false")
 test.eq(Bool.xor(true,  false), true,   "xor(true,  false) ==  true")
 test.eq(Bool.xor(false,  true), true,   "xor(false, false) ==  true")
 test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
+
+print(
+BigInt(0x0123456789abcdef).over(BigInt("0xfedcba987654321fedcba987654321fedcba987654321fedcba987654321")).toFPString()
+)
+
 test.done()
 

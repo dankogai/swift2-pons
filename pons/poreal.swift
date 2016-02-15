@@ -26,11 +26,6 @@ public protocol POReal : POSignedNumber {
 public extension POReal {
     public var isFinite:Bool { return !isInfinite }
 }
-#if os(Linux)
-    import Glibc
-#else
-    import Darwin
-#endif
 public protocol POFloat : POReal {
     // static var EPSILON:Self { get }
 }
@@ -39,52 +34,74 @@ public extension POReal {
     public func toMixed()->(IntType, Self) {
         return (self.asIntType!, self % Self(1) )
     }
+    public var asBigRat:BigRat? {
+        if let b = self as? BigRat { return b }
+        if let d = self as? Double { return BigRat(d) }
+        return nil
+    }
     /// To floating-point string
     public func toFPString(base:Int=10, places:Int=0)->String {
         guard 2 <= base && base <= 36 else {
             fatalError("base out of range. \(base) is not within 2...36")
         }
+        let dfactor = Double.log(2) / Double.log(Double(base))
         var ndigits = places != 0 ? places
-            : Int( Double(self.precision) * Double.log(2) / Double.log(Double(base)) ) + 2
-        let (i, f) = self.toMixed()
-        if f == 0 { return i.toString(base) + ".0" }
-        var v = f < 0 ? -f : f
-        var digits = [Int]()
-        var started = false
-        while 0 < ndigits {
-            var r:IntType
-            v *= Self(base)
-            (r, v) = v.toMixed()
-            if r != 0 { started = true }
-            digits.append(r.asInt!)
-            if v == 0 { break }
-            if started { ndigits -= 1 }
-        }
-        // print("v=\(v.toDouble()), digits = \(digits.map{POUtil.int2char[$0]})")
-        if v * 2 >= 1 {   // round up!
-            var idx = digits.count
-            // print("BEFORE:digits = \(digits.map{POUtil.int2char[$0]})")
-            while 0 < idx {
-                if digits[idx - 1] < base - 1 {
-                    digits[idx - 1] += 1
-                    break
+            : Int( Double(self.precision) * dfactor ) + 2
+        let (int, fract) = self.toMixed()
+        if fract == 0 { return int.toString(base) + ".0" }
+        var afract = fract < 0 ? -fract : fract
+        if 64 < self.precision {    // get all digits at once
+            var bfract = afract.asBigRat!
+            let zcount = Int(Double(bfract.den.msbAt - bfract.num.msbAt) * dfactor)
+            let zfill = (0..<zcount).map{_ in "0"}.joinWithSeparator("")
+            bfract *= BigInt.pow(BigInt(base), BigInt(ndigits)).over(1)
+            let (b, residue) = bfract.toMixed()
+            if residue < BigInt(1).over(2) {    // no roundup required
+                return int.toString(base) + "." + zfill + b.toString(base)
+            } else {
+                let c = b + 1
+                if b.msbAt == c.msbAt {
+                    return int.toString(base) + "." + zfill + c.toString(base)
+                } else {
+                    return ((self.isSignMinus ? -1 : 1) + int).toString(base) + ".0"
                 }
-                digits[idx - 1] = 0
-                idx -= 1
             }
-            // print("AFTER:digits = \(digits.map{POUtil.int2char[$0]})")
-            if idx == 0 { // carried away :-)
-                return ((self.isSignMinus ? -1 : 1) + i).toString(base) + ".0"
+        } else {   // classical digit-by-digit method
+            var digits = [Int]()
+            var started = false
+            while 0 < ndigits {
+                var r:IntType
+                afract *= Self(base)
+                (r, afract) = afract.toMixed()
+                if r != 0 { started = true }
+                digits.append(r.asInt!)
+                if afract == 0 { break }
+                if started { ndigits -= 1 }
             }
+            // print("v=\(v.toDouble()), digits = \(digits.map{POUtil.int2char[$0]})")
+            if afract * 2 >= 1 {   // round up!
+                var idx = digits.count
+                // print("BEFORE:digits = \(digits.map{POUtil.int2char[$0]})")
+                while 0 < idx {
+                    if digits[idx - 1] < base - 1 {
+                        digits[idx - 1] += 1
+                        break
+                    }
+                    digits[idx - 1] = 0
+                    idx -= 1
+                }
+                // print("AFTER:digits = \(digits.map{POUtil.int2char[$0]})")
+                if idx == 0 { // carried away :-)
+                    return ((self.isSignMinus ? -1 : 1) + int).toString(base) + ".0"
+                }
+            }
+            return int.toString(base) + "." +  digits.map{"\(POUtil.int2char[$0])"}.joinWithSeparator("")
         }
-        return i.toString(base) + "." +  digits.map{"\(POUtil.int2char[$0])"}.joinWithSeparator("")
     }
-    #if os(Linux)
-    public static func pow(x:Self, _ y:Self, precision:Int = 64)->Self  { return Self(Glibc.pow(x.toDouble(), y.toDouble())) }
-    #else
-    public static func pow(x:Self, _ y:Self, precision:Int = 64)->Self  { return Self(Darwin.pow(x.toDouble(), y.toDouble())) }
-    #endif
     ////
+    public static func pow(x:Self, _ y:Self, precision:Int = 64)->Self  {
+        return Self(Double.pow(x.toDouble(), y.toDouble()))
+    }
     public static func getSetConstant(
         name:String, _ arg:Self, _ precision:Int, setter:(Self, Int)->Self
         )->Self
@@ -116,7 +133,7 @@ public extension POReal {
             for _ in 0...iter {
                 r = (x/r0 + r0) / 2
                 if r == r0 { break }
-                r.truncate(px * 2)
+                r.truncate(px + 32)
                 r0 = r
             }
             return r
@@ -159,9 +176,9 @@ public extension POReal {
             var (r, t) = (Self(1), Self(1))
             for i in 1...px {
                 t *= x / Self(i)
-                t.truncate(px * 2)
+                t.truncate(px + 32)
                 r += t
-                r.truncate(px * 2)
+                r.truncate(px + 32)
                 if t < epsilon { break }
                 // print("\(Self.self).inner_exp(\(x)):i=\(i), x=\(x.toDouble()),r=\(r.toDouble())")
             }
@@ -190,10 +207,10 @@ public extension POReal {
             let epsilon = Self(Double.ldexp(1.0, -px))
             for i in 1...px*2 {
                 t *= t2
-                t.truncate(px * 2)
+                t.truncate(px + 32)
                 r += t / Self(2*i + 1)
                 // print("POReal#log: i=\(i), px=\(px), t=\(t.toDouble()), r=\(r.toDouble())")
-                r.truncate(px * 2)
+                r.truncate(px + 32)
                 if t < epsilon { break }
             }
             return 2 * (x < 1 ? -r : r)
@@ -218,9 +235,9 @@ public extension POReal {
         var (r, t) = (Self(1), Self(1))
         for i in 1...px {
             t *= x2 / Self((2 * i - 1) * 2 * i)
-            t.truncate(px*2)
+            t.truncate(px + 32)
             r += i & 1 == 1 ? -t : t
-            r.truncate(px*2)
+            r.truncate(px + 32)
             if t < epsilon { break }
         }
         return r.truncate(px)
@@ -236,9 +253,9 @@ public extension POReal {
         var t = r
         for i in 1...px {
             t *= x2 / Self((2 * i + 1) * 2 * i)
-            t.truncate(px*2)
+            t.truncate(px + 32)
             r += i & 1 == 1 ? -t : t
-            r.truncate(px*2)
+            r.truncate(px + 32)
             if t < epsilon { break }
         }
         return x < 0 ? -r.truncate(px) : r.truncate(px)
@@ -276,10 +293,10 @@ public extension POReal {
             var (t, r) = (Self(1), Self(1))
             for i in 1...px*4 {
                 t *= 2 * Self(i) * x2 / (Self(2 * i + 1) * x2p1)
-                t.truncate(px * 2)
+                t.truncate(px + 32)
                 r += t
                 // print("POReal#log: i=\(i), px=\(px), t=\(t.toDouble()), r=\(r.toDouble())")
-                r.truncate(px * 2)
+                r.truncate(px + 32)
                 if t < epsilon { break }
             }
             return r * x / x2p1
@@ -372,9 +389,9 @@ public extension POReal {
                 t += Self(1<<0) / Self(10 * i + 9)
                 if 0 < i { t /= Int.power(Self(2), 10 * i, op:*) }
                 p64 += i & 1 == 1 ? -t : t
+                p64.truncate(px + 32)
                 if verbose {
-                    print("\(__FILE__):\(__LINE__): iter = \(i); "
-                        + "p64.precision = \(p64.precision), t.precision = \(t.precision);")
+                    print("\(Self.self).pi(\(px)):i=\(i), t=~\(t.toDouble())")
                 }
                 if t < epsilon { break }
             }
@@ -412,64 +429,7 @@ extension Double : POFloat {
     /// number of significant bits == 53
     public static let precision = 53
     public var precision:Int { return Double.precision }
-    #if os(Linux)
-    public static func frexp(d:Double)->(Double, Int) {
-        // return Glibc.frexp(d)
-        var e:Int32 = 0
-        let m = Glibc.frexp(d, &e)
-        return (m, Int(e))
-    }
-    public static func ldexp(m:Double, _ e:Int)->Double {
-        // return Glibc.ldexp(m, e)
-        return Glibc.ldexp(m, Int32(e))
-    }
-    //
-    public static func sqrt(x:Double, precision:Int=52)->Double     { return Glibc.sqrt(x) }
-    public static func hypot(x:Double, _ y:Double, precision:Int=52)->Double { return Glibc.hypot(x, y) }
-    public static func exp(x:Double, precision:Int=52)->Double      { return Glibc.exp(x) }
-    public static func log(x:Double, precision:Int=52)->Double      { return Glibc.log(x) }
-    public static func log10(x:Double, precision:Int=52)->Double    { return Glibc.log10(x) }
-    public static func pow(x:Double, _ y:Double, precision:Int=52)->Double  { return Glibc.pow(x, y) }
-    public static func cos(x:Double, precision:Int=52)->Double      { return Glibc.cos(x) }
-    public static func sin(x:Double, precision:Int=52)->Double      { return Glibc.sin(x) }
-    public static func tan(x:Double, precision:Int=52)->Double      { return Glibc.tan(x) }
-    public static func acos(x:Double, precision:Int=52)->Double     { return Glibc.acos(x) }
-    public static func asin(x:Double, precision:Int=52)->Double     { return Glibc.asin(x) }
-    public static func atan(x:Double, precision:Int=52)->Double     { return Glibc.atan(x) }
-    public static func atan2(y:Double, _ x:Double, precision:Int=52)->Double { return Glibc.atan2(y, x) }
-    public static func cosh(x:Double, precision:Int=52)->Double     { return Glibc.cosh(x) }
-    public static func sinh(x:Double, precision:Int=52)->Double     { return Glibc.sinh(x) }
-    public static func tanh(x:Double, precision:Int=52)->Double     { return Glibc.tanh(x) }
-    public static func acosh(x:Double, precision:Int=52)->Double    { return Glibc.acosh(x) }
-    public static func asinh(x:Double, precision:Int=52)->Double    { return Glibc.asinh(x) }
-    public static func atanh(x:Double, precision:Int=52)->Double    { return Glibc.atanh(x) }
-    #else
-    public static func frexp(d:Double)->(Double, Int)   { return Darwin.frexp(d) }
-    public static func ldexp(m:Double, _ e:Int)->Double { return Darwin.ldexp(m, e) }
-    //
-    public static func sqrt(x:Double, precision:Int=52)->Double     { return Darwin.sqrt(x) }
-    public static func hypot(x:Double, _ y:Double, precision:Int=52)->Double { return Darwin.hypot(x, y) }
-    public static func exp(x:Double, precision:Int=52)->Double      { return Darwin.exp(x) }
-    public static func log(x:Double, precision:Int=52)->Double      { return Darwin.log(x) }
-    public static func log10(x:Double, precision:Int=52)->Double     { return Darwin.log10(x) }
-    public static func pow(x:Double, _ y:Double, precision:Int=52)->Double  { return Darwin.pow(x, y) }
-    public static func cos(x:Double, precision:Int=52)->Double      { return Darwin.cos(x) }
-    public static func sin(x:Double, precision:Int=52)->Double      { return Darwin.sin(x) }
-    public static func tan(x:Double, precision:Int=52)->Double      { return Darwin.tan(x) }
-    public static func acos(x:Double, precision:Int=52)->Double     { return Darwin.acos(x) }
-    public static func asin(x:Double, precision:Int=52)->Double     { return Darwin.asin(x) }
-    public static func atan(x:Double, precision:Int=52)->Double     { return Darwin.atan(x) }
-    public static func atan2(y:Double, _ x:Double, precision:Int=52)->Double { return Darwin.atan2(y, x) }
-    public static func cosh(x:Double, precision:Int=52)->Double     { return Darwin.cosh(x) }
-    public static func sinh(x:Double, precision:Int=52)->Double     { return Darwin.sinh(x) }
-    public static func tanh(x:Double, precision:Int=52)->Double     { return Darwin.tanh(x) }
-    public static func acosh(x:Double, precision:Int=52)->Double    { return Darwin.acosh(x) }
-    public static func asinh(x:Double, precision:Int=52)->Double    { return Darwin.asinh(x) }
-    public static func atanh(x:Double, precision:Int=52)->Double    { return Darwin.atanh(x) }
-    #endif
-    public func truncate(bits:Int)->Double {
-        return self
-    }
+    public func truncate(bits:Int)->Double { return self }
     public static var PI      = M_PI
     public static var E       = M_E
     public static var LN2     = M_LN2
@@ -487,8 +447,70 @@ extension Float : POFloat {
     /// number of significant bits == 23
     public static let precision = 24
     public var precision:Int { return Float.precision }
-    public func truncate(bits:Int)->Float {
-        return self
-    }
+    public func truncate(bits:Int)->Float { return self }
 }
-
+//
+// platform compatibility layer at the end
+//
+#if os(Linux)
+    import Glibc
+#else
+    import Darwin
+#endif
+public extension Double {
+    #if os(Linux)
+    public static func frexp(d:Double)->(Double, Int) {
+        // return Glibc.frexp(d)
+        var e:Int32 = 0
+        let m = Glibc.frexp(d, &e)
+        return (m, Int(e))
+    }
+    public static func ldexp(m:Double, _ e:Int)->Double {
+        // return Glibc.ldexp(m, e)
+        return Glibc.ldexp(m, Int32(e))
+    }
+    //
+    public static func pow(x:Double, _ y:Double, precision:Int=52)->Double  { return Glibc.pow(x, y) }
+    public static func sqrt(x:Double, precision:Int=52)->Double     { return Glibc.sqrt(x) }
+    public static func hypot(x:Double, _ y:Double, precision:Int=52)->Double { return Glibc.hypot(x, y) }
+    public static func exp(x:Double, precision:Int=52)->Double      { return Glibc.exp(x) }
+    public static func log(x:Double, precision:Int=52)->Double      { return Glibc.log(x) }
+    public static func log10(x:Double, precision:Int=52)->Double    { return Glibc.log10(x) }
+    public static func cos(x:Double, precision:Int=52)->Double      { return Glibc.cos(x) }
+    public static func sin(x:Double, precision:Int=52)->Double      { return Glibc.sin(x) }
+    public static func tan(x:Double, precision:Int=52)->Double      { return Glibc.tan(x) }
+    public static func acos(x:Double, precision:Int=52)->Double     { return Glibc.acos(x) }
+    public static func asin(x:Double, precision:Int=52)->Double     { return Glibc.asin(x) }
+    public static func atan(x:Double, precision:Int=52)->Double     { return Glibc.atan(x) }
+    public static func atan2(y:Double, _ x:Double, precision:Int=52)->Double { return Glibc.atan2(y, x) }
+    public static func cosh(x:Double, precision:Int=52)->Double     { return Glibc.cosh(x) }
+    public static func sinh(x:Double, precision:Int=52)->Double     { return Glibc.sinh(x) }
+    public static func tanh(x:Double, precision:Int=52)->Double     { return Glibc.tanh(x) }
+    public static func acosh(x:Double, precision:Int=52)->Double    { return Glibc.acosh(x) }
+    public static func asinh(x:Double, precision:Int=52)->Double    { return Glibc.asinh(x) }
+    public static func atanh(x:Double, precision:Int=52)->Double    { return Glibc.atanh(x) }
+    #else
+    public static func frexp(d:Double)->(Double, Int)   { return Darwin.frexp(d) }
+    public static func ldexp(m:Double, _ e:Int)->Double { return Darwin.ldexp(m, e) }
+    //
+    public static func pow(x:Double, _ y:Double, precision:Int=52)->Double  { return Darwin.pow(x, y) }
+    public static func sqrt(x:Double, precision:Int=52)->Double     { return Darwin.sqrt(x) }
+    public static func hypot(x:Double, _ y:Double, precision:Int=52)->Double { return Darwin.hypot(x, y) }
+    public static func exp(x:Double, precision:Int=52)->Double      { return Darwin.exp(x) }
+    public static func log(x:Double, precision:Int=52)->Double      { return Darwin.log(x) }
+    public static func log10(x:Double, precision:Int=52)->Double     { return Darwin.log10(x) }
+    public static func cos(x:Double, precision:Int=52)->Double      { return Darwin.cos(x) }
+    public static func sin(x:Double, precision:Int=52)->Double      { return Darwin.sin(x) }
+    public static func tan(x:Double, precision:Int=52)->Double      { return Darwin.tan(x) }
+    public static func acos(x:Double, precision:Int=52)->Double     { return Darwin.acos(x) }
+    public static func asin(x:Double, precision:Int=52)->Double     { return Darwin.asin(x) }
+    public static func atan(x:Double, precision:Int=52)->Double     { return Darwin.atan(x) }
+    public static func atan2(y:Double, _ x:Double, precision:Int=52)->Double { return Darwin.atan2(y, x) }
+    public static func cosh(x:Double, precision:Int=52)->Double     { return Darwin.cosh(x) }
+    public static func sinh(x:Double, precision:Int=52)->Double     { return Darwin.sinh(x) }
+    public static func tanh(x:Double, precision:Int=52)->Double     { return Darwin.tanh(x) }
+    public static func acosh(x:Double, precision:Int=52)->Double    { return Darwin.acosh(x) }
+    public static func asinh(x:Double, precision:Int=52)->Double    { return Darwin.asinh(x) }
+    public static func atanh(x:Double, precision:Int=52)->Double    { return Darwin.atanh(x) }
+    #endif
+}

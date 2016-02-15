@@ -401,7 +401,7 @@ public extension POInt {
     /// Stringifies `self` with base `radix` which defaults to `10`
     ///
     public func toString(radix:Int = 10)-> String {
-        return (self < 0 ? "-" : "") + self.abs.asUInt64!.toString(radix)
+        return (self < 0 ? "-" : "") + self.abs.asUnsigned!.toString(radix)
     }
     // automagically CustomStringConvertible by defalut
     public var description:String {
