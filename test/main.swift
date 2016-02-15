@@ -187,6 +187,10 @@ test.eq(BigRat(42.195).toFPString(10,places:4), "42.1950",  "42.195 to 4 dicimal
 test.eq(BigRat(42.195).toFPString(10,places:3), "42.195",   "42.195 to 3 dicimal places")
 test.eq(BigRat(42.195).toFPString(10,places:2), "42.20",    "42.195 to 2 dicimal places")
 test.eq(BigRat(42.195).toFPString(10,places:1), "42.2",     "42.195 to 1 dicimal place")
+test.eq( 1.999999999999.toFPString(10,places:12) , "1.999999999999",
+        "1.999999999999.toFPString(10,places:12) is 1.999999999999")
+test.eq(1.999999999999.toFPString(10,places:11),  "2.0",
+        "1.999999999999.toFPString(10,places:12) is 2.0")
 ({ q in
     test.eq(q.toMixed().0, -2,            "-14/6 = -2-1/3")
     test.eq(q.toMixed().1, (-1).over(3),  "-14/6 = -2-1/3")

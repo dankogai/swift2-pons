@@ -41,7 +41,7 @@ digraph typetree {
   POComplexReal -> Complex
   POFloat -> Double
   POFloat -> Float
-  POInt -> BigInt [ color = green ]
+  POInt -> BigInt
   POInt -> Int
   POInt -> Int16
   POInt -> Int32
@@ -52,7 +52,6 @@ digraph typetree {
   PONumber -> POComparableNumber
   PONumber -> POComplex
   PORational -> Rational
-  POReal -> POComplexReal
   POReal -> POFloat
   POReal -> PORational
   POSignedNumber -> POInt
