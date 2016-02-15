@@ -285,3 +285,5 @@ public extension POInt {
         return self.toRational(dominator)
     }
 }
+/// BigRat = Rational<BigInt>
+public typealias BigRat = Rational<BigInt>

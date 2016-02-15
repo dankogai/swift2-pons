@@ -4,6 +4,7 @@
         <page name='Welcome'/>
         <page name='Rationale'/>
         <page name='BigInt'/>
+        <page name='Rational'/>
         <page name='Complex'/>
         <page name='Prime'/>
         <page name='Scratchpad'/>

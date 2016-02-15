@@ -237,7 +237,6 @@ test.ne(IntMax.max.asBigInt!.nextPrime,   nil, "IntMax.max.asBigInt!.nextPrime i
     test.eq(sp.1, $0.1.1, "for sure ? \($0.1.1)")
 }
 // Generic Math
-typealias BigRat = Rational<BigInt>
 func approx(q:BigRat, _ fq:(BigRat,precision:Int)->BigRat, _ fd:(Double,precision:Int)->Double)->Bool {
     // print(fq(q,precision:64).toDouble() - fd(q.toDouble()))
     let qd = fq(q,precision:64).toDouble()
