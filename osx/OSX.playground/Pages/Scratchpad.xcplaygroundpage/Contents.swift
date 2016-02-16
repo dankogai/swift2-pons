@@ -70,5 +70,7 @@ func fact<T:POInteger>(n:T)->T {
 //let bpi = BigInt("3141592653589793238462643383279502884197169")
 //    .over(BigInt("1000000000000000000000000000000000000000000"))
 Complex.exp(BigRat.pi(128).i)
-//(BigRat(-7.0) % (2.0*bpi)).toFPString()
-
+BigRat.tan(BigRat.pi()/2.0)
+BigRat.sin(BigRat.pi(128)/1.0)
+Double.atan(Double.infinity)
+BigRat.atan(BigRat.infinity).toFPString()

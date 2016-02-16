@@ -110,17 +110,23 @@ public extension PORational {
         return (sgn ? -1 : 1) * (((num.hashValue >> bits) << bits) | (den.hashValue >> bits))
     }
     public mutating func truncate(bits:Int)->Self {
-        if bits < self.precision + 1 {
+        if num == 0 {
+            den = den == 0 ? 0 : 1
+        } else if bits < self.precision + 1 {
             num <<= IntType.UIntType(bits)
             let (q, r) = IntType.UIntType.divmod(num, den)
             num = q
             if r * 2 >= den {  // round up
                 num += IntType.UIntType(1)
             }
-            den = IntType.UIntType(1) << IntType.UIntType(bits)
-            while num != 0 && num & 1 == 0 {    // reduce if necessary
-                num >>= 1
-                den >>= 1
+            if num == 0 {
+                den = 1
+            } else {
+                den = IntType.UIntType(1) << IntType.UIntType(bits)
+                while num & 1 == 0 {    // reduce if necessary
+                    num >>= 1
+                    den >>= 1
+                }
             }
         }
         return self
@@ -203,7 +209,7 @@ public struct Rational<I:POInt> : PORational, FloatLiteralConvertible {
             : d == 0 ? (s, 1, 0) : { (s, n/$0, d/$0) }(U.gcd(n, d))
     }
     public init(_ q:Rational<I>) {
-        (sgn, num, den) = (q.sgn, q.num, q.den)
+        self.init(q.sgn, q.num, q.den, isNormal:false)
     }
     public init(_ n:IntType, _ d:IntType, isNormal:Bool = false) {
         self.init (
