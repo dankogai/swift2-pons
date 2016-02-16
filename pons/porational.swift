@@ -66,8 +66,7 @@ public extension PORational {
         return self.toMixed().0
     }
     public func toMixed()->(IntType, Self) {
-        typealias U = IntType.UIntType
-        let (u, f) = U.divmod(num, den)
+        let (u, f) = IntType.UIntType.divmod(num, den)
         var r = self
         r.num = f
         return ((self.isSignMinus ? -1 : 1) * IntType(u), r)
@@ -119,6 +118,10 @@ public extension PORational {
                 num += IntType.UIntType(1)
             }
             den = IntType.UIntType(1) << IntType.UIntType(bits)
+            while num != 0 && num & 1 == 0 {    // reduce if necessary
+                num >>= 1
+                den >>= 1
+            }
         }
         return self
     }
@@ -280,10 +283,10 @@ public func *<Q:PORational>(lhs:Q, rhs:Q) -> Q {
     return result
 }
 public func *<Q:PORational>(lhs:Q, rhs:Q.IntType) -> Q {
-    return Q(Bool.xor(lhs.sgn, rhs.isSignMinus), lhs.num * rhs.asUnsigned!, lhs.den, isNormal:false)
+    return Q(Bool.xor(lhs.sgn, rhs.isSignMinus), lhs.num * rhs.abs.asUnsigned!, lhs.den, isNormal:false)
 }
 public func *<Q:PORational>(lhs:Q.IntType, rhs:Q) -> Q {
-    return Q(Bool.xor(lhs.isSignMinus, rhs.sgn), lhs.asUnsigned! * rhs.num, rhs.den, isNormal:false)
+    return Q(Bool.xor(lhs.isSignMinus, rhs.sgn), lhs.abs.asUnsigned! * rhs.num, rhs.den, isNormal:false)
 }
 public func &*<Q:PORational>(lhs:Q, rhs:Q) -> Q {
     return Q.multiplyWithOverflow(lhs, rhs).0
@@ -294,10 +297,10 @@ public func /<Q:PORational>(lhs:Q, rhs:Q) -> Q {
     return result
 }
 public func /<Q:PORational>(lhs:Q, rhs:Q.IntType) -> Q {
-    return Q(Bool.xor(lhs.sgn, rhs.isSignMinus), lhs.num, lhs.den * rhs.asUnsigned!, isNormal:false)
+    return Q(Bool.xor(lhs.sgn, rhs.isSignMinus), lhs.num, lhs.den * rhs.abs.asUnsigned!, isNormal:false)
 }
 public func /<Q:PORational>(lhs:Q.IntType, rhs:Q) -> Q {
-    return Q(Bool.xor(lhs.isSignMinus, rhs.sgn), rhs.num, lhs.asUnsigned! * rhs.den, isNormal:false)
+    return Q(Bool.xor(lhs.isSignMinus, rhs.sgn), rhs.num, lhs.abs.asUnsigned! * rhs.den, isNormal:false)
 }
 public func %<Q:PORational>(lhs:Q, rhs:Q) -> Q {
     let i = Q.divideWithOverflow(lhs, rhs).0.asIntType!

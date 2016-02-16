@@ -22,6 +22,7 @@ public protocol POReal : POSignedNumber {
     static var infinity:Self { get }
     var precision:Int { get }
     mutating func truncate(_:Int)->Self
+    func toMixed()->(IntType, Self)
 }
 public extension POReal {
     public var isFinite:Bool { return !isInfinite }
@@ -31,13 +32,29 @@ public protocol POFloat : POReal {
 }
 // public protocol POElementaryFunctional : POReal {}
 public extension POReal {
-    public func toMixed()->(IntType, Self) {
-        return (self.asIntType!, self % Self(1) )
-    }
-    public var asBigRat:BigRat? {
+     public var asBigRat:BigRat? {
         if let b = self as? BigRat { return b }
         if let d = self as? Double { return BigRat(d) }
         return nil
+    }
+    ///
+    public static func getSetConstant(
+        name:String, _ arg:Self, _ precision:Int, setter:(Self, Int)->Self
+        )->Self
+    {
+        #if false   // to test constant cache
+            return setter(arg, precision)
+        #else
+            let key = "\(Self.self).\(name)(\(arg), precision:\(precision))"
+            // print("\(__FILE__):\(__LINE__) fetching \(key)")
+            if let value = POUtil.constants[key] {
+                return value as! Self
+            }
+            let value = setter(arg, precision)
+            // print("\(__FILE__):(__LINE__) storing \(key) => \(value)")
+            POUtil.constants[key] = value
+            return value
+        #endif
     }
     /// To floating-point string
     public func toFPString(base:Int=10, places:Int=0)->String {
@@ -101,20 +118,6 @@ public extension POReal {
     ////
     public static func pow(x:Self, _ y:Self, precision:Int = 64)->Self  {
         return Self(Double.pow(x.toDouble(), y.toDouble()))
-    }
-    public static func getSetConstant(
-        name:String, _ arg:Self, _ precision:Int, setter:(Self, Int)->Self
-        )->Self
-    {
-        let key = "\(Self.self).\(name)(\(arg), precision:\(precision))"
-        // print("\(__FILE__):\(__LINE__) fetching \(key)")
-        if let value = POUtil.constants[key] {
-            return value as! Self
-        }
-        let value = setter(arg, precision)
-        // print("\(__FILE__):(__LINE__) storing \(key) => \(value)")
-        POUtil.constants[key] = value
-        return value
     }
     // public static func sqrt(x:Self)->Self   { return Self(Darwin.sqrt(x.toDouble())) }
     /// - returns: square root of `x` to precision `precision`
@@ -184,7 +187,8 @@ public extension POReal {
             }
             return r
         }
-        let e = getSetConstant("exp", Self(1), px, setter:inner_exp)
+        //let e = getSetConstant("exp", Self(1), px, setter:inner_exp)
+        let e = inner_exp(1, px)
         //let ir = ix == 0 ? Self(1) : Int.power(inner_exp(1), ix, op:*)
         let ir = ix == 0 ? Self(1) : Int.power(e, ix, op:*)
         let fr = fx == 0 ? Self(1) : inner_exp(fx, px)
@@ -311,7 +315,8 @@ public extension POReal {
         if let dy = y as? Double { return Self(Double.atan2(dy, x as! Double)) }
         let px = Swift.max(x.precision, precision)
         if x.isNaN || y.isNaN { return Self.NaN }
-        if x.isZero || y.isZero || x.isInfinite || y.isInfinite {   // let us consult Double.atan2 this case
+        // let us consult Double.atan2 for these special cases
+        if x.isZero || y.isZero || x.isInfinite || y.isInfinite {
             switch Double.atan2(y.toDouble(), x.toDouble()) {
             case   +Double.PI/4 : return +pi(px)/4
             case   -Double.PI/4 : return -pi(px)/4
@@ -421,29 +426,32 @@ public extension POReal {
 public extension POUtil {
     public static var constants = [String:Any]()
 }
+public extension POFloat {
+    public func toString(base:Int = 10)->String {
+        return self.toFPString(base)
+    }
+}
 extension Double : POFloat {
     public typealias IntType = Int
     public func toDouble()->Double { return self }
     public func toIntMax()->IntMax { return IntMax(self) }
     public var asIntType:IntType? { return IntType(self) }
+    public func toMixed()->(IntType, Double) {
+        return (IntType(self), self % 1.0)
+    }
     /// number of significant bits == 53
     public static let precision = 53
     public var precision:Int { return Double.precision }
     public func truncate(bits:Int)->Double { return self }
-    public static var PI      = M_PI
-    public static var E       = M_E
-    public static var LN2     = M_LN2
-    public static var LN10    = M_LN10
-    public static var LOG2E   = M_LOG2E
-    public static var LOG10E  = M_LOG10E
-    public static var SQRT1_2 = M_SQRT1_2
-    public static var SQRT2   = M_SQRT2
 }
 extension Float : POFloat {
     public typealias IntType = Int
     public func toDouble()->Double { return Double(self) }
     public func toIntMax()->IntMax { return IntMax(self) }
     public var asIntType:IntType? { return IntType(self) }
+    public func toMixed()->(IntType, Float) {
+        return (IntType(self), self % 1.0)
+    }
     /// number of significant bits == 23
     public static let precision = 24
     public var precision:Int { return Float.precision }
@@ -513,4 +521,12 @@ public extension Double {
     public static func asinh(x:Double, precision:Int=52)->Double    { return Darwin.asinh(x) }
     public static func atanh(x:Double, precision:Int=52)->Double    { return Darwin.atanh(x) }
     #endif
+    public static var PI      = M_PI
+    public static var E       = M_E
+    public static var LN2     = M_LN2
+    public static var LN10    = M_LN10
+    public static var LOG2E   = M_LOG2E
+    public static var LOG10E  = M_LOG10E
+    public static var SQRT1_2 = M_SQRT1_2
+    public static var SQRT2   = M_SQRT2
 }

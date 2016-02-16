@@ -61,3 +61,14 @@ func fact<T:POInteger>(n:T)->T {
     return n < 2 ? 1 : (2...n).reduce(1, combine:*)
 }
 */
+//var pi128 = BigRat.pi(128)
+//var pi128 = BigInt("68417829380157871863019543882359730131241")
+//    .over(BigInt("21778071482940061661655974875633165533184"))
+//Complex.exp(pi128.i).imag.toFPString()
+
+//Complex.sqrt(BigRat(-2)).im.toFPString()
+//let bpi = BigInt("3141592653589793238462643383279502884197169")
+//    .over(BigInt("1000000000000000000000000000000000000000000"))
+Complex.exp(BigRat.pi(128).i)
+//(BigRat(-7.0) % (2.0*bpi)).toFPString()
+
