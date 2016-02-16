@@ -1,7 +1,7 @@
 MOD=PONS
 BIN=main
 BINSRC=test/*.swift
-GRAPH=typetree
+GRAPH=graph/typetree
 MODSRC=pons/*.swift
 MODULE=$(MOD).swiftmodule
 DOC=$(MOD).swiftdoc

@@ -3,7 +3,7 @@
 # swift-pons
 Protocol-Oriented Number System in Pure Swift
 
-![typetree](./typetree.png)
+![typetree](./graph/typetree.png)
 
 ## SYNOPSIS
 

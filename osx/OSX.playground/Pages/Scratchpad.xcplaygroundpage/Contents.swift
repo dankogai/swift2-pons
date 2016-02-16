@@ -74,3 +74,7 @@ BigRat.tan(BigRat.pi()/2.0)
 BigRat.sin(BigRat.pi(128)/1.0)
 Double.atan(Double.infinity)
 BigRat.atan(BigRat.infinity).toFPString()
+import Foundation
+1.0/(-1.0/0.0)
+BigRat.infinity.reciprocal
+
