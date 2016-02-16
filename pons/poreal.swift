@@ -197,18 +197,22 @@ public extension POReal {
         return x.isSignMinus ? 1/r.truncate(px) : r.truncate(px)
     }
     /// ![](https://upload.wikimedia.org/math/1/7/5/17534a763ff4b0fd87ce62556ebcc3d7.png)
+    ///
+    /// - returns: natural log of `x`
+    ///
     public static func log(x:Self, precision:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.log(dx)) }
         if x.isSignMinus { return Self.NaN }
         if x.isZero      { return -Self.infinity }
         if x == 1        { return 0 }
         let px = Swift.max(x.precision, precision)
+        let epsilon = Self(Double.ldexp(1.0, -px))
+        #if true    // euler
         let inner_log:(Self, Int)->Self = { x , px in
             var t = (x - 1)/(x + 1)
             if x < 1 { t = -t }
             let t2 = t * t
             var r:Self = t
-            let epsilon = Self(Double.ldexp(1.0, -px))
             for i in 1...px*2 {
                 t *= t2
                 t.truncate(px + 32)
@@ -219,11 +223,25 @@ public extension POReal {
             }
             return 2 * (x < 1 ? -r : r)
         }
+        #else   // newton-raphson
+        let inner_log:(Self, Int)->Self = { x, px in
+            var y = Self(1)
+            for _ in 0...(x.precision.msbAt + 1) {
+                let ex = exp(y, precision:px + 32)
+                var t = Self(2) * (x - ex)/(x + ex)
+                y += t.truncate(px + 32)
+                // print("log: i=\(i), y=\(y.toFPString()), t=\(t.toDouble())")
+                if (t < 0 ? -t : t) < epsilon { break }
+            }
+            return y
+        }
+        #endif
         let ln2 = getSetConstant("log", 2, px, setter:inner_log)
+        //let ln2 = 2 * lnr2 //getSetConstant("log", 2, px, setter:inner_log)
         let il = x.toIntMax().msbAt
         let fl = x / Self(Double.ldexp(1.0, il))
         let ir = il == 0 ? 0 : ln2 * Self(il)
-        let fr = fl == 0 ? 0 : inner_log(fl, px)
+        let fr = fl == 1 ? 0 : inner_log(fl, px)
         var r =  ir + fr
         //print("ln(\(x.toDouble())) =~ ln(\(Double.ldexp(1.0,il)))+ln(\(fl.toDouble()))"
         //    + " = \(ir.toDouble())+\(fr.toDouble()) = \(r.toDouble())")

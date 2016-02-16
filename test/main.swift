@@ -338,5 +338,7 @@ test.eq(Bool.xor(false, false), false,  "xor(false, false) == false")
 //print(Complex.exp(BigRat.pi(128,verbose:true).i))
 //print(Complex.exp(BigRat.pi(192,verbose:true).i))
 
+print(POUtil.constants)
+
 test.done()
 

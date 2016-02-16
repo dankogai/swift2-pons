@@ -1,7 +1,93 @@
 //: [Previous](@previous)
 import PONS
 
+func divmodNR(lhs:BigUInt, _ rhs:BigUInt, debug:Bool=false)->(BigUInt, BigUInt) {
+    let bits = rhs.msbAt + 1
+    var inv0 = rhs
+    var inv:BigUInt = BigUInt(1) << BigUInt(bits)
+    let two = inv * inv * 2
+    for i in 0...bits {
+        inv = inv0 * (two - rhs * inv0)     // Newton-Raphson core
+        inv >>= BigUInt(inv.msbAt - bits)   // truncate
+        if debug {
+            print("divmodNR: i=\(i), inv=\(inv.toString(16))")
+        }
+        if inv == inv0 { break }
+        inv0 = inv
+    }
+    var (q, r) = (BigUInt(0), lhs)
+    while r > rhs {
+        let q0 = (r * inv) >> BigUInt(bits*2)
+        q += q0
+        r -= rhs * q0
+        if debug {
+            print("divmodNR: (q, r)=(\(q), \(r))")
+        }
+    }
+    return r == rhs ? (q + 1, 0) : (q, r)
+}
+
+let uint256max = (BigUInt(1)<<1024-1)
+let uint128max = (BigUInt(1)<<128-1)
+let sint128max = uint128max >> 1
+let prime = BigUInt(UInt.max).prevPrime!
+({ n, d in
+    let (q0, r0) = BigUInt.divmodLongBit(n, d)
+    let (q1, r1) = divmodNR(n, d)
+    q1
+    r1
+    q0 == q1
+    r0 == r1
+})(uint256max, sint128max)
+
 /*
+func divmodNR(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, BigUInt) {
+var bits = rhs.msbAt + 1
+var x0 = rhs
+var x:BigUInt = BigUInt(1) << BigUInt(bits)
+let two = x * x * 2
+for i in 0...bits {
+x = x0 * (two - rhs * x0)
+x >>= BigUInt(x.msbAt - bits)
+print("i=\(i)")
+if x == x0 { break }
+x0 = x
+}
+var db = lhs.msbAt - rhs.msbAt + 1
+var r = lhs * x
+let r1 = r >> BigUInt(r.msbAt - db)
+return (r1, 0)
+}
+Complex.exp(BigRat.pi().i)
+Complex.exp(BigRat.pi(96).i)
+Complex.exp(BigRat.pi(128).i)
+BigRat.tan(BigRat.pi()/2.0)
+BigRat.sin(BigRat.pi(128)/1.0)
+POUtil.constants
+
+Double.atan(Double.infinity)
+BigRat.atan(BigRat.infinity).toFPString()
+import Foundation
+1.0/(-1.0/0.0)
+BigRat.infinity.reciprocal
+
+func inner_log<R:POReal>(x:R, precision px:Int=64)->R {
+    var y0 = R(1)
+    var y1 = y0
+    for i in 0...(x.precision.msbAt + 1) {
+        let ex = R.exp(y0, precision:px)
+        //y1 =  y0
+        y1 += R(2) * (x - ex)/(x + ex)
+        y1.truncate(px + 32)
+        print("y0=\(y0.toFPString()), y1=\(y1.toFPString())")
+        if y0 == y1 { break }
+        y0 = y1
+    }
+    return y1.truncate(px)
+}
+
+inner_log(BigRat(2))
+
 let bi:BigInt = 1<<256-1
 var bq = BigInt(1).over(bi)
 // bq = 0.1
@@ -69,12 +155,3 @@ func fact<T:POInteger>(n:T)->T {
 //Complex.sqrt(BigRat(-2)).im.toFPString()
 //let bpi = BigInt("3141592653589793238462643383279502884197169")
 //    .over(BigInt("1000000000000000000000000000000000000000000"))
-Complex.exp(BigRat.pi(128).i)
-BigRat.tan(BigRat.pi()/2.0)
-BigRat.sin(BigRat.pi(128)/1.0)
-Double.atan(Double.infinity)
-BigRat.atan(BigRat.infinity).toFPString()
-import Foundation
-1.0/(-1.0/0.0)
-BigRat.infinity.reciprocal
-
