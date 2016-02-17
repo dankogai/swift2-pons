@@ -1,46 +1,71 @@
 //: [Previous](@previous)
 import PONS
+import Foundation
 
-func divmodNR(lhs:BigUInt, _ rhs:BigUInt, debug:Bool=false)->(BigUInt, BigUInt) {
-    let bits = rhs.msbAt + 1
-    var inv0 = rhs
-    var inv:BigUInt = BigUInt(1) << BigUInt(bits)
-    let two = inv * inv * 2
-    for i in 0...bits {
-        inv = inv0 * (two - rhs * inv0)     // Newton-Raphson core
-        inv >>= BigUInt(inv.msbAt - bits)   // truncate
-        if debug {
-            print("divmodNR: i=\(i), inv=\(inv.toString(16))")
-        }
-        if inv == inv0 { break }
-        inv0 = inv
-    }
-    var (q, r) = (BigUInt(0), lhs)
-    while r > rhs {
-        let q0 = (r * inv) >> BigUInt(bits*2)
-        q += q0
-        r -= rhs * q0
-        if debug {
-            print("divmodNR: (q, r)=(\(q), \(r))")
-        }
-    }
-    return r == rhs ? (q + 1, 0) : (q, r)
-}
-
-let uint256max = (BigUInt(1)<<1024-1)
-let uint128max = (BigUInt(1)<<128-1)
-let sint128max = uint128max >> 1
-let prime = BigUInt(UInt.max).prevPrime!
-({ n, d in
-    let (q0, r0) = BigUInt.divmodLongBit(n, d)
-    let (q1, r1) = divmodNR(n, d)
-    q1
-    r1
-    q0 == q1
-    r0 == r1
-})(uint256max, sint128max)
+//String(format:"%08lx", pihex(13))
 
 /*
+///
+/// * https://en.wikipedia.org/wiki/Bailey–Borwein–Plouffe_formula
+/// * http://en.literateprograms.org/Pi_with_the_BBP_formula_(Python)
+///
+
+func pihex(place:Int)->Int {
+    func S(i:Int, _ j:Int)->Double {
+        func sl(i:Int, _ j:Int)->Double {
+            var lhs = 0.0
+            for k in 0...i {
+                let d = UInt(8*k + j)
+                let p = UInt.powmod(16, UInt(i - k), mod:d)
+                lhs += Double(p) / Double(d)
+                lhs %= 1.0
+            }
+            return lhs
+        }
+        func sr(i:Int, _ j:Int)->Double {
+            var (rhs, rn) = (0.0, 0.0)
+            for k in (i+1)..<(i+32){
+                rn = rhs + Double.pow(16.0, Double(i-k)) / Double(8*k + j)
+                if rhs == rn { break }
+                rhs = rn
+            }
+            return rhs
+        }
+        return sl(i, j) + sr(i, j)
+    }
+    let n = place - 1
+    let d = (4*S(n,1)-2*S(n,4)-S(n,5)-S(n,6)) % 1.0
+    print("d=\(d)")
+    return Int(d * 16**14)
+}
+print(String(format:"%014lx", pihex(1)))
+print(String(format:"%014lx", pihex(4)))
+//print(String(format:"%014lx", pihex(14)))
+//print(String(format:"%014lx", pihex(28)))
+print(String(format:"%014lx", pihex(1000)))
+*/
+
+/*
+
+var numer = ["0x"]
+var denom = ["0x1"]
+for i in 0..<4 {
+    let d = String(format:"%04x", pihex(1 + 4 * i))
+    numer.append(d)
+    denom.append("0000")
+    print("\(i):\(d)")
+}
+
+print(
+    (BigRat(3.0)
+        + BigInt(numer.joinWithSeparator(""))
+    .over(BigInt(denom.joinWithSeparator("")))
+    ).toFPString()
+)
+*/
+/*
+
+
 func divmodNR(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, BigUInt) {
 var bits = rhs.msbAt + 1
 var x0 = rhs

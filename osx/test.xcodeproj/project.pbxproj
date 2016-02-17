@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9E3591FA1C74281800A19CE8 /* math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E3591F91C74281800A19CE8 /* math.swift */; };
+		9E3591FC1C7429BC00A19CE8 /* integer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E3591FB1C7429BC00A19CE8 /* integer.swift */; };
+		9E3591FE1C7429F600A19CE8 /* complex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E3591FD1C7429F600A19CE8 /* complex.swift */; };
+		9E3592001C742A8C00A19CE8 /* rational.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E3591FF1C742A8C00A19CE8 /* rational.swift */; };
+		9E3592021C742AE000A19CE8 /* prime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E3592011C742AE000A19CE8 /* prime.swift */; };
+		9E3592041C742B2700A19CE8 /* xtra.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E3592031C742B2700A19CE8 /* xtra.swift */; };
 		9EF92AAB1C6B2E0300A19CE8 /* pobigint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92AA11C6B2E0300A19CE8 /* pobigint.swift */; };
 		9EF92AAC1C6B2E0300A19CE8 /* pobiguint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92AA21C6B2E0300A19CE8 /* pobiguint.swift */; };
 		9EF92AAD1C6B2E0300A19CE8 /* pobool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92AA31C6B2E0300A19CE8 /* pobool.swift */; };
@@ -34,6 +40,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9E3591F91C74281800A19CE8 /* math.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = math.swift; sourceTree = "<group>"; };
+		9E3591FB1C7429BC00A19CE8 /* integer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = integer.swift; sourceTree = "<group>"; };
+		9E3591FD1C7429F600A19CE8 /* complex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = complex.swift; sourceTree = "<group>"; };
+		9E3591FF1C742A8C00A19CE8 /* rational.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = rational.swift; sourceTree = "<group>"; };
+		9E3592011C742AE000A19CE8 /* prime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = prime.swift; sourceTree = "<group>"; };
+		9E3592031C742B2700A19CE8 /* xtra.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = xtra.swift; sourceTree = "<group>"; };
 		9EF92A911C6B2D6300A19CE8 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		9EF92AA11C6B2E0300A19CE8 /* pobigint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = pobigint.swift; sourceTree = "<group>"; };
 		9EF92AA21C6B2E0300A19CE8 /* pobiguint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = pobiguint.swift; sourceTree = "<group>"; };
@@ -99,6 +111,12 @@
 			isa = PBXGroup;
 			children = (
 				9EF92B241C6B370C00A19CE8 /* main.swift */,
+				9E3591FB1C7429BC00A19CE8 /* integer.swift */,
+				9E3591F91C74281800A19CE8 /* math.swift */,
+				9E3591FF1C742A8C00A19CE8 /* rational.swift */,
+				9E3591FD1C7429F600A19CE8 /* complex.swift */,
+				9E3592031C742B2700A19CE8 /* xtra.swift */,
+				9E3592011C742AE000A19CE8 /* prime.swift */,
 				9EF92B251C6B370C00A19CE8 /* tap.swift */,
 			);
 			name = test;
@@ -162,18 +180,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9E3591FE1C7429F600A19CE8 /* complex.swift in Sources */,
 				9EF92AAD1C6B2E0300A19CE8 /* pobool.swift in Sources */,
 				9EF92AB01C6B2E0300A19CE8 /* ponumber.swift in Sources */,
+				9E3592001C742A8C00A19CE8 /* rational.swift in Sources */,
 				9EF92AB21C6B2E0300A19CE8 /* poreal.swift in Sources */,
 				9EF92AB31C6B2E0300A19CE8 /* xtra_operators.swift in Sources */,
 				9EF92AAB1C6B2E0300A19CE8 /* pobigint.swift in Sources */,
 				9EF92B281C6B370C00A19CE8 /* tap.swift in Sources */,
+				9E3592041C742B2700A19CE8 /* xtra.swift in Sources */,
 				9EF92AB11C6B2E0300A19CE8 /* porational.swift in Sources */,
 				9EF92AAE1C6B2E0300A19CE8 /* pocomplex.swift in Sources */,
 				9EF92B271C6B370C00A19CE8 /* main.swift in Sources */,
 				9EF92AAF1C6B2E0300A19CE8 /* pointeger.swift in Sources */,
+				9E3591FC1C7429BC00A19CE8 /* integer.swift in Sources */,
 				9EF92AB41C6B2E0300A19CE8 /* xtra_prime.swift in Sources */,
+				9E3591FA1C74281800A19CE8 /* math.swift in Sources */,
 				9EF92AAC1C6B2E0300A19CE8 /* pobiguint.swift in Sources */,
+				9E3592021C742AE000A19CE8 /* prime.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

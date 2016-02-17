@@ -395,6 +395,7 @@ public extension BigUInt {
             let q0 = (r * inv) >> BigUInt(bits*2)
             q += q0
             r -= rhs * q0
+
         }
         return r == rhs ? (q + 1, 0) : (q, r)
     }
@@ -543,8 +544,11 @@ public extension POUInt {
             //return innerRedc(innerRedc(a * b) * r2)
         }
         // print("\(__FILE__):\(__LINE__): m=\(m), bits=\(bits), minv=\(minv), r2=\(r2)")
-        if b < Self(1) {
+        if x < 0 {
             fatalError("negative exponent unsupported")
+        }
+        if x == 0 {
+            return 1 % m
         }
         var r = b
         var t = b, n = x - Self(1)
@@ -556,35 +560,5 @@ public extension POUInt {
             t = innerMulMod(t, t)
         }
         return r
-    }
-    ///
-    /// * https://en.wikipedia.org/wiki/Bailey–Borwein–Plouffe_formula
-    /// * http://en.literateprograms.org/Pi_with_the_BBP_formula_(Python)
-    public static func pihex(n:Int)->Int {
-        let digits = 4
-        let bits = 1 << (4 * digits)
-        let shift = UInt(4 * digits)
-        let mask = bits - 1
-        func S(j:Int, _ n:Int)->Int {
-            var (ls, k) = (0, 0)
-            while k <= n {
-                let r = UInt(8 * k + j)
-                let m = n - k <= 0 ? 1 : UInt.powmod(16, UInt(n-k), mod:r)
-                ls += Int(m << shift / r)
-                ls &= Int(mask)
-                k += 1
-            }
-            var rs = 0
-            while true {
-                let xp = n - k < 0 ? bits / (1<<(4*(k-n))) : bits * 1<<(4*(n-k))
-                let r0 = rs + xp / (8 * k + j)
-                if rs == r0 { break }
-                rs = r0
-                k += 1
-            }
-            return ls + rs
-        }
-        let k = n - 1
-        return (4*S(1, k) - 2*S(4, k) - S(5, k) - S(6, k)) & mask
     }
 }
