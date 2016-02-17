@@ -6,10 +6,10 @@
 //  Copyright © 2016 Dan Kogai. All rights reserved.
 //
 
-//
-// Rational
-//
-func testRational(test:TAP) {
+func testReal(test:TAP) {
+    //
+    // Rational
+    //
     test.eq("\(+2.over(4))", "(1/2)",  "\"\\(+2.over(4))\" == \"(1/2)\"")
     test.eq("\(-2.over(4))", "-(1/2)", "\"\\(-2.over(4))\" == \"-(1/2)\"")
     test.eq("\(2.over(4)+2.over(4).i)", "((1/2)+(1/2).i)",
@@ -42,4 +42,14 @@ func testRational(test:TAP) {
         test.eq(q.toMixed().0, -2,            "-14/6 = -2-1/3")
         test.eq(q.toMixed().1, (-1).over(3),  "-14/6 = -2-1/3")
     })((-14).over(6))
+    //
+    // BigFloat
+    //
+    test.eq(BigFloat(+0.0).isSignMinus, (+0.0).isSignMinus, "(BigFloat(+0.0).isSignMinus is \(BigFloat(+0.0).isSignMinus)")
+    test.eq(BigFloat(-0.0).isSignMinus, (-0.0).isSignMinus, "(BigFloat(-0.0).isSignMinus is \(BigFloat(-0.0).isSignMinus)")
+    for d in [0.5, Double.LN2, 1.0, Double.LN10, Double.PI] {
+        test.eq(BigFloat(+d).toDouble(), +d, "BigFloat(+\(d)).toDouble() == +\(d))")
+        test.eq(BigFloat(-d).toDouble(), -d, "BigFloat(-\(d)).toDouble() == -\(d))")
+    }
+    print( BigFloat(Double.LN2).toDouble() - Double.LN2 )
 }

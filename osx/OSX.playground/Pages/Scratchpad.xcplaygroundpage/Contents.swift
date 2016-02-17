@@ -3,13 +3,33 @@ import PONS
 import Foundation
 
 
+/*
+BigFloat(1).exponent
+BigFloat(1.0).exponent
+Double.frexp(1.0)
+BigFloat(-1.0).toDouble()
+BigFloat(-1.0).significand.unsignedValue
+BigFloat(-1.0).exponent
+BigFloat(1.0).toDouble()
+BigFloat(1.0).significand
+BigFloat(1.0).exponent
+BigFloat(1.5).toDouble()
+BigFloat(1.5).significand
+BigFloat(1.5).exponent
+BigFloat(-Double.PI).toDouble()
+BigFloat(-Double.PI).exponent
+BigFloat(-Double.PI).significand
+BigFloat(-Double.PI).toDouble()  == -Double.PI
+BigFloat(Double.LN2).toDouble()
+BigFloat(Double.LN2).exponent
+BigFloat(Double.LN2).toDouble() - Double.LN2
 //String(format:"%08lx", pihex(13))
 
 ///
 /// * https://en.wikipedia.org/wiki/Bailey–Borwein–Plouffe_formula
 /// * http://en.literateprograms.org/Pi_with_the_BBP_formula_(Python)
 ///
-/*
+
 func pihex(place:Int)->Int {
     func S(i:Int, _ j:Int)->Double {
         func sl(i:Int, _ j:Int)->Double {

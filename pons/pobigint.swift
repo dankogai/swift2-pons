@@ -27,7 +27,7 @@ public struct BigInt {
     public init(_ u:UInt)       { unsignedValue = BigUInt(u.toUIntMax()) }
     public init(_ i:IntMax)     { unsignedValue = BigUInt(Swift.abs(i)); isSignMinus = i < 0 }
     public init(_ i:Int)        { unsignedValue = BigUInt(Swift.abs(i)); isSignMinus = i < 0 }
-    public init(_ d:Double)     { unsignedValue = BigUInt(Swift.abs(d)); isSignMinus = d < 0 }
+    public init(_ d:Double)     { unsignedValue = BigUInt(Swift.abs(d)); isSignMinus = d.isSignMinus }
     public init(){}
     // conversions
     public func toIntMax()->IntMax {

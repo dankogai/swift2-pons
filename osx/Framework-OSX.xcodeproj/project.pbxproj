@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9ED3A7C21C7469AB00A19CE8 /* pobigfloat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ED3A7C11C7469AB00A19CE8 /* pobigfloat.swift */; };
 		9EF929F71C6B20E400A19CE8 /* PONS.h in Headers */ = {isa = PBXBuildFile; fileRef = 9EF929F61C6B20E400A19CE8 /* PONS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9EF92A091C6B215300A19CE8 /* pobigint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF929FF1C6B215300A19CE8 /* pobigint.swift */; };
 		9EF92A0A1C6B215300A19CE8 /* pobiguint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92A001C6B215300A19CE8 /* pobiguint.swift */; };
@@ -21,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9ED3A7C11C7469AB00A19CE8 /* pobigfloat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = pobigfloat.swift; sourceTree = "<group>"; };
 		9EF929F31C6B20E400A19CE8 /* PONS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PONS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9EF929F61C6B20E400A19CE8 /* PONS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PONS.h; sourceTree = "<group>"; };
 		9EF929F81C6B20E400A19CE8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -83,6 +85,7 @@
 				9EF92A031C6B215300A19CE8 /* pointeger.swift */,
 				9EF92A041C6B215300A19CE8 /* ponumber.swift */,
 				9EF92A051C6B215300A19CE8 /* porational.swift */,
+				9ED3A7C11C7469AB00A19CE8 /* pobigfloat.swift */,
 				9EF92A061C6B215300A19CE8 /* poreal.swift */,
 				9EF92A071C6B215300A19CE8 /* xtra_operators.swift */,
 				9EF92A081C6B215300A19CE8 /* xtra_prime.swift */,
@@ -177,6 +180,7 @@
 				9EF92A0D1C6B215300A19CE8 /* pointeger.swift in Sources */,
 				9EF92A0A1C6B215300A19CE8 /* pobiguint.swift in Sources */,
 				9EF92A0F1C6B215300A19CE8 /* porational.swift in Sources */,
+				9ED3A7C21C7469AB00A19CE8 /* pobigfloat.swift in Sources */,
 				9EF92A0B1C6B215300A19CE8 /* pobool.swift in Sources */,
 				9EF92A0E1C6B215300A19CE8 /* ponumber.swift in Sources */,
 			);

@@ -15,9 +15,9 @@
 #if true
     let test = TAP()
     testInteger (test)
+    testReal    (test)
     testComplex (test)
-    testRational(test)
-    testMath    (test, num:16)
+    testMath    (test, num:1)
     testPrime   (test)
     testXtra    (test)
     // print(POUtil.constants)
