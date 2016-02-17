@@ -82,6 +82,9 @@ public struct BigInt {
     public static func remainderWithOverflow(lhs:BigInt, _ rhs:BigInt)->(BigInt, overflow:Bool) {
         return (divmod(lhs, rhs).1, false)
     }
+    public func reciprocal(shift:Int=0)->BigInt {
+        return BigInt(unsignedValue:self.unsignedValue.reciprocal(shift), isSignMinus:self.isSignMinus)
+    }
 }
 public func abs(bi:BigInt)->BigInt { return bi.abs }
 public func ==(lhs:BigInt, rhs:BigInt)->Bool {

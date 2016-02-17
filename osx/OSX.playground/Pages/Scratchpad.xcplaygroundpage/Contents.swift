@@ -2,8 +2,53 @@
 import PONS
 import Foundation
 
-
 /*
+var bf:BigFloat = 42.195
+bf.significand.toString(16)
+42.195 * 42.195
+(bf * bf).toDouble()
+(bf * bf).significand.toString(16)
+
+bf.exponent
+bf.precision
+bf.reciprocal.precision
+bf.reciprocal.toDouble()
+1/42.195
+bf.reciprocal.significand
+bf.reciprocal.reciprocal.significand
+bf.reciprocal.reciprocal.toDouble()
+
+BigFloat(2.0).toDouble()
+BigFloat(2.0).reciprocal.toDouble()
+BigFloat(1).precision
+BigFloat(7).toDouble()
+BigFloat(7).precision
+BigFloat(Double.PI).toDouble() == Double.PI
+(bf / (2*bf)).toDouble()
+BigUInt(7).reciprocal().msbAt
+UInt.max.msbAt
+var bf:BigFloat = 42.195
+bf.toDouble()
+bf.asBigRat!
+bf = BigFloat(Int.max)
+bf.toDouble()
+bf.precision
+bf.significand.toString(16)
+bf.truncate(32)
+bf.significand.toString(16)
+bf.truncate(32)
+bf.significand.toString(16)
+bf.truncate(32)
+bf.significand.toString(16)
+bf = BigFloat(0x1000_0000_0000_0000)
+bf.toDouble()
+bf.significand.toString(16)
+bf.truncate(48)
+bf.toDouble()
+bf.significand.toString(16)
+
+bf.asBigRat!
+
 BigFloat(1).exponent
 BigFloat(1.0).exponent
 Double.frexp(1.0)

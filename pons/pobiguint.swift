@@ -377,9 +377,12 @@ public extension BigUInt {
         return (self.digits.count-1) * 32 + self.digits.last!.msbAt
     }
     /// Integer reciprocal
-    public func reciprocal(shift:Int=0)->BigUInt {
-        let bits = shift != 0 ? shift : self.msbAt + 1
+    public func reciprocal(shift:Int=63)->BigUInt {
+        let bits = max(shift, self.msbAt + 1)
         var inv0 = self
+        if self.msbAt + 1 < bits {
+            inv0 <<= BigUInt(bits - (self.msbAt + 1))
+        }
         var inv:BigUInt = BigUInt(1) << BigUInt(bits)
         let two = inv * inv * 2
         for _ in 0...bits {
@@ -395,7 +398,15 @@ public extension BigUInt {
     ///
     public static func divmodNR(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, BigUInt) {
         let bits = rhs.msbAt + 1
-        let inv  = rhs.reciprocal(bits)
+        var inv0 = rhs
+        var inv:BigUInt = BigUInt(1) << BigUInt(bits)
+        let two = inv * inv * 2
+        for _ in 0...bits {
+            inv = inv0 * (two - rhs * inv0)     // Newton-Raphson core
+            inv >>= BigUInt(inv.msbAt - bits)   // truncate
+            if inv == inv0 { break }
+            inv0 = inv
+        }
         var (q, r) = (BigUInt(0), lhs)
         while r > rhs {
             let q0 = (r * inv) >> BigUInt(bits*2)
