@@ -2,14 +2,14 @@
 import PONS
 import Foundation
 
+
 //String(format:"%08lx", pihex(13))
 
-/*
 ///
 /// * https://en.wikipedia.org/wiki/Bailey–Borwein–Plouffe_formula
 /// * http://en.literateprograms.org/Pi_with_the_BBP_formula_(Python)
 ///
-
+/*
 func pihex(place:Int)->Int {
     func S(i:Int, _ j:Int)->Double {
         func sl(i:Int, _ j:Int)->Double {
@@ -17,7 +17,7 @@ func pihex(place:Int)->Int {
             for k in 0...i {
                 let d = UInt(8*k + j)
                 let p = UInt.powmod(16, UInt(i - k), mod:d)
-                lhs += Double(p) / Double(d)
+                lhs += Double(p / d) // Double(d)
                 lhs %= 1.0
             }
             return lhs

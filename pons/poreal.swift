@@ -400,25 +400,49 @@ public extension POReal {
         if Self.self == Double.self { return Self(Double.PI) }
         return 4 * getSetConstant("atan", 1, px) { _, px in
             let epsilon = Self(Double.ldexp(1.0, -px))
-            var p64 = Self(0)
-            for i in 0..<px {
-                var t = Self(0)
-                t -= Self(1<<5) /  Self(4 * i + 1)
-                t -= Self(1<<0) /  Self(4 * i + 3)
-                t += Self(1<<8) / Self(10 * i + 1)
-                t -= Self(1<<6) / Self(10 * i + 3)
-                t -= Self(1<<2) / Self(10 * i + 5)
-                t -= Self(1<<2) / Self(10 * i + 7)
-                t += Self(1<<0) / Self(10 * i + 9)
-                if 0 < i { t /= Int.power(Self(2), 10 * i, op:*) }
-                p64 += i & 1 == 1 ? -t : t
-                p64.truncate(px + 32)
-                if verbose {
-                    print("\(Self.self).pi(\(px)):i=\(i), t=~\(t.toDouble())")
+            if px <= 0xffff_ffff {   // Bellar's Formula
+                var p64 = Self(0)
+                for i in 0..<px {
+                    var t = Self(0)
+                    t -= Self(1<<5) /  Self(4 * i + 1)
+                    t -= Self(1<<0) /  Self(4 * i + 3)
+                    t += Self(1<<8) / Self(10 * i + 1)
+                    t -= Self(1<<6) / Self(10 * i + 3)
+                    t -= Self(1<<2) / Self(10 * i + 5)
+                    t -= Self(1<<2) / Self(10 * i + 7)
+                    t += Self(1<<0) / Self(10 * i + 9)
+                    if 0 < i { t /= Int.power(Self(2), 10 * i, op:*) }
+                    p64 += i & 1 == 1 ? -t : t
+                    p64.truncate(px + 32)
+                    if verbose {
+                        print("\(Self.self).pi(\(px)):i=\(i), t.precision=\(t.precision)")
+                    }
+                    // t.truncate(px + 32)
+                    if t < epsilon { break }
                 }
-                if t < epsilon { break }
+                return p64.truncate(px) / Self(1<<8)
+            } else { // Gauss–Legendre algorithm -- very expensive for BigRat
+                var (a0, b0, t0, p0) = (Self(1), sqrt(Self(0.5), precision:px + 32), Self(0.25), Self(1))
+                var (a, b, t, p) = (a0, b0, t0, p0)
+                for i in 0...(px.msbAt) {
+                    a = (a0 + b0) / 2
+                    b = sqrt(a0 * b0, precision:px + 32)
+                    let a0_a = (a0 - a)
+                    t = t0 - p0 * a0_a*a0_a
+                    p = 2 * p
+                    if verbose {
+                        print("iter[\(i)]: p = \(p), a.precision = \(a.precision)")
+                    }
+                    a.truncate(px + 32)
+                    b.truncate(px + 32)
+                    t.truncate(px + 32)
+                    p.truncate(px + 32)
+                    (a0, b0, t0, p0) = (a, b, t, p)
+                }
+                let a_b = (a + b)
+                var pi_4 = (a_b*a_b) / (16 * t)
+                return pi_4.truncate(px)
             }
-            return p64.truncate(px) / Self(1<<8)
         }
     }
     public static func e(px:Int = 64, verbose:Bool=false)->Self {
