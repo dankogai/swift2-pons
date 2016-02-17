@@ -58,7 +58,7 @@ func testComplex(test:TAP) {
         test.eq(2.0.i ** -1.5, (-1.0-1.0.i)/4.0,    "z ** -1.5  == 1/(z*sqrt(z))")
         test.eq(2.0.i ** -2.0, -0.25+0.0.i,         "z ** -2    == 1/(z*z)")
         test.eq(2.0.i ** -2.5, (-1.0+1.0.i)/8.0,    "z ** -2.5  == 1/(z*z*sqrt(z))")
-        let r = 0.5, z = C.sqrt(-1.0.i)
+        // let r = 0.5, z = C.sqrt(-1.0.i)
         var dict = [0+0.i:"origin"]
         test.ok(dict[0+0.i] == "origin", "Complex as a dictionary key")
     })()
