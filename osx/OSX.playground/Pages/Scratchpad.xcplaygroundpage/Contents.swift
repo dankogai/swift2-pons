@@ -1,8 +1,26 @@
 //: [Previous](@previous)
 import PONS
-import Foundation
+
+
+BigFloat.exp(-1, precision:128)
+BigFloat.exp(100, precision:256)
+
 
 /*
+
+Double.sqrt(2)                  // 1.414213562373095
+BigRat.sqrt(2)                  // (112045541949572279837463876455/79228162514264337593543950336)
+BigFloat.sqrt(2)                // 1.414213562373095048801688724198
+Complex.sqrt(-2)                // (0.0+1.4142135623731.i)
+Complex.sqrt(BigRat(-2))        // 112045541949572279837463876455/79228162514264337593543950336).i)
+Complex.sqrt(BigFloat(-2))     // ((188437389141110048746221374561/158456325028528675187087900672)+(0/1).i)
+
+import Foundation
+let pi1024 = BigFloat.pi(2048,verbose:true)
+
+//let pi1024 = BigFloat.pi(4096, verbose:true)
+//print(pi1024)
+
 //BigFloat.sqrt(1)
 //var v = BigFloat.sqrt(2)
 //BigFloat.sqrt(0.5)

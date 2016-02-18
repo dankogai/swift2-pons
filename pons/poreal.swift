@@ -177,22 +177,21 @@ public extension POReal {
         let ax = x < 0 ? -x : x
         let ix = ax.toIntMax().asInt!
         let fx = ax - Self(ix)
-        let epsilon = Self(Double.ldexp(1.0, -px))
         // print("\(Self.self).exp(\(x), precision:\(precision)):ax=\(ax), ix=\(ix), fx=\(fx)")
         let inner_exp:(Self, Int)->Self = { x, px in
-            var (r, t) = (Self(1), Self(1))
+            var (r, n, d) = (Self(1), Self(1), Self(1))
             for i in 1...px {
-                t *= x / Self(i)
-                t.truncate(px + 32)
-                r += t
-                r.truncate(px + 32)
-                //print("\(Self.self).inner_exp(\(x)):i=\(i), r=\(r.toDouble()), t=\(t)")
-                if t < epsilon { break }
+                n *= x
+                d *= Self(i)
+                r += n / d
+                // r.truncate(px + 32)
+                // print("\(Self.self).inner_exp(\(x)):i=\(i), r=\(r.toDouble()), d.precision=\(d.precision)")
+                if px < d.precision { break }
             }
             return r
         }
-        //let e = getSetConstant("exp", Self(1), px, setter:inner_exp)
-        let e = inner_exp(1, px)
+        let e = getSetConstant("exp", Self(1), px, setter:inner_exp)
+        // let e = inner_exp(1, px)
         //let ir = ix == 0 ? Self(1) : Int.power(inner_exp(1), ix, op:*)
         let ir = ix == 0 ? Self(1) : Int.power(e, ix, op:*)
         let fr = fx == 0 ? Self(1) : inner_exp(fx, px)
@@ -394,59 +393,69 @@ public extension POReal {
         return log(a, precision:px) / 2
     }
     ///
-    /// https://en.wikipedia.org/wiki/Bellard%27s_formula
+    /// π in precision `precision`
+    ///
+    /// By default it uses [Bellar's Formula].
+    ///
+    /// [Bellar's Formula]: https://en.wikipedia.org/wiki/Bellard%27s_formula
     ///
     /// ![](https://upload.wikimedia.org/math/d/b/f/dbf2d4355c108f6b3388985be4976799.png)
+    ///
     public static func pi(px:Int = 64, verbose:Bool=false)->Self {
         if Self.self == Double.self { return Self(Double.PI) }
         return 4 * getSetConstant("atan", 1, px) { _, px in
             let epsilon = Self(Double.ldexp(1.0, -px))
-            var p64 = Self(0)
-            for i in 0..<px {
-                var t = Self(0)
-                t -= Self(1<<5).divide(Self( 4 * i + 1), precision:px)
-                t -= Self(1<<0).divide(Self( 4 * i + 3), precision:px)
-                t += Self(1<<8).divide(Self(10 * i + 1), precision:px)
-                t -= Self(1<<6).divide(Self(10 * i + 3), precision:px)
-                t -= Self(1<<2).divide(Self(10 * i + 5), precision:px)
-                t -= Self(1<<2).divide(Self(10 * i + 7), precision:px)
-                t += Self(1<<0).divide(Self(10 * i + 9), precision:px)
-                if 0 < i {
-                    t = t.divide(Int.power(Self(2), 10 * i, op:*), precision:px)
+            //if verbose && Self.self != BigFloat.self && 65536 < px {
+            #if false
+                // Gauss–Legendre algorithm -- very expensive for BigRat
+                var (a0, b0, t0, p0) = (Self(1), sqrt(Self(0.5), precision:px + 32), Self(0.25), Self(1))
+                var (a, b, t, p) = (a0, b0, t0, p0)
+                for i in 0..<(px.msbAt) {
+                    a = (a0 + b0) / 2
+                    b = sqrt(a0 * b0, precision:px + 32)
+                    let a0_a = (a0 - a)
+                    t = t0 - p0 * a0_a*a0_a
+                    p = 2 * p
+                    if verbose {
+                        print("iter[\(i)]: p = \(p), a.precision = \(a.precision)")
+                    }
+                    a.truncate(px + 32)
+                    b.truncate(px + 32)
+                    t.truncate(px + 32)
+                    p.truncate(px + 32)
+                    (a0, b0, t0, p0) = (a, b, t, p)
                 }
-                p64 += i & 1 == 1 ? -t : t
-                // p64.truncate(px + 32)
-                if verbose {
-                    print("\(Self.self).pi(\(px)):i=\(i), t.precision=\(t.precision)")
+                let a_b = (a + b)
+                var pi_4 = (a_b*a_b).divide(16 * t, precision:px)
+                return pi_4.truncate(px)
+            //} else {
+            #else
+                // Default: Bellard's Formula
+                var p64 = Self(0)
+                for i in 0..<px {
+                    var t = Self(0)
+                    t -= Self(1<<5).divide(Self( 4 * i + 1), precision:px)
+                    t -= Self(1<<0).divide(Self( 4 * i + 3), precision:px)
+                    t += Self(1<<8).divide(Self(10 * i + 1), precision:px)
+                    t -= Self(1<<6).divide(Self(10 * i + 3), precision:px)
+                    t -= Self(1<<2).divide(Self(10 * i + 5), precision:px)
+                    t -= Self(1<<2).divide(Self(10 * i + 7), precision:px)
+                    t += Self(1<<0).divide(Self(10 * i + 9), precision:px)
+                    if 0 < i {
+                        t = t.divide(Int.power(Self(2), 10 * i, op:*), precision:px)
+                    }
+                    p64 += i & 1 == 1 ? -t : t
+                    // p64.truncate(px + 32)
+                    if verbose {
+                        print("\(Self.self).pi(\(px)):i=\(i), t.precision=\(t.precision)")
+                    }
+                    // t.truncate(px + 32)
+                    if t < epsilon { break }
                 }
-                // t.truncate(px + 32)
-                if t < epsilon { break }
-            }
-            return p64.truncate(px) / Self(1<<8)
+                return p64.truncate(px) / Self(1<<8)
+            //}
+            #endif
         }
-        //      { // Gauss–Legendre algorithm -- very expensive for BigRat
-        //                var (a0, b0, t0, p0) = (Self(1), sqrt(Self(0.5), precision:px + 32), Self(0.25), Self(1))
-        //                var (a, b, t, p) = (a0, b0, t0, p0)
-        //                for i in 0...(px.msbAt) {
-        //                    a = (a0 + b0) / 2
-        //                    b = sqrt(a0 * b0, precision:px + 32)
-        //                    let a0_a = (a0 - a)
-        //                    t = t0 - p0 * a0_a*a0_a
-        //                    p = 2 * p
-        //                    if verbose {
-        //                        print("iter[\(i)]: p = \(p), a.precision = \(a.precision)")
-        //                    }
-        //                    a.truncate(px + 32)
-        //                    b.truncate(px + 32)
-        //                    t.truncate(px + 32)
-        //                    p.truncate(px + 32)
-        //                    (a0, b0, t0, p0) = (a, b, t, p)
-        //                }
-        //                let a_b = (a + b)
-        //                var pi_4 = (a_b*a_b) / (16 * t)
-        //                return pi_4.truncate(px)
-        //            }
-
     }
     public static func e(px:Int = 64, verbose:Bool=false)->Self {
         if Self.self == Double.self { return Self(Double.E) }
