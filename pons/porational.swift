@@ -131,6 +131,7 @@ public extension PORational {
         }
         return self
     }
+    public func divide(by:Self, precision:Int=64)->Self { return self / by }
     public static func multiplyWithOverflow(lhs:Self, _ rhs:Self)->(Self, overflow:Bool) {
         typealias U = IntType.UIntType
         if lhs.isZero || rhs.isZero { return (zero, false) }

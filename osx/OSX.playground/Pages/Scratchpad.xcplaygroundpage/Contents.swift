@@ -2,7 +2,61 @@
 import PONS
 import Foundation
 
+//BigFloat.sqrt(1)
+//var v = BigFloat.sqrt(2)
+
+BigFloat.log(2)
+BigFloat.log(10)
+BigFloat.pi(128)
+BigFloat.sqrt(4)
+BigFloat.log(2)
+
+BigFloat(1)/BigFloat(0.25)
+//BigFloat.pi(512)
+//BigFloat.pi(1024)
+//BigFloat.pi(4096, verbose:true)
+//Double.PI
+//BigFloat.pi(128)
+//BigRat.pi(128).toFPString()
+
+//BigFloat(0.5) < BigFloat(0)
+//BigFloat.exp(1)
+
+Double.atan(-0.25)
+BigFloat.atan(-0.25)
+Double.atan(-1)
+BigFloat.atan(-1)
+Double.atan(1)
+BigFloat.atan(1)
+BigFloat(-1) < 0
+BigFloat(-1) < 1
+
 /*
+var e = BigFloat(1)
+var n = 1
+for i in 1 ... 17 {
+n *= i
+//e.truncate(64)
+let t = BigFloat(1) / BigFloat(n)
+print(t)
+e += t
+}
+e
+//BigFloat.sqrt(2, precision:128)
+//BigFloat.sqrt(2.0, precision:128)
+
+var bf:BigFloat = 42.195
+bf.significand
+bf.significand.msbAt
+bf.exponent
+bf.reciprocal()
+bf.reciprocal().significand
+bf.reciprocal().exponent
+bf.reciprocal() * bf
+
+e.precision
+
+BigFloat(Double.PI)
 var bf:BigFloat = 42.195
 bf.significand.toString(16)
 42.195 * 42.195

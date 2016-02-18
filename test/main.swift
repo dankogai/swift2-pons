@@ -17,7 +17,7 @@
     testInteger (test)
     testReal    (test)
     testComplex (test)
-    testMath    (test, num:1)
+    testMath    (test, num:16)
     testPrime   (test)
     testXtra    (test)
     // print(POUtil.constants)
@@ -30,8 +30,8 @@
 //print("π ≅", BigRat.pi(128, verbose:true).toFPString())
 //print("π ≅", BigRat.pi(256, verbose:true).toFPString())
 //print("π ≅", BigRat.pi(512, verbose:true).toFPString())
-print("π ≅", BigRat.pi(1024, verbose:true).toFPString())
-print(POUtil.constants)
+//print("π ≅", BigRat.pi(1024, verbose:true).toFPString())
+//print(POUtil.constants)
 //func machin(p:Int)->BigRat {
 //    return 4*BigRat.atan(BigInt(1).over(5), precision:p) - BigRat.atan(BigInt(1).over(239), precision:p)
 //}
@@ -53,5 +53,4 @@ print(POUtil.constants)
 //        fatalError()
 //    }
 //}
-
 #endif

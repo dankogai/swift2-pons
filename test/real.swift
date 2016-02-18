@@ -51,5 +51,4 @@ func testReal(test:TAP) {
         test.eq(BigFloat(+d).toDouble(), +d, "BigFloat(+\(d)).toDouble() == +\(d))")
         test.eq(BigFloat(-d).toDouble(), -d, "BigFloat(-\(d)).toDouble() == -\(d))")
     }
-    print( BigFloat(Double.LN2).toDouble() - Double.LN2 )
 }
