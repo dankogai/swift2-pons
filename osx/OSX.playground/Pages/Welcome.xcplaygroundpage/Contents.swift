@@ -3,7 +3,7 @@
 
 Welcome to pons, a protocol-oriented number system for swift, purely by swift.
 
-![](https://github.com/dankogai/swift-pons/raw/master/typetree.png)
+![](https://github.com/dankogai/swift-pons/raw/master/graph/typetree.png)
 
 ## Getting Started
 
