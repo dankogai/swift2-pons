@@ -88,7 +88,9 @@ public struct BigInt {
 }
 public func abs(bi:BigInt)->BigInt { return bi.abs }
 public func ==(lhs:BigInt, rhs:BigInt)->Bool {
-    return lhs.isSignMinus == rhs.isSignMinus && lhs.unsignedValue == rhs.unsignedValue
+    return lhs.unsignedValue != rhs.unsignedValue ? false
+        :  lhs.isSignMinus == rhs.isSignMinus
+        || lhs.unsignedValue == 0   // -0 == +0
 }
 public func <(lhs:BigInt, rhs:BigInt)->Bool {
     if lhs.isSignMinus == rhs.isSignMinus {

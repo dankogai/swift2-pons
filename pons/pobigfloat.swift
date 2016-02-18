@@ -80,12 +80,6 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
     public func toIntMax()->IntMax {
         return BigInt(self).toIntMax()
     }
-    public var description:String {
-        return self.asBigRat!.toFPString()
-    }
-    public var debugDescription:String {
-        return self.asBigRat!.toFPString(16)
-    }
     // IntegerLiteralConvertible
     public typealias IntegerLiteralType = Int.IntegerLiteralType
     public init(integerLiteral:IntegerLiteralType) {
@@ -151,6 +145,10 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
         self.significand >>= BigInt(shift)
         if carry == .One { self.significand += 1}
         self.exponent = ex - self.significand.msbAt - 1
+        while self.significand != 0 && self.significand & 1 == 0 {
+            self.significand >>= 1
+            self.exponent    += 1
+        }
         return self
     }
     public func divide(by:BigFloat, precision:Int=32)->BigFloat {

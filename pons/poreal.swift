@@ -34,9 +34,10 @@ public protocol POFloat : POReal {
 // public protocol POElementaryFunctional : POReal {}
 public extension POReal {
      public var asBigRat:BigRat? {
-        if let b = self as? BigRat { return b }
+        if let q = self as? BigRat { return q }
+        if let b = self as? BigFloat { return b.asBigRat }
         if let d = self as? Double { return BigRat(d) }
-        return nil
+        return BigRat(self.toDouble())
     }
     ///
     public static func getSetConstant(
@@ -66,7 +67,7 @@ public extension POReal {
         var ndigits = places != 0 ? places
             : Int( Double(self.precision) * dfactor ) + 2
         let (int, fract) = self.toMixed()
-        if fract == 0 { return int.toString(base) + ".0" }
+        if fract.isZero { return int.toString(base) + ".0" }
         var afract = fract < 0 ? -fract : fract
         if 64 < self.precision {    // get all digits at once
             var bfract = afract.asBigRat!
@@ -74,16 +75,18 @@ public extension POReal {
             let zfill = (0..<zcount).map{_ in "0"}.joinWithSeparator("")
             bfract *= BigInt.pow(BigInt(base), BigInt(ndigits)).over(1)
             let (b, residue) = bfract.toMixed()
+            var d:BigInt = 0
             if residue < BigInt(1).over(2) {    // no roundup required
-                return int.toString(base) + "." + zfill + b.toString(base)
+                d = b
             } else {
                 let c = b + 1
                 if b.msbAt == c.msbAt {
-                    return int.toString(base) + "." + zfill + c.toString(base)
+                    d = c
                 } else {
                     return ((self.isSignMinus ? -1 : 1) + int).toString(base) + ".0"
                 }
-            }
+            }            
+            return int.toString(base) + "." + zfill + d.toString(base)
         } else {   // classical digit-by-digit method
             var digits = [Int]()
             var started = false
@@ -131,13 +134,12 @@ public extension POReal {
         let px = Swift.max(x.precision, precision)
         let iter = max(px.msbAt + 1, 1)
         let inner_sqrt:(Self,Int)->Self = { x , px in
-            var r0 = x < 1 ? 1 : x
-            var r = r0
+            var (r0, r) = (x, x)
             // return r.truncate(px)
             // print("\(__FILE__):\(__LINE__): px=\(px), iter=\(iter)")
             for _ in 0...iter {
                 r = (x.divide(r0, precision:px) + r0) / 2
-                if r == r0 { break }
+                if (r * r - x).isZero { break }
                 r.truncate(px + 32)
                 r0 = r
             }
@@ -211,7 +213,7 @@ public extension POReal {
         let epsilon = Self(Double.ldexp(1.0, -px))
         #if true    // euler
         let inner_log:(Self, Int)->Self = { x , px in
-            var t = (x - 1)/(x + 1)
+            var t = (x - 1).divide(x + 1, precision:px)
             if x < 1 { t = -t }
             let t2 = t * t
             var r:Self = t
@@ -241,7 +243,7 @@ public extension POReal {
         let ln2 = getSetConstant("log", 2, px, setter:inner_log)
         //let ln2 = 2 * lnr2 //getSetConstant("log", 2, px, setter:inner_log)
         let il = x.toIntMax().msbAt
-        let fl = x / Self(Double.ldexp(1.0, il))
+        let fl = x.divide(Self(Double.ldexp(1.0, il)), precision:px)
         let ir = il == 0 ? 0 : ln2 * Self(il)
         let fr = fl == 1 ? 0 : inner_log(fl, px)
         var r =  ir + fr
@@ -258,7 +260,7 @@ public extension POReal {
         let x2 = x * x
         var (r, t) = (Self(1), Self(1))
         for i in 1...px {
-            t *= x2 / Self((2 * i - 1) * 2 * i)
+            t *= x2.divide(Self((2 * i - 1) * 2 * i), precision:px)
             t.truncate(px + 32)
             r += i & 1 == 1 ? -t : t
             r.truncate(px + 32)
@@ -276,7 +278,7 @@ public extension POReal {
         var r = x < 0 ? -x : x
         var t = r
         for i in 1...px {
-            t *= x2 / Self((2 * i + 1) * 2 * i)
+            t *= x2.divide(Self((2 * i + 1) * 2 * i), precision:px)
             t.truncate(px + 32)
             r += i & 1 == 1 ? -t : t
             r.truncate(px + 32)
@@ -472,6 +474,12 @@ public extension POUtil {
 public extension POFloat {
     public func toString(base:Int = 10)->String {
         return self.toFPString(base)
+    }
+    public var description:String {
+        return self.toString()
+    }
+    public var debugDescription:String {
+        return self.toString(16)
     }
 }
 extension Double : POFloat {

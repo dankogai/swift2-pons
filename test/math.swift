@@ -41,7 +41,7 @@ func testMath(test:TAP, num:Int=1, den:Int=4) {
         let q = +BigInt(i).over(BigInt(den))
         let r = +BigFloat(i).divide(BigFloat(den))
         test.eq(approx(+q, BigRat.sqrt,     Double.sqrt), true,  "Rational vs Double: sqrt(\(+q))")
-        //test.eq(approx(+r, BigFloat.sqrt,   Double.sqrt), true,  "BigFloat vs Double: sqrt(\(+r))")
+        test.eq(approx(+r, BigFloat.sqrt,   Double.sqrt), true,  "BigFloat vs Double: sqrt(\(+r))")
         test.eq(approx(+q, BigRat.log,      Double.log), true,  "Rational vs Double: log(\(+q))")
         test.eq(approx(+r, BigFloat.log,    Double.log), true,  "BigFloat vs Double: log(\(+r))")
         test.eq(approx(+q, BigRat.exp,      Double.exp), true,  "Rational vs Double: exp(\(+q))")

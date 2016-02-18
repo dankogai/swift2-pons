@@ -2,9 +2,23 @@
 import PONS
 import Foundation
 
+/*
 //BigFloat.sqrt(1)
 //var v = BigFloat.sqrt(2)
+//BigFloat.sqrt(0.5)
 
+//BigFloat(-0.0) == BigFloat(0.0)
+
+BigFloat.sqrt(4)
+BigFloat.sqrt(0.25)
+BigFloat(0.5)
+BigFloat(0.25)
+BigFloat.sqrt(0.25).significand
+BigFloat.sqrt(5)
+
+//Complex.exp(BigRat.pi(128))
+//var zr=Complex.exp(BigFloat.pi(128).i)
+//print(zr)
 BigFloat.log(2)
 BigFloat.log(10)
 BigFloat.pi(128)
@@ -31,7 +45,7 @@ BigFloat.atan(1)
 BigFloat(-1) < 0
 BigFloat(-1) < 1
 
-/*
+
 var e = BigFloat(1)
 var n = 1
 for i in 1 ... 17 {
