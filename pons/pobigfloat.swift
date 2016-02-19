@@ -143,7 +143,7 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
         let ex = self.exponent + (self.significand.msbAt + 1)
         let carry = self.significand.unsignedValue[shift - 1]
         self.significand >>= BigInt(shift)
-        if carry == .One { self.significand += 1}
+        if carry == .One { self.significand.unsignedValue += 1}
         self.exponent = ex - self.significand.msbAt - 1
         while self.significand != 0 && self.significand & 1 == 0 {
             self.significand >>= 1

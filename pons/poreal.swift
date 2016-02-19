@@ -135,9 +135,9 @@ public extension POReal {
     /// - returns: square root of `x` to precision `precision`
     public static func sqrt(x:Self, precision:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.sqrt(dx)) }
-        if x < 0  { return Self.NaN }
-        if x == 0 { return 0 }
-        if x.isNaN { return x }
+        if x < 0     { return Self.NaN }
+        if x.isZero  { return x }
+        if x.isNaN   { return x }
         if x.isInfinite { return Self.infinity }
         let px = Swift.max(x.precision, precision)
         let iter = max(px.msbAt + 1, 1)
@@ -256,12 +256,12 @@ public extension POReal {
     public static func sincos(x:Self, precision:Int = 64)->(sin:Self, cos:Self) {
         if let dx = x as? Double { return (Self(Double.sin(dx)), Self(Double.cos(dx)))}
         let px = Swift.max(x.precision, precision)
-        let atan1    = pi_4(px)
+        let atan1   = pi_4(px)
         let sqrt1_2 = sqrt2(px)/2
         func inner_cossin(x:Self)->(Self, Self) {
             if 1 < x.abs {  // use double-angle formula to reduce x
                 let (c, s) = inner_cossin(x/2)
-                // print("inner_cossin:c \(c.precision), s:\(s.precision)")
+                if c == s { return (0, 1) } // prevent error accumulation
                 return (c*c - s*s, 2 * s * c)
             }
             if x.abs == atan1 {
