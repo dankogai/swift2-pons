@@ -251,10 +251,48 @@ public extension POReal {
         return r.truncate(px)
     }
     ///
+    public static func sincos(x:Self, precision:Int = 64)->(sin:Self, cos:Self) {
+        if let dx = x as? Double { return (Self(Double.sin(dx)), Self(Double.cos(dx)))}
+        let px = Swift.max(x.precision, precision)
+        func inner_cossin(x:Self)->(Self, Self) {
+            if 1 < x * x {  // use double-angle formula to reduce x
+                let (c, s) = inner_cossin(x/2)
+                // print(x, " => ", x/2)
+                return (c*c - s*s, 2 * s * c)
+            }
+            var (c, s) = (Self(0), Self(0))
+            var (n, d) = (Self(1), Self(1))
+            for i in 0...px {
+                let t = n.divide(d, precision:px + 32)
+                if i & 1 == 0 {
+                    c += i & 2 == 2 ? -t : +t
+                    // print("i=\(i):c +=", i & 2 == 2 ? "-" : "+", t.toDouble(), c.toDouble())
+                } else {
+                    s += i & 2 == 2 ? -t : +t
+                    // print("i=\(i):s +=", i & 2 == 2 ? "-" : "+", t.toDouble(), s.toDouble())
+                }
+                // r.truncate(px + 32)
+                if px < d.precision { break }
+                n *= x
+                d *= Self(i+1)
+            }
+            return (c, s)
+        }
+        var (c, s) = inner_cossin(x)
+        return (s.truncate(px), c.truncate(px))
+    }
+    ///
     public static func cos(x:Self, precision:Int = 64)->Self {
         // return Self(Double.cos(x.toDouble()))
         if let dx = x as? Double { return Self(Double.cos(dx)) }
         let px = Swift.max(x.precision, precision)
+        return sincos(x, precision:px).cos
+        /*
+        if 1 < x * x {
+            let c2 = cos(x/2, precision:px)
+            let s2 = sin(x/2, precision:px)
+            return c2*c2 - s2*s2
+        }
         let epsilon = Self(Double.ldexp(1.0, -px))
         let x2 = x * x
         var (r, t) = (Self(1), Self(1))
@@ -266,12 +304,18 @@ public extension POReal {
             if t < epsilon { break }
         }
         return r.truncate(px)
+        */
     }
     ///
     public static func sin(x:Self, precision:Int = 64)->Self {
         // return Self(Double.sin(x.toDouble()))
         if let dx = x as? Double { return Self(Double.sin(dx)) }
         let px = Swift.max(x.precision, precision)
+        return sincos(x, precision:px).sin
+        /*
+        if 1 < x * x {
+            return 2 * sin(x/2, precision:px) * cos(x/2, precision:px)
+        }
         let epsilon = Self(Double.ldexp(1.0, -px))
         let x2 = x * x
         var r = x < 0 ? -x : x
@@ -284,12 +328,15 @@ public extension POReal {
             if t < epsilon { break }
         }
         return x < 0 ? -r.truncate(px) : r.truncate(px)
+        */
     }
     ///
     public static func tan(x:Self, precision px:Int = 64)->Self {
         // return Self(Double.tan(x.toDouble()))
         if let dx = x as? Double { return Self(Double.tan(dx)) }
-        return sin(x, precision:px) / cos(x, precision:px)
+        let (s, c) = sincos(x, precision:px)
+        return (s / c)
+        // return sin(x, precision:px) / cos(x, precision:px)
     }
     ///
     public static func acos(x:Self, precision px:Int = 64)->Self   {

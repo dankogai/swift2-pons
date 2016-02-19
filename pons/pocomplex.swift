@@ -215,7 +215,8 @@ public extension POComplexReal {
     public static func exp(z:Self, precision p:Int=64) -> Self {
         let r = R.exp(z.re, precision:p)
         let a = z.im
-        return Self(r * R.cos(a, precision:p), r * R.sin(a, precision:p))
+        let (s, c) = R.sincos(a, precision:p)
+        return Self(r * c, r * s)
     }
     public static func exp(r:R, precision p:Int=64) -> Self { return exp(Self(r, 0), precision:p) }
     /// - returns: natural log of z in Complex

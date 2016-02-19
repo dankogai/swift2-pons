@@ -1,9 +1,17 @@
 //: [Previous](@previous)
 import PONS
 
+//BigFloat.exp(-1, precision:128)
+//BigFloat.exp(100, precision:256)
 
-BigFloat.exp(-1, precision:128)
-BigFloat.exp(100, precision:256)
+({ x in
+    let t = BigFloat(x)
+    var (s, c) = BigFloat.sincos(t)
+    s
+    c
+    BigFloat.sin(t)
+    BigFloat.cos(t)
+})(100)
 
 
 /*
