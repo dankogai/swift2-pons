@@ -3,18 +3,16 @@ import PONS
 
 //BigFloat.exp(-1, precision:128)
 //BigFloat.exp(100, precision:256)
+/*
 
 ({ x in
-    let t = BigFloat(x)
-    var (s, c) = BigFloat.sincos(t)
-    s
-    c
-    BigFloat.sin(t)
-    BigFloat.cos(t)
+let t = BigFloat(x)
+var (s, c) = BigFloat.sincos(t)
+s
+c
+BigFloat.sin(t)
+BigFloat.cos(t)
 })(100)
-
-
-/*
 
 Double.sqrt(2)                  // 1.414213562373095
 BigRat.sqrt(2)                  // (112045541949572279837463876455/79228162514264337593543950336)
