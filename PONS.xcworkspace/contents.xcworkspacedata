@@ -11,7 +11,7 @@
       location = "group:tvos/tvOS.playground">
    </FileRef>
    <FileRef
-      location = "group:/Users/dankogai/github/swift-pons/osx/Framework-OSX.xcodeproj">
+      location = "group:osx/Framework-OSX.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:ios/Framework-iOS.xcodeproj">
