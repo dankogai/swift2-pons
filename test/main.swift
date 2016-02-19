@@ -17,14 +17,14 @@
     testInteger (test)
     testReal    (test)
     testComplex (test)
-    testMath    (test, num:4, den:4)
     testPrime   (test)
+    testMath    (test, num:4, den:4)
     testXtra    (test)
     print(POUtil.constants)
     test.done()
 #else
 
-//print("π ≅", BigRat.pi(64, verbose:true).toFPString())
+//print("π ≅", BigFloat.pi(256, verbose:true).toFPString())
 //print(POUtil.constants)
 //func machin(p:Int)->BigRat {
 //    return 4*BigRat.atan(BigInt(1).over(5), precision:p) - BigRat.atan(BigInt(1).over(239), precision:p)

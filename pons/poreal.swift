@@ -212,10 +212,10 @@ public extension POReal {
             var r:Self = t
             for i in 1...px*2 {
                 t *= t2
-                t.truncate(px + 32)
+                t.truncate(px)
                 r += t / Self(2*i + 1)
                 // print("POReal#log: i=\(i), px=\(px), t=\(t.toDouble()), r=\(r.toDouble())")
-                r.truncate(px + 32)
+                r.truncate(px)
                 if t < epsilon { break }
             }
             return 2 * (x < 1 ? -r : r)
@@ -224,9 +224,9 @@ public extension POReal {
         let inner_log:(Self, Int)->Self = { x, px in
             var y = Self(1)
             for _ in 0...(x.precision.msbAt + 1) {
-                let ex = exp(y, precision:px + 32)
+                let ex = exp(y, precision:px)
                 var t = Self(2) * (x - ex)/(x + ex)
-                y += t.truncate(px + 32)
+                y += t.truncate(px)
                 // print("log: i=\(i), y=\(y.toFPString()), t=\(t.toDouble())")
                 if (t < 0 ? -t : t) < epsilon { break }
             }
@@ -265,8 +265,8 @@ public extension POReal {
             var (c, s) = (Self(0), Self(0))
             var (n, d) = (Self(1), Self(1))
             for i in 0...px {
-                var t = n.divide(d, precision:px + 16)
-                t.truncate(px + 16)
+                var t = n.divide(d, precision:px)
+                t.truncate(px)
                 if i & 1 == 0 {
                     c += i & 2 == 2 ? -t : +t
                 } else {
@@ -278,6 +278,7 @@ public extension POReal {
                 d *= Self(i+1)
             }
             return (c, s)
+            // return c < s ? (sqrt(1 - c*c, precision:px+16), s) : (c, sqrt(1 - s*s, precision:px+16))
         }
         var (c, s) = inner_cossin(x)
         return (s.truncate(px), c.truncate(px))
@@ -340,21 +341,21 @@ public extension POReal {
             var (t, r) = (Self(1), Self(1))
             for i in 1...px*4 {
                 t *= 2 * (Self(i) * x2).divide(Self(2 * i + 1) * x2p1, precision:px)
-                t.truncate(px + 16)
+                t.truncate(px)
                 r += t
-                r.truncate(px + 16)
+                r.truncate(px)
                 if t < epsilon { break }
             }
             return r * x / x2p1
         }
         #if false   // via arithmetic-geometric mean
         let inner_atan:(Self)->Self = { x in
-            let hypot1_x2 = hypot(1, x, precision:px + 16)
+            let hypot1_x2 = hypot(1, x, precision:px)
             var (a, b) = (Self(1).divide(hypot1_x2, precision:px), Self(1))
             for i in 0...px.msbAt {
-                (a, b) = ((a + b)/2, sqrt(a * b, precision:px + 16))
-                a.truncate(px + 16)
-                b.truncate(px + 16)
+                (a, b) = ((a + b)/2, sqrt(a * b, precision:px))
+                a.truncate(px)
+                b.truncate(px)
                 // print("a=\(a), b=\(b)")
             }
             return x.divide(a * hypot1_x2, precision:px)
@@ -447,21 +448,21 @@ public extension POReal {
             //if verbose && Self.self != BigFloat.self && 65536 < px {
             #if false
                 // Gauss–Legendre algorithm -- very expensive for BigRat
-                var (a0, b0, t0, p0) = (Self(1), sqrt(Self(0.5), precision:px + 32), Self(0.25), Self(1))
+                var (a0, b0, t0, p0) = (Self(1), sqrt(Self(0.5), precision:px), Self(0.25), Self(1))
                 var (a, b, t, p) = (a0, b0, t0, p0)
                 for i in 0..<(px.msbAt) {
                     a = (a0 + b0) / 2
-                    b = sqrt(a0 * b0, precision:px + 32)
+                    b = sqrt(a0 * b0, precision:px)
                     let a0_a = (a0 - a)
                     t = t0 - p0 * a0_a*a0_a
                     p = 2 * p
                     if verbose {
                         print("iter[\(i)]: p = \(p), a.precision = \(a.precision)")
                     }
-                    a.truncate(px + 32)
-                    b.truncate(px + 32)
-                    t.truncate(px + 32)
-                    p.truncate(px + 32)
+                    a.truncate(px)
+                    b.truncate(px)
+                    t.truncate(px)
+                    p.truncate(px)
                     (a0, b0, t0, p0) = (a, b, t, p)
                 }
                 let a_b = (a + b)
@@ -484,11 +485,11 @@ public extension POReal {
                         t = t.divide(Int.power(Self(2), 10 * i, op:*), precision:px)
                     }
                     p64 += i & 1 == 1 ? -t : t
-                    // p64.truncate(px + 32)
+                    // p64.truncate(px)
                     if verbose {
-                        print("\(Self.self).pi(\(px)):i=\(i), t.precision=\(t.precision)")
+                        print("\(Self.self).pi(\(px)):i=\(i), t =~ \(t.toDouble())")
                     }
-                    // t.truncate(px + 32)
+                    // t.truncate(px)
                     if t < epsilon { break }
                 }
                 p64 /= Self(1<<8)
@@ -499,7 +500,7 @@ public extension POReal {
     }
     public static func pi(px:Int = 64, verbose:Bool=false)->Self {
         if Self.self == Double.self { return Self(Double.PI) }
-        return 4 * pi_4(px)
+        return 4 * pi_4(px, verbose:verbose)
     }
     public static func e(px:Int = 64, verbose:Bool=false)->Self {
         if Self.self == Double.self { return Self(Double.E) }

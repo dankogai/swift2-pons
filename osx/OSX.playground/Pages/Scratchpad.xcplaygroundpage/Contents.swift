@@ -1,13 +1,36 @@
 //: [Previous](@previous)
 import PONS
 
+({ theta in
+    let (sd, cd) = Double.sincos(Double(theta))
+    sd
+    cd
+    (cd*cd + sd*sd).toFPString()
+    let (sr, cr) = BigFloat.sincos(BigFloat(theta))
+    sr
+    cr
+    (cr*cr + sr*sr)
+    BigFloat.sqrt(1 - cr*cr)
+    BigFloat.sqrt(1 - sr*sr)
+    //let (sq, cq) = BigRat.sincos(BigRat(theta))
+    //sq
+    //cq
+    //(cq*cq + sq*sq).toFPString()
+    Complex.exp(BigFloat(theta).i)
+})(BigFloat.pi(64,verbose:true) / BigFloat(3))
+
+
+
+/*
+
+({ places in
+let precision = Int(Double(places) * (Double.log(10)/Double.log(2)))
+BigFloat.pi(precision, verbose:true).toFPString(10,places:places)
+})(20)
+
 BigFloat.atan(1.5, precision:256)
 Double.atan(1.5)
-
-
 //BigInt.sqrt(2**24, 96)
-
-
 //BigFloat.sin(BigFloat.pi(128))
 //Complex.exp(BigFloat.pi(128).i)
 //Complex.exp(BigRat.pi(128).i)
@@ -15,7 +38,6 @@ Double.atan(1.5)
 //BigFloat.exp(-1, precision:128)
 //BigFloat.exp(100, precision:256)
 
-/*
 ({ d , p in
 BigFloat.sqrt(BigFloat(d), precision:p)
 BigRat.sqrt(BigRat(d), precision:p)
