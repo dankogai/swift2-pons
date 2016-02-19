@@ -36,14 +36,11 @@ public protocol POFloat : POReal {
 }
 // public protocol POElementaryFunctional : POReal {}
 public extension POReal {
-    ///
+    /// slightly different from POSignedNumber.abs for using .isSignMinus
     public var abs:Self {
-        return self.isSignMinus ? -self : +self
+        return self.isSignMinus ? -self : self
     }
     ///
-    public static func abs(r:Self)->Self {
-        return r.abs
-    }
     public var asBigRat:BigRat? {
         if let q = self as? BigRat { return q }
         if let b = self as? BigFloat { return b.asBigRat }
@@ -148,7 +145,8 @@ public extension POReal {
         let q = x.asBigRat!
         let n = q.numerator   << BigInt(px * 2)
         let d = q.denominator << BigInt(px * 2)
-        return Self(BigInt.isqrt(n).over(BigInt.isqrt(d)))
+        var r = Self(BigInt.sqrt(n).over(BigInt.sqrt(d)))
+        return r.truncate(px)
     }
     /// - returns: `sqrt(x*x + y*y)` witout overflow
     public static func hypot(x:Self, _ y:Self, precision:Int=64)->Self {
@@ -165,8 +163,8 @@ public extension POReal {
             t /= 4 + t
             r += 2 * r * t
             l *= t
-            r.truncate(px * 2)
-            l.truncate(px * 2)
+            r.truncate(px)
+            l.truncate(px)
             // print("r=\(r.toDouble()), l=\(l.toDouble()), epsilon=\(epsilon.toDouble())")
         }
         return r.truncate(px)
@@ -214,7 +212,7 @@ public extension POReal {
                 t *= t2
                 t.truncate(px)
                 r += t / Self(2*i + 1)
-                // print("POReal#log: i=\(i), px=\(px), t=\(t.toDouble()), r=\(r.toDouble())")
+                // print("POReal#log: i=\(i), t=~\(t.toDouble()), r=~\(r.toDouble())")
                 r.truncate(px)
                 if t < epsilon { break }
             }

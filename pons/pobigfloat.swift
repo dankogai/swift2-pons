@@ -182,9 +182,6 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
         let q = n / self.significand
         return BigFloat(significand:q, exponent:(-ex - q.msbAt))
     }
-    public var abs:BigFloat {
-        return self.isSignMinus ? -self : self
-    }
     public static func abs(bf:BigFloat)->BigFloat {
         return bf.abs
     }

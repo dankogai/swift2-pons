@@ -1,27 +1,32 @@
 //: [Previous](@previous)
 import PONS
 
-({ theta in
-    let (sd, cd) = Double.sincos(Double(theta))
-    sd
-    cd
-    (cd*cd + sd*sd).toFPString()
-    let (sr, cr) = BigFloat.sincos(BigFloat(theta))
-    sr
-    cr
-    (cr*cr + sr*sr)
-    BigFloat.sqrt(1 - cr*cr)
-    BigFloat.sqrt(1 - sr*sr)
-    //let (sq, cq) = BigRat.sincos(BigRat(theta))
-    //sq
-    //cq
-    //(cq*cq + sq*sq).toFPString()
-    Complex.exp(BigFloat(theta).i)
-})(BigFloat.pi(64,verbose:true) / BigFloat(3))
-
-
+({ r in
+    BigFloat.log(BigFloat(r))
+    BigRat.log(BigRat(r)).toDouble()
+})(10)
 
 /*
+
+
+({ theta in
+let (sd, cd) = Double.sincos(Double(theta))
+sd
+cd
+(cd*cd + sd*sd).toFPString()
+let (sr, cr) = BigFloat.sincos(BigFloat(theta))
+sr
+cr
+(cr*cr + sr*sr)
+BigFloat.sqrt(1 - cr*cr)
+BigFloat.sqrt(1 - sr*sr)
+//let (sq, cq) = BigRat.sincos(BigRat(theta))
+//sq
+//cq
+//(cq*cq + sq*sq).toFPString()
+Complex.exp(BigFloat(theta).i)
+})(BigFloat.pi(64,verbose:true) / BigFloat(3))
+
 
 ({ places in
 let precision = Int(Double(places) * (Double.log(10)/Double.log(2)))

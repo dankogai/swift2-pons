@@ -146,7 +146,7 @@ public extension POInteger {
         return r
     }
     /// Integer square root
-    public static func isqrt(n:Self)->Self {
+    public static func sqrt(n:Self)->Self {
         if n == 0 { return 0 }
         if n == 1 { return 1 }
         var xk = n
@@ -404,10 +404,6 @@ public extension POInt {
     public var msbAt:Int {
         return self < 0 ? sizeof(Self) * 8 - 1 : self.toUIntMax().msbAt
     }
-    ///
-    /// absolute value of `self`
-    ///
-    public var abs:Self { return self < 0 ? -self : self }
     ///
     /// Stringifies `self` with base `radix` which defaults to `10`
     ///

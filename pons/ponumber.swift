@@ -81,6 +81,22 @@ public protocol POSignedNumber : POComparableNumber, SignedNumberType
     var isSignMinus:Bool { get }
     prefix func -(_:Self)->Self
     func -(_:Self, _:Self)->Self
+    var abs:Self { get }
+    static func abs(_:Self)->Self
+}
+public extension POSignedNumber {
+    ///
+    /// absolute value of `self`
+    ///
+    public var abs:Self {
+        return self.isSignMinus ? -self : +self
+    }
+    ///
+    /// absolute value of `x`
+    ///
+    public static func abs(x:Self)->Self {
+        return x.abs
+    }
 }
 ///
 /// Placeholder for utility functions and values
