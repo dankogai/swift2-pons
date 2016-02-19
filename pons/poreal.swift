@@ -33,7 +33,15 @@ public protocol POFloat : POReal {
 }
 // public protocol POElementaryFunctional : POReal {}
 public extension POReal {
-     public var asBigRat:BigRat? {
+    ///
+    public var abs:Self {
+        return self.isSignMinus ? -self : +self
+    }
+    ///
+    public static func abs(r:Self)->Self {
+        return r.abs
+    }
+    public var asBigRat:BigRat? {
         if let q = self as? BigRat { return q }
         if let b = self as? BigFloat { return b.asBigRat }
         if let d = self as? Double { return BigRat(d) }
@@ -151,7 +159,7 @@ public extension POReal {
         var r = inner_sqrt(x, px)
         return r.truncate(px)
     }
-    ///　- returns: `sqrt(x*x + y*y)` witout overflow
+    /// - returns: `sqrt(x*x + y*y)` witout overflow
     public static func hypot(x:Self, _ y:Self, precision:Int=64)->Self {
         if let dx = x as? Double { return Self(Double.hypot(dx, y as! Double)) }
         // return Self.sqrt(x * x + y * y, precision:precision)
@@ -170,33 +178,27 @@ public extension POReal {
         }
         return r.truncate(px)
     }
+    ///
     public static func exp(x:Self, precision:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.exp(dx)) }
         if x.isZero { return 1 }
         let px = Swift.max(x.precision, precision)
-        let ax = x < 0 ? -x : x
-        let ix = ax.toIntMax().asInt!
-        let fx = ax - Self(ix)
-        // print("\(Self.self).exp(\(x), precision:\(precision)):ax=\(ax), ix=\(ix), fx=\(fx)")
+        let ix = x.abs.toIntMax().asInt!
+        let fx = x.abs - Self(ix)
         let inner_exp:(Self, Int)->Self = { x, px in
             var (r, n, d) = (Self(1), Self(1), Self(1))
             for i in 1...px {
                 n *= x
                 d *= Self(i)
                 r += n / d
-                // r.truncate(px + 32)
-                // print("\(Self.self).inner_exp(\(x)):i=\(i), r=\(r.toDouble()), d.precision=\(d.precision)")
                 if px < d.precision { break }
             }
             return r
         }
         let e = getSetConstant("exp", Self(1), px, setter:inner_exp)
-        // let e = inner_exp(1, px)
-        //let ir = ix == 0 ? Self(1) : Int.power(inner_exp(1), ix, op:*)
         let ir = ix == 0 ? Self(1) : Int.power(e, ix, op:*)
         let fr = fx == 0 ? Self(1) : inner_exp(fx, px)
         var r = ir * fr
-        //print("ir=\(ir.toDouble()), fr=\(fr.toDouble()), r=\(r.toDouble())")
         return x.isSignMinus ? 1/r.truncate(px) : r.truncate(px)
     }
     /// ![](https://upload.wikimedia.org/math/1/7/5/17534a763ff4b0fd87ce62556ebcc3d7.png)
@@ -255,9 +257,8 @@ public extension POReal {
         if let dx = x as? Double { return (Self(Double.sin(dx)), Self(Double.cos(dx)))}
         let px = Swift.max(x.precision, precision)
         func inner_cossin(x:Self)->(Self, Self) {
-            if 1 < x * x {  // use double-angle formula to reduce x
+            if 1 < x.abs {  // use double-angle formula to reduce x
                 let (c, s) = inner_cossin(x/2)
-                // print(x, " => ", x/2)
                 return (c*c - s*s, 2 * s * c)
             }
             var (c, s) = (Self(0), Self(0))
@@ -266,12 +267,9 @@ public extension POReal {
                 let t = n.divide(d, precision:px + 32)
                 if i & 1 == 0 {
                     c += i & 2 == 2 ? -t : +t
-                    // print("i=\(i):c +=", i & 2 == 2 ? "-" : "+", t.toDouble(), c.toDouble())
                 } else {
                     s += i & 2 == 2 ? -t : +t
-                    // print("i=\(i):s +=", i & 2 == 2 ? "-" : "+", t.toDouble(), s.toDouble())
                 }
-                // r.truncate(px + 32)
                 if px < d.precision { break }
                 n *= x
                 d *= Self(i+1)
@@ -287,24 +285,6 @@ public extension POReal {
         if let dx = x as? Double { return Self(Double.cos(dx)) }
         let px = Swift.max(x.precision, precision)
         return sincos(x, precision:px).cos
-        /*
-        if 1 < x * x {
-            let c2 = cos(x/2, precision:px)
-            let s2 = sin(x/2, precision:px)
-            return c2*c2 - s2*s2
-        }
-        let epsilon = Self(Double.ldexp(1.0, -px))
-        let x2 = x * x
-        var (r, t) = (Self(1), Self(1))
-        for i in 1...px {
-            t *= x2.divide(Self((2 * i - 1) * 2 * i), precision:px)
-            t.truncate(px + 32)
-            r += i & 1 == 1 ? -t : t
-            r.truncate(px + 32)
-            if t < epsilon { break }
-        }
-        return r.truncate(px)
-        */
     }
     ///
     public static func sin(x:Self, precision:Int = 64)->Self {
@@ -312,23 +292,6 @@ public extension POReal {
         if let dx = x as? Double { return Self(Double.sin(dx)) }
         let px = Swift.max(x.precision, precision)
         return sincos(x, precision:px).sin
-        /*
-        if 1 < x * x {
-            return 2 * sin(x/2, precision:px) * cos(x/2, precision:px)
-        }
-        let epsilon = Self(Double.ldexp(1.0, -px))
-        let x2 = x * x
-        var r = x < 0 ? -x : x
-        var t = r
-        for i in 1...px {
-            t *= x2.divide(Self((2 * i + 1) * 2 * i), precision:px)
-            t.truncate(px + 32)
-            r += i & 1 == 1 ? -t : t
-            r.truncate(px + 32)
-            if t < epsilon { break }
-        }
-        return x < 0 ? -r.truncate(px) : r.truncate(px)
-        */
     }
     ///
     public static func tan(x:Self, precision px:Int = 64)->Self {
