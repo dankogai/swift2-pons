@@ -7,6 +7,13 @@
 //
 
 func testReal(test:TAP) {
+    func equiv<T:Equatable>(lhs:T, _ rhs:T)->Bool {
+        return unsafeBitCast(lhs, UIntMax.self) == unsafeBitCast(rhs, UIntMax.self)
+    }
+    for d in [-0.0, +0.0, -1.0/0.0, +1.0/0.0, 0.0/0.0] {
+        test.eq(equiv(BigRat(d).toDouble(), d), true, "BigRat(\(d)).toDouble() === \(d)")
+        test.eq(equiv(BigFloat(d).toDouble(), d), true, "BigFloat(\(d)).toDouble() === \(d)")
+    }
     //
     // Rational
     //
@@ -28,8 +35,8 @@ func testReal(test:TAP) {
     test.eq(1.over(2)  <  1.over(1),   true, "+1/2 < +1/1")
     test.eq(1.over(-2) < 1.over(-3),   true, "-1/2 < -1/3")
     test.eq(1.over(-2) < 1.over(-1),  false, "-1/2 > -1/1")
-    test.eq(BigRat(42.195).toFPString(),    "42.1950000000000002842",   "42.195 is really 42.1950000000000002842")
-    test.eq(BigRat(42.195).toFPString(16),  "2a.31eb851eb8520",         "42.195 is also 2a.31eb851eb852")
+    test.eq(BigRat(42.195).toFPString(),    "42.19500000000000028",   "42.195 is really 42.19500000000000028")
+    test.eq(BigRat(42.195).toFPString(16),  "2a.31eb851eb852",         "42.195 is also 2a.31eb851eb852")
     test.eq(BigRat(42.195).toFPString(10,places:4), "42.1950",  "42.195 to 4 dicimal places")
     test.eq(BigRat(42.195).toFPString(10,places:3), "42.195",   "42.195 to 3 dicimal places")
     test.eq(BigRat(42.195).toFPString(10,places:2), "42.20",    "42.195 to 2 dicimal places")

@@ -1,6 +1,14 @@
 //: [Previous](@previous)
 import PONS
 
+({ d , p in
+    BigFloat.sqrt(BigFloat(d), precision:p)
+    BigRat.sqrt(BigRat(d), precision:p)
+})(Double.PI,64)
+
+//BigInt.sqrt(2**24, 96)
+
+
 //BigFloat.sin(BigFloat.pi(128))
 //Complex.exp(BigFloat.pi(128).i)
 //Complex.exp(BigRat.pi(128).i)

@@ -17,12 +17,19 @@
     testInteger (test)
     testReal    (test)
     testComplex (test)
-    testMath    (test, num:16)
+    testMath    (test, num:4, den:4)
     testPrime   (test)
     testXtra    (test)
     print(POUtil.constants)
     test.done()
 #else
+
+print(BigFloat.sqrt(0.5))
+print(BigFloat.sqrt(1))
+print(BigFloat.sqrt(2))
+print(BigFloat.sqrt(3))
+print(BigFloat.sqrt(4))
+print(Double(BigInt(1).over(BigInt(42))))
 
 //print("π ≅", BigRat.pi(64, verbose:true).toFPString())
 //print("π ≅", BigRat.pi(64, verbose:true).toFPString())

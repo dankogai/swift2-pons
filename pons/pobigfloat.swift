@@ -23,9 +23,12 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
         significand = s
         exponent = e
     }
-    public init(_ bf:BigFloat) {
-        significand = bf.significand
-        exponent = bf.exponent
+    public init(_ r:BigFloat) {
+        significand = r.significand
+        exponent = r.exponent
+    }
+    public init(_ q:BigRat) {
+        self.init( BigFloat(q.numerator) / BigFloat(q.denominator) )
     }
     public init(_ i:Int) {
         var (s, e) = (i, 0)
@@ -38,7 +41,10 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
     }
     public init(_ d:Double) {
         // print("significand = \(significand), exponent=\(exponent)")
-        if d.isZero {
+        if d.isNaN {
+            exponent = BigFloat.NaN.exponent
+            significand = BigFloat.NaN.significand
+        } else if d.isZero {
             exponent = 0
             significand = BigInt(d)
         } else if d.isInfinite {
@@ -245,4 +251,11 @@ public func +(lhs:BigFloat, rhs:BigFloat)->BigFloat {
 }
 public func -(lhs:BigFloat, rhs:BigFloat)->BigFloat {
     return lhs + (-rhs)
+}
+//
+public extension POReal {
+    init (_ r:BigFloat) {
+        // print("\(__FILE__):\(__LINE__): \(Self.self)(\(r) as \(BigFloat.self))")
+        self.init(r.toDouble())
+    }
 }

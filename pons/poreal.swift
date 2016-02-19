@@ -24,6 +24,9 @@ public protocol POReal : POSignedNumber {
     mutating func truncate(_:Int)->Self
     func divide(_:Self, precision:Int)->Self
     func toMixed()->(IntType, Self)
+    //
+    init (_:BigRat)
+    init (_:BigFloat)
 }
 public extension POReal {
     public var isFinite:Bool { return !isInfinite }
@@ -138,29 +141,14 @@ public extension POReal {
     /// - returns: square root of `x` to precision `precision`
     public static func sqrt(x:Self, precision:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.sqrt(dx)) }
-        if x.isZero  { return x }
-        if x.isNaN   { return x }
-        if x.isInfinite { return Self.infinity }
-        if x < 0     { return Self.NaN }
+        if x.isNaN || x.isSignMinus || x.isZero || x.isInfinite {
+            return Self(Double.sqrt(x.toDouble()))
+        }
         let px = Swift.max(x.precision, precision)
-        let iter = max(px.msbAt + 1, 1)
-        let inner_sqrt:(Self,Int)->Self = { x , px in
-            var (r0, r) = (x, x)
-            // return r.truncate(px)
-            // print("\(__FILE__):\(__LINE__): px=\(px), iter=\(iter)")
-            for _ in 0...iter {
-                r = (x.divide(r0, precision:px) + r0) / 2
-                if (r * r - x).isZero { break }
-                r.truncate(px + 32)
-                r0 = r
-            }
-            return r
-        }
-        if x == 2 {
-            return getSetConstant("sqrt", 2, px, setter:inner_sqrt)
-        }
-        var r = inner_sqrt(x, px)
-        return r.truncate(px)
+        let q = x.asBigRat!
+        let n = q.numerator   << BigInt(px * 2)
+        let d = q.denominator << BigInt(px * 2)
+        return Self(BigInt.isqrt(n).over(BigInt.isqrt(d)))
     }
     /// - returns: `sqrt(x*x + y*y)` witout overflow
     public static func hypot(x:Self, _ y:Self, precision:Int=64)->Self {
@@ -177,6 +165,8 @@ public extension POReal {
             t /= 4 + t
             r += 2 * r * t
             l *= t
+            r.truncate(px * 2)
+            l.truncate(px * 2)
             // print("r=\(r.toDouble()), l=\(l.toDouble()), epsilon=\(epsilon.toDouble())")
         }
         return r.truncate(px)
@@ -186,8 +176,7 @@ public extension POReal {
         if let dx = x as? Double { return Self(Double.exp(dx)) }
         if x.isZero { return 1 }
         let px = Swift.max(x.precision, precision)
-        let ix = x.abs.toIntMax().asInt!
-        let fx = x.abs - Self(ix)
+        let (ix, fx) = x.abs.toMixed() //toIntMax().asInt!
         let inner_exp:(Self, Int)->Self = { x, px in
             var (r, n, d) = (Self(1), Self(1), Self(1))
             for i in 1...px {
@@ -199,7 +188,7 @@ public extension POReal {
             return r
         }
         let e = getSetConstant("exp", Self(1), px, setter:inner_exp)
-        let ir = ix == 0 ? Self(1) : Int.power(e, ix, op:*)
+        let ir = ix == 0 ? Self(1) : IntType.power(e, ix, op:*)
         let fr = fx == 0 ? Self(1) : inner_exp(fx, px)
         var r = ir * fr
         return x.isSignMinus ? 1/r.truncate(px) : r.truncate(px)
@@ -210,9 +199,9 @@ public extension POReal {
     ///
     public static func log(x:Self, precision:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.log(dx)) }
-        if x.isSignMinus { return Self.NaN }
-        if x.isZero      { return -Self.infinity }
-        if x == 1        { return 0 }
+        if x.isSignMinus || x.isZero || x == 1 {
+            return Self(Double.log(x.toDouble()))
+        }
         let px = Swift.max(x.precision, precision)
         let epsilon = Self(Double.ldexp(1.0, -px))
         #if true    // euler
@@ -246,7 +235,7 @@ public extension POReal {
         #endif
         let ln2 = getSetConstant("log", 2, px, setter:inner_log)
         //let ln2 = 2 * lnr2 //getSetConstant("log", 2, px, setter:inner_log)
-        let il = x.toIntMax().msbAt
+        let il = x.toMixed().0.msbAt
         let fl = x.divide(Self(Double.ldexp(1.0, il)), precision:px)
         let ir = il == 0 ? 0 : ln2 * Self(il)
         let fr = fl == 1 ? 0 : inner_log(fl, px)
@@ -258,6 +247,9 @@ public extension POReal {
     ///
     public static func sincos(x:Self, precision:Int = 64)->(sin:Self, cos:Self) {
         if let dx = x as? Double { return (Self(Double.sin(dx)), Self(Double.cos(dx)))}
+        if x.isZero {
+            return (Self(Double.sin(x.toDouble())), +1)
+        }
         let px = Swift.max(x.precision, precision)
         let atan1   = pi_4(px)
         let sqrt1_2 = sqrt2(px)/2
@@ -308,6 +300,9 @@ public extension POReal {
     public static func tan(x:Self, precision px:Int = 64)->Self {
         // return Self(Double.tan(x.toDouble()))
         if let dx = x as? Double { return Self(Double.tan(dx)) }
+        if x.isZero {
+            return Self(Double.tan(x.toDouble()))
+        }
         let (s, c) = sincos(x, precision:px)
         return (s / c)
         // return sin(x, precision:px) / cos(x, precision:px)
@@ -315,11 +310,17 @@ public extension POReal {
     ///
     public static func acos(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.acos(dx)) }
+        if x == 1 || 1 < x.abs {
+            return Self(Double.acos(x.toDouble()))
+        }
         return pi(px)/2 - asin(x, precision:px)
     }
     ///
     public static func asin(x:Self, precision px:Int = 64)->Self   {
-        if let dx = x as? Double { return Self(Double.acos(dx)) }
+        if let dx = x as? Double { return Self(Double.asin(dx)) }
+        if x.isZero || 1 < x.abs {
+            return Self(Double.asin(x.toDouble()))
+        }
         let a = x / (1 + sqrt(1 - x * x, precision:px))
         return 2 * atan(a, precision:px)
     }
@@ -356,21 +357,9 @@ public extension POReal {
         if let dy = y as? Double { return Self(Double.atan2(dy, x as! Double)) }
         let px = Swift.max(x.precision, precision)
         if x.isNaN || y.isNaN { return Self.NaN }
-        // let us consult Double.atan2 for these special cases
+        // let us follow Double.atan2 for these special cases
         if x.isZero || y.isZero || x.isInfinite || y.isInfinite {
-            // print("\(Self.self).atan2(\(x), \(y))")
-            switch Double.atan2(y.toDouble(), x.toDouble()) {
-            case   +Double.PI/4 : return +pi(px)/4
-            case   -Double.PI/4 : return -pi(px)/4
-            case   +Double.PI/2 : return +pi(px)/2
-            case   -Double.PI/2 : return -pi(px)/2
-            case +3*Double.PI/4 : return +3*pi(px)/4
-            case -3*Double.PI/4 : return -3*pi(px)/4
-            case   +Double.PI   : return +pi(px)
-            case   -Double.PI   : return -pi(px)
-            case let d where d.isSignMinus : return -0
-            default:                         return +0
-            }
+            return Self(Double.atan2(y.toDouble(), x.toDouble()))
         }
         if x < 0 {
             return atan(y/x, precision:px) + (y < 0 ? -pi(px) : +pi(px))
@@ -386,11 +375,17 @@ public extension POReal {
     ///
     public static func sinh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.sinh(dx)) }
+        if x.isZero || x.isInfinite {
+            return Self(Double.sinh(x.toDouble()))
+        }
         return (exp(+x, precision:px) - exp(-x, precision:px)) / 2
     }
     ///
     public static func tanh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.tanh(dx)) }
+        if x.isZero || x.isInfinite {
+            return Self(Double.tanh(x.toDouble()))
+        }
         let epx = exp(+x, precision:px)
         let enx = exp(-x, precision:px)
         return (epx - enx).divide(enx + epx, precision:px)
@@ -398,18 +393,28 @@ public extension POReal {
     ///
     public static func acosh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.acosh(dx)) }
+        if x <= 1 || x.isInfinite {
+            return Self(Double.acosh(x.toDouble()))
+        }
         let a = x + sqrt(x * x - 1, precision:px)
         return log(a, precision:px)
     }
     ///
     public static func asinh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.asinh(dx)) }
-        let a = x + sqrt(x * x + 1, precision:px)
+        if x.isZero || x.isInfinite {
+            return Self(Double.asinh(x.toDouble()))
+        }
+        // let a = x + sqrt(x * x + 1, precision:px)
+        let a = x + hypot(x, 1, precision:px)
         return log(a, precision:px)
     }
     ///
     public static func atanh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.atanh(dx)) }
+        if x.isZero || 1 <= x.abs {
+            return Self(Double.atanh(x.toDouble()))
+        }
         let a = (1 + x).divide(1 - x, precision:px)
         return log(a, precision:px) / 2
     }

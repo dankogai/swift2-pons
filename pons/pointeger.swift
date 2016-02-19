@@ -145,6 +145,17 @@ public extension POInteger {
         }
         return r
     }
+    /// Integer square root
+    public static func isqrt(n:Self)->Self {
+        if n == 0 { return 0 }
+        if n == 1 { return 1 }
+        var xk = n
+        repeat {
+            let xk1 = (xk + n / xk) >> 1    // / 2
+            if xk1 >= xk { return xk }
+            xk = xk1
+        } while true
+    }
 }
 
 public typealias POSwiftUInt = UnsignedIntegerType

@@ -76,10 +76,10 @@ public extension PORational {
             return self.isSignMinus ? -0.0 : +0.0
         }
         if self.isInfinite {
-            return self.isSignMinus ? (+1.0/0.0) : (-1.0/0.0)
+            return self.isSignMinus ? -Double.infinity : +Double.infinity
         }
         if self.isNaN {
-            return Double(0)/Double(0)
+            return Double.NaN
         }
         let msb = min(self.num.msbAt, self.den.msbAt)
         var n = self.num
@@ -230,18 +230,26 @@ public struct Rational<I:POInt> : PORational, FloatLiteralConvertible {
         // print("\(__FILE__):\(__LINE__): m=\(m),e=\(e)")
         let b = Swift.min(Double.precision, I.UIntType.precision - 1)
         let d = Swift.abs(m) * Double(1 << b)
-        if d.isNaN {
+        if m.isNaN {
             self.init(Rational.NaN)
         }
-        else if d.isInfinite {
-            self.init(d.isSignMinus ? -Rational.infinity : Rational.infinity)
+        else if m.isInfinite {
+            self.init(m.isSignMinus ? -Rational.infinity : Rational.infinity)
         }
         else {
             typealias U = IntType.UIntType
-            let n = UInt64(d)
-            self.init(r.isSignMinus, U(n), U(1 << b))
-            if e < 0    { self.den <<= U(-e) }
-            else        { self.num <<= U(+e) }
+            var n = U(d.abs)
+            var d = U(1) << U(b)
+            if e < 0    { d <<= U(-e) }
+            else        { n <<= U(+e) }
+            self.init(r.isSignMinus, n, d)
+        }
+    }
+    public init(_ r:BigFloat) {
+        if r.exponent < 0 {
+            self.init( r.significand.over(BigInt(1) << BigInt(r.exponent) ) )
+        } else {
+            self.init( (r.significand << BigInt(r.exponent)).over(1) )
         }
     }
     // IntegerLiteralConvertible
@@ -327,3 +335,10 @@ public extension POInt {
 }
 /// BigRat = Rational<BigInt>
 public typealias BigRat = Rational<BigInt>
+///
+public extension POReal {
+    public init (_ q:BigRat) {
+        // print("\(__FILE__):\(__LINE__): \(Self.self)(\(q) as \(BigRat.self))")
+        self.init(q.toDouble())
+    }
+}
