@@ -158,7 +158,7 @@ public extension POReal {
         var (r, l) = (x < 0 ? -x : x, y < 0 ? -y : y)
         if r < l { (r, l) = (l, r) }
         if l == 0 { return r }
-        let epsilon = Self(Double.ldexp(1.0, -px))
+        let epsilon = Self(BigFloat(significand:1, exponent:-px))
         while epsilon < l {
             var t = l / r
             t *= t
@@ -203,7 +203,7 @@ public extension POReal {
             return Self(Double.log(x.toDouble()))
         }
         let px = Swift.max(x.precision, precision)
-        let epsilon = Self(Double.ldexp(1.0, -px))
+        let epsilon = Self(BigFloat(significand:1, exponent:-px))
         #if true    // euler
         let inner_log:(Self, Int)->Self = { x , px in
             var t = (x - 1).divide(x + 1, precision:px)
@@ -236,7 +236,7 @@ public extension POReal {
         let ln2 = getSetConstant("log", 2, px, setter:inner_log)
         //let ln2 = 2 * lnr2 //getSetConstant("log", 2, px, setter:inner_log)
         let il = x.toMixed().0.msbAt
-        let fl = x.divide(Self(Double.ldexp(1.0, il)), precision:px)
+        let fl = x.divide(Self(BigFloat(significand:1, exponent:il)), precision:px)
         let ir = il == 0 ? 0 : ln2 * Self(il)
         let fr = fl == 1 ? 0 : inner_log(fl, px)
         var r =  ir + fr
@@ -333,24 +333,37 @@ public extension POReal {
         // return Self(Darwin.atan(x.toDouble()))
         if let dx = x as? Double { return Self(Double.atan(dx)) }
         let px = Swift.max(x.precision, precision)
-        let epsilon = Self(Double.ldexp(1.0, -px))
-        let inner_atan:(Self, Int)->Self = { x , px in
+        let epsilon = Self(BigFloat(significand:1, exponent:-px))
+          let inner_atan:(Self)->Self = { x in
             let x2 = x*x
             let x2p1 = 1 + x2
             var (t, r) = (Self(1), Self(1))
             for i in 1...px*4 {
                 t *= 2 * (Self(i) * x2).divide(Self(2 * i + 1) * x2p1, precision:px)
-                t.truncate(px + 32)
+                t.truncate(px + 16)
                 r += t
-                r.truncate(px + 32)
+                r.truncate(px + 16)
                 if t < epsilon { break }
             }
             return r * x / x2p1
         }
-        let atan1 = pi_4(px)    // getSetConstant("atan", 1, px, setter:{_, px in pi(px)/4 })
+        #if false   // via arithmetic-geometric mean
+        let inner_atan:(Self)->Self = { x in
+            let hypot1_x2 = hypot(1, x, precision:px + 16)
+            var (a, b) = (Self(1).divide(hypot1_x2, precision:px), Self(1))
+            for i in 0...px.msbAt {
+                (a, b) = ((a + b)/2, sqrt(a * b, precision:px + 16))
+                a.truncate(px + 16)
+                b.truncate(px + 16)
+                // print("a=\(a), b=\(b)")
+            }
+            return x.divide(a * hypot1_x2, precision:px)
+        }
+        #endif
+        let atan1 = pi_4(px)
         let ax = x < 0 ? -x : x
         if ax == 1 { return x < 0 ? -atan1 : atan1 }
-        var final = ax < 1 ? inner_atan(ax, px) : 2 * atan1 - inner_atan(1/ax, px)
+        var final = ax < 1 ? inner_atan(ax) : 2 * atan1 - inner_atan(1/ax)
         return x < 0 ? -final.truncate(px) : final.truncate(px)
     }
     public static func atan2(y:Self, _ x:Self, precision:Int = 64)->Self {
@@ -430,7 +443,7 @@ public extension POReal {
     public static func pi_4(px:Int = 64, verbose:Bool=false)->Self {
         if Self.self == Double.self { return Self(Double.PI/4) }
         return getSetConstant("atan", 1, px) { _, px in
-            let epsilon = Self(Double.ldexp(1.0, -px))
+            let epsilon = Self(BigFloat(significand:1, exponent:-px))
             //if verbose && Self.self != BigFloat.self && 65536 < px {
             #if false
                 // Gauss–Legendre algorithm -- very expensive for BigRat

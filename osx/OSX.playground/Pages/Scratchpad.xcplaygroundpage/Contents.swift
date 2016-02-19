@@ -1,10 +1,9 @@
 //: [Previous](@previous)
 import PONS
 
-({ d , p in
-    BigFloat.sqrt(BigFloat(d), precision:p)
-    BigRat.sqrt(BigRat(d), precision:p)
-})(Double.PI,64)
+BigFloat.atan(1.5, precision:256)
+Double.atan(1.5)
+
 
 //BigInt.sqrt(2**24, 96)
 
@@ -17,6 +16,10 @@ import PONS
 //BigFloat.exp(100, precision:256)
 
 /*
+({ d , p in
+BigFloat.sqrt(BigFloat(d), precision:p)
+BigRat.sqrt(BigRat(d), precision:p)
+})(Double.PI,64)
 
 ({ x in
 let t = BigFloat(x)

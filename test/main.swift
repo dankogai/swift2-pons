@@ -24,20 +24,7 @@
     test.done()
 #else
 
-print(BigFloat.sqrt(0.5))
-print(BigFloat.sqrt(1))
-print(BigFloat.sqrt(2))
-print(BigFloat.sqrt(3))
-print(BigFloat.sqrt(4))
-print(Double(BigInt(1).over(BigInt(42))))
-
 //print("π ≅", BigRat.pi(64, verbose:true).toFPString())
-//print("π ≅", BigRat.pi(64, verbose:true).toFPString())
-//print("π ≅", BigRat.pi(128, verbose:true).toFPString())
-//print("π ≅", BigRat.pi(128, verbose:true).toFPString())
-//print("π ≅", BigRat.pi(256, verbose:true).toFPString())
-//print("π ≅", BigRat.pi(512, verbose:true).toFPString())
-//print("π ≅", BigRat.pi(1024, verbose:true).toFPString())
 //print(POUtil.constants)
 //func machin(p:Int)->BigRat {
 //    return 4*BigRat.atan(BigInt(1).over(5), precision:p) - BigRat.atan(BigInt(1).over(239), precision:p)
