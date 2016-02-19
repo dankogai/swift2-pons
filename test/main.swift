@@ -53,11 +53,10 @@
 //        fatalError()
 //    }
 //}
+//print(BigRat.sin(BigRat.pi()))
+//print(BigRat.sin(BigRat.pi(96)))
+//print(BigRat.sin(BigRat.pi(128)))
+//print(BigFloat.sin(BigFloat.pi()))
+//print(BigFloat.sin(BigFloat.pi(96)))
+//print(BigFloat.sin(BigFloat.pi(128)))
 #endif
-
-print(BigRat.sin(BigRat.pi()))
-print(BigRat.sin(BigRat.pi(96)))
-print(BigRat.sin(BigRat.pi(128)))
-print(BigFloat.sin(BigFloat.pi()))
-print(BigFloat.sin(BigFloat.pi(96)))
-print(BigFloat.sin(BigFloat.pi(128)))

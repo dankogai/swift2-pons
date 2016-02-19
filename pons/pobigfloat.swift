@@ -205,7 +205,7 @@ public func <(lhs:BigFloat, rhs:BigFloat)->Bool {
     return (lhs - rhs).isSignMinus
 }
 public func *(lhs:BigFloat, rhs:BigFloat)->BigFloat {
-    if lhs == 0 || rhs == 0 { return 0 }
+    // if lhs == 0 || rhs == 0 { return 0 }
     let xl = lhs.exponent + lhs.significand.msbAt
     let xr = rhs.exponent + rhs.significand.msbAt
     let sig = lhs.significand * rhs.significand

@@ -6,6 +6,8 @@ import PONS
 //Complex.exp(BigRat.pi(128).i)
 //BigRat.pi(128).i
 BigRat.sin(BigRat.pi())
+Complex.exp(BigRat.pi(128).i)
+
 //BigFloat.exp(-1, precision:128)
 //BigFloat.exp(100, precision:256)
 /*
