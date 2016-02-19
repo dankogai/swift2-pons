@@ -71,6 +71,9 @@ public extension POReal {
         guard 2 <= base && base <= 36 else {
             fatalError("base out of range. \(base) is not within 2...36")
         }
+        if self.isNaN || self.isZero || self.isInfinite {
+            return self.toDouble().description
+        }
         let dfactor = Double.log(2) / Double.log(Double(base))
         var ndigits = places != 0 ? places
             : Int( Double(self.precision) * dfactor ) + 2
@@ -135,10 +138,10 @@ public extension POReal {
     /// - returns: square root of `x` to precision `precision`
     public static func sqrt(x:Self, precision:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.sqrt(dx)) }
-        if x < 0     { return Self.NaN }
         if x.isZero  { return x }
         if x.isNaN   { return x }
         if x.isInfinite { return Self.infinity }
+        if x < 0     { return Self.NaN }
         let px = Swift.max(x.precision, precision)
         let iter = max(px.msbAt + 1, 1)
         let inner_sqrt:(Self,Int)->Self = { x , px in

@@ -189,13 +189,17 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
 }
 public extension BigInt {
     public init(_ bf:BigFloat) {
-        if 0 <= bf.exponent {
-            self.init(bf.significand << BigInt(bf.exponent))
-        } else if -bf.exponent <= bf.significand.msbAt {
-            self.init(bf.significand >> BigInt(-bf.exponent))
+        // print(bf.significand, bf.exponent)
+        if bf.isZero {
+            self.init(bf.significand)
         } else {
-            self.init(0)
+            if 0 <= bf.exponent {
+                self.init(bf.significand << BigInt(bf.exponent))
+            } else if -bf.exponent <= bf.significand.msbAt {
+                self.init(bf.significand >> BigInt(-bf.exponent))
+            }
         }
+        fatalError("Unsupported Conversion:\(bf)")
     }
 }
 public func ==(lhs:BigFloat, rhs:BigFloat)->Bool {

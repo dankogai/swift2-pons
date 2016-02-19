@@ -5,11 +5,11 @@ import PONS
 //Complex.exp(BigFloat.pi(128).i)
 //Complex.exp(BigRat.pi(128).i)
 //BigRat.pi(128).i
-BigRat.sin(BigRat.pi())
-Complex.exp(BigRat.pi(128).i)
-
 //BigFloat.exp(-1, precision:128)
 //BigFloat.exp(100, precision:256)
+BigRat.sqrt(-0.0)
+BigFloat.sqrt(BigFloat(-0.0))
+
 /*
 
 ({ x in
