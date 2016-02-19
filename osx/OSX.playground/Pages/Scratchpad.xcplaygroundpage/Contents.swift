@@ -1,6 +1,11 @@
 //: [Previous](@previous)
 import PONS
 
+//BigFloat.sin(BigFloat.pi(128))
+//Complex.exp(BigFloat.pi(128).i)
+//Complex.exp(BigRat.pi(128).i)
+//BigRat.pi(128).i
+BigRat.sin(BigRat.pi())
 //BigFloat.exp(-1, precision:128)
 //BigFloat.exp(100, precision:256)
 /*

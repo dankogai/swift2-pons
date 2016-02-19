@@ -20,7 +20,7 @@
     testMath    (test, num:16)
     testPrime   (test)
     testXtra    (test)
-    // print(POUtil.constants)
+    print(POUtil.constants)
     test.done()
 #else
 
@@ -54,3 +54,10 @@
 //    }
 //}
 #endif
+
+print(BigRat.sin(BigRat.pi()))
+print(BigRat.sin(BigRat.pi(96)))
+print(BigRat.sin(BigRat.pi(128)))
+print(BigFloat.sin(BigFloat.pi()))
+print(BigFloat.sin(BigFloat.pi(96)))
+print(BigFloat.sin(BigFloat.pi(128)))

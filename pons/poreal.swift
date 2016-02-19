@@ -256,20 +256,28 @@ public extension POReal {
     public static func sincos(x:Self, precision:Int = 64)->(sin:Self, cos:Self) {
         if let dx = x as? Double { return (Self(Double.sin(dx)), Self(Double.cos(dx)))}
         let px = Swift.max(x.precision, precision)
+        let atan1    = pi_4(px)
+        let sqrt1_2 = sqrt2(px)/2
         func inner_cossin(x:Self)->(Self, Self) {
             if 1 < x.abs {  // use double-angle formula to reduce x
                 let (c, s) = inner_cossin(x/2)
+                // print("inner_cossin:c \(c.precision), s:\(s.precision)")
                 return (c*c - s*s, 2 * s * c)
+            }
+            if x.abs == atan1 {
+                return (x.isSignMinus ? -sqrt1_2 : +sqrt1_2, +sqrt1_2)
             }
             var (c, s) = (Self(0), Self(0))
             var (n, d) = (Self(1), Self(1))
             for i in 0...px {
-                let t = n.divide(d, precision:px + 32)
+                var t = n.divide(d, precision:px + 16)
+                t.truncate(px + 16)
                 if i & 1 == 0 {
                     c += i & 2 == 2 ? -t : +t
                 } else {
                     s += i & 2 == 2 ? -t : +t
                 }
+                // print("inner_cossin:i=\(i), px=\(px), d.precision=:\(d.precision)")
                 if px < d.precision { break }
                 n *= x
                 d *= Self(i+1)
@@ -335,10 +343,10 @@ public extension POReal {
             }
             return r * x / x2p1
         }
-        let pi_4 = getSetConstant("atan", 1, px, setter:{_, px in pi(px)/4 })
+        let atan1 = pi_4(px)    // getSetConstant("atan", 1, px, setter:{_, px in pi(px)/4 })
         let ax = x < 0 ? -x : x
-        if ax == 1 { return x < 0 ? -pi_4 : pi_4 }
-        var final = ax < 1 ? inner_atan(ax, px) : 2 * pi_4 - inner_atan(1/ax, px)
+        if ax == 1 { return x < 0 ? -atan1 : atan1 }
+        var final = ax < 1 ? inner_atan(ax, px) : 2 * atan1 - inner_atan(1/ax, px)
         return x < 0 ? -final.truncate(px) : final.truncate(px)
     }
     public static func atan2(y:Self, _ x:Self, precision:Int = 64)->Self {
@@ -411,9 +419,9 @@ public extension POReal {
     ///
     /// ![](https://upload.wikimedia.org/math/d/b/f/dbf2d4355c108f6b3388985be4976799.png)
     ///
-    public static func pi(px:Int = 64, verbose:Bool=false)->Self {
-        if Self.self == Double.self { return Self(Double.PI) }
-        return 4 * getSetConstant("atan", 1, px) { _, px in
+    public static func pi_4(px:Int = 64, verbose:Bool=false)->Self {
+        if Self.self == Double.self { return Self(Double.PI/4) }
+        return getSetConstant("atan", 1, px) { _, px in
             let epsilon = Self(Double.ldexp(1.0, -px))
             //if verbose && Self.self != BigFloat.self && 65536 < px {
             #if false
@@ -462,10 +470,15 @@ public extension POReal {
                     // t.truncate(px + 32)
                     if t < epsilon { break }
                 }
-                return p64.truncate(px) / Self(1<<8)
+                p64 /= Self(1<<8)
+                return p64.truncate(px)
             //}
             #endif
         }
+    }
+    public static func pi(px:Int = 64, verbose:Bool=false)->Self {
+        if Self.self == Double.self { return Self(Double.PI) }
+        return 4 * pi_4(px)
     }
     public static func e(px:Int = 64, verbose:Bool=false)->Self {
         if Self.self == Double.self { return Self(Double.E) }
