@@ -163,6 +163,9 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
         }
         return self * by.reciprocal(precision)
     }
+    public func remainder(by:BigFloat, precision:Int=32)->BigFloat {
+        return by * self.divide(by, precision:precision).toMixed().1
+    }
     public func reciprocal(precision:Int=32)->BigFloat {
         if self.isZero  { // zero or infinity
             return self.isSignMinus ? -BigFloat.infinity : +BigFloat.infinity
@@ -222,8 +225,7 @@ public func /(lhs:BigFloat, rhs:BigFloat)->BigFloat {
     return lhs.divide(rhs)
 }
 public func %(lhs:BigFloat, rhs:BigFloat)->BigFloat {
-    let f = BigFloat(lhs / rhs).toMixed().1
-    return rhs * f
+    return lhs.remainder(rhs)
 }
 public prefix func +(bf:BigFloat)->BigFloat {
     return bf

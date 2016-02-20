@@ -245,6 +245,23 @@ public extension POReal {
         return log(x, precision:px) / ln10(px)
     }
     ///
+    public static func wrapAngle(x:Self, precision px:Int = 64)->Self {
+        var angle = x
+        let onepi = pi(px)
+        if angle < -2*onepi || +2*onepi < angle {
+            let precision = px + angle.toMixed().0.msbAt
+            // print("\(Self.self).wrapAngle: precision=", precision)
+            let twopi = 2*pi(precision)
+            // print("before:", angle)
+            angle = angle % twopi
+            // print("after:", angle)
+            angle.truncate(px)
+        }
+        if angle < -onepi { angle += 2*onepi }
+        if +onepi < angle { angle -= 2*onepi }
+        return angle
+    }
+    /// - returns: `(sin(x), cos(x))`
     public static func sincos(x:Self, precision px:Int = 64)->(sin:Self, cos:Self) {
         if let dx = x as? Double { return (Self(Double.sin(dx)), Self(Double.cos(dx)))}
         if x.isZero {
@@ -279,7 +296,7 @@ public extension POReal {
             return (c, s)
             // return c < s ? (sqrt(1 - c*c, precision:px+16), s) : (c, sqrt(1 - s*s, precision:px+16))
         }
-        var (c, s) = inner_cossin(x)
+        var (c, s) = inner_cossin(x.abs < 8 ? x : wrapAngle(x, precision:px))
         return (s.truncate(px), c.truncate(px))
     }
     ///
