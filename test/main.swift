@@ -18,7 +18,7 @@
     testReal    (test)
     testComplex (test)
     testPrime   (test)
-    testMath    (test, num:4, den:4)
+    testMath    (test, num:16, den:1)
     testXtra    (test)
     print(POUtil.constants)
     test.done()

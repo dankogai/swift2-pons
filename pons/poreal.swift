@@ -326,6 +326,7 @@ public extension POReal {
     /// ![](https://upload.wikimedia.org/math/8/2/a/82a9938b7482d8d2ac5b2d7f3bce11fe.png)
     public static func atan(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.atan(dx)) }
+        let atan1 = pi_4(px)
         let epsilon = Self(BigFloat(significand:1, exponent:-px))
           let inner_atan:(Self)->Self = { x in
             let x2 = x*x
@@ -353,11 +354,10 @@ public extension POReal {
             return x.divide(a * hypot1_x2, precision:px)
         }
         #endif
-        let atan1 = pi_4(px)
-        let ax = x < 0 ? -x : x
-        if ax == 1 { return x < 0 ? -atan1 : atan1 }
-        var final = ax < 1 ? inner_atan(ax) : 2 * atan1 - inner_atan(1/ax)
-        return x < 0 ? -final.truncate(px) : final.truncate(px)
+        let ax = x.abs
+        if ax == 1 { return  x.isSignMinus ? -atan1 : atan1 }
+        var r = ax < 1 ? inner_atan(ax) : 2 * atan1 - inner_atan(1/ax)
+        return x.isSignMinus ? -r.truncate(px) : r.truncate(px)
     }
     public static func atan2(y:Self, _ x:Self, precision px:Int = 64)->Self {
         if let dy = y as? Double { return Self(Double.atan2(dy, x as! Double)) }

@@ -40,7 +40,6 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
         exponent = e
     }
     public init(_ d:Double) {
-        // print("significand = \(significand), exponent=\(exponent)")
         if d.isNaN {
             exponent = BigFloat.NaN.exponent
             significand = BigFloat.NaN.significand
@@ -56,14 +55,13 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
                 significand = m < 0 ? -1 : 1
                 exponent = e - 1
             } else {
-                var s = Int(Double.ldexp(d, Double.precision))
-                // print("d=\(d), m=\(m), e=\(e), s=\(s)")
-                exponent = e - s.abs.msbAt - 1
-                while s != 0 && s & 1 == 0 {
-                    s >>= 1
+                var u = BigUInt(Double.ldexp(m.abs, Double.precision))
+                exponent = e - u.msbAt - 1
+                while u != 0 && u & 1 == 0 {
+                    u >>= 1
                     exponent += 1
                 }
-                significand = s.asBigInt!
+                significand = BigInt(unsignedValue:u, isSignMinus:m.isSignMinus)
             }
         }
     }

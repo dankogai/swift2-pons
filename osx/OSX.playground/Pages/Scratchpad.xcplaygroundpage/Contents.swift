@@ -1,14 +1,18 @@
 //: [Previous](@previous)
 import PONS
 
-BigFloat.sqrt(2)
-BigFloat(Double(1.0/4096))
-BigFloat(Double(42.195))
-Double(1.0/4096)
-
-
+UInt.power(Double.PI/4+Double.PI.i/4, 101, op:*)
 
 /*
+10000000000000000
+*/
+
+/*
+({ x in
+let d = Double(x)
+BigFloat.sin(BigFloat(d))
+Double.sin(d)
+})(1.0e20)
 
 ({ r in
 BigFloat.log(BigFloat(r))
@@ -17,6 +21,14 @@ BigRat.log(BigRat(r)).toDouble()
 
 Double.hypot(8.0, 6.0).toFPString()
 
+for i in 0...127 {
+var bi = BigInt(1)<<BigInt(2*i+1)
+print(i,
+Double.sqrt(bi.toDouble()),
+BigFloat.sqrt(BigFloat(bi), precision:128),
+BigRat.sqrt(BigRat(bi), precision:128)
+)
+}
 
 
 ({ theta in
