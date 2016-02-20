@@ -46,43 +46,53 @@ func approx<R:POReal>(q:R, _ r:R, _ fq:(R,R,precision:Int)->R, _ fd:(Double,Doub
     return approx(qd, dd)
 }
 // math
+func testBigRat(q:BigRat) {
+    test.eq(approx(q, BigRat.acos,  Double.acos),   true,   "BigRat.acos(\(q))")
+    test.eq(approx(q, BigRat.acosh, Double.acosh),  true,   "BigRat.acosh(\(q))")
+    test.eq(approx(q, BigRat.asin,  Double.asin),   true,   "BigRat.asin(\(q))")
+    test.eq(approx(q, BigRat.asinh, Double.asinh),  true,   "BigRat.asinh(\(q))")
+    test.eq(approx(q, BigRat.atan,  Double.atan),   true,   "BigRat.atan(\(q))")
+    test.eq(approx(q, BigRat.atanh, Double.atanh),  true,   "BigRat.atanh(\(q))")
+    test.eq(approx(q, BigRat.cos,   Double.cos),    true,   "BigRat.cos(\(q))")
+    test.eq(approx(q, BigRat.cosh,  Double.cosh),   true,   "BigRat.cosh(\(q))")
+    test.eq(approx(q, BigRat.exp,   Double.exp),    true,   "BigRat.exp(\(q))")
+    test.eq(approx(q, BigRat.log,   Double.log),    true,   "BigRat.log(\(q))")
+    test.eq(approx(q, BigRat.sin,   Double.sin),    true,   "BigRat.sin(\(q))")
+    test.eq(approx(q, BigRat.sinh,  Double.sinh),   true,   "BigRat.sinh(\(q))")
+    test.eq(approx(q, BigRat.sqrt,  Double.sqrt),   true,   "BigRat.sqrt(\(q))")
+    test.eq(approx(q, BigRat.tan,   Double.tan),    true,   "BigRat.tan(\(q))")
+    test.eq(approx(q, BigRat.tanh,  Double.tanh),   true,   "BigRat.tanh(\(q))")
+}
+func testBigFloat(f:BigFloat) {
+    test.eq(approx(f, BigFloat.acos,    Double.acos),   true,   "BigFloat.acos(\(f))")
+    test.eq(approx(f, BigFloat.acosh,   Double.acosh),  true,   "BigFloat.acosh(\(f))")
+    test.eq(approx(f, BigFloat.asin,    Double.asin),   true,   "BigFloat.asin(\(f))")
+    test.eq(approx(f, BigFloat.asinh,   Double.asinh),  true,   "BigFloat.asinh(\(f))")
+    test.eq(approx(f, BigFloat.atan,    Double.atan),   true,   "BigFloat.atan(\(f))")
+    test.eq(approx(f, BigFloat.atanh,   Double.atanh),  true,   "BigFloat.atanh(\(f))")
+    test.eq(approx(f, BigFloat.cos,     Double.cos),    true,   "BigFloat.cos(\(f))")
+    test.eq(approx(f, BigFloat.cosh,    Double.cosh),   true,   "BigFloat.cosh(\(f))")
+    test.eq(approx(f, BigFloat.exp,     Double.exp),    true,   "BigFloat.exp(\(f))")
+    test.eq(approx(f, BigFloat.log,     Double.log),    true,   "BigFloat.log(\(f))")
+    test.eq(approx(f, BigFloat.sin,     Double.sin),    true,   "BigFloat.sin(\(f))")
+    test.eq(approx(f, BigFloat.sinh,    Double.sinh),   true,   "BigFloat.sinh(\(f))")
+    test.eq(approx(f, BigFloat.sqrt,    Double.sqrt),   true,   "BigFloat.sqrt(\(f))")
+    test.eq(approx(f, BigFloat.tan,     Double.tan),    true,   "BigFloat.tan(\(f))")
+    test.eq(approx(f, BigFloat.tanh,    Double.tanh),   true,   "BigFloat.tanh(\(f))")
+}
+import Foundation
 func testMath(test:TAP, num:Int=1, den:Int=4) {
     for i in 0...(num*den) {
         for s in [-1.0, 1.0] {
             let q = BigInt(s*Double(i)).over(BigInt(den))
-            test.eq(approx(q, BigRat.acos,  Double.acos),   true,   "BigRat.acos(\(q))")
-            test.eq(approx(q, BigRat.acosh, Double.acosh),  true,   "BigRat.acosh(\(q))")
-            test.eq(approx(q, BigRat.asin,  Double.asin),   true,   "BigRat.asin(\(q))")
-            test.eq(approx(q, BigRat.asinh, Double.asinh),  true,   "BigRat.asinh(\(q))")
-            test.eq(approx(q, BigRat.atan,  Double.atan),   true,   "BigRat.atan(\(q))")
-            test.eq(approx(q, BigRat.atanh, Double.atanh),  true,   "BigRat.atanh(\(q))")
-            test.eq(approx(q, BigRat.cos,   Double.cos),    true,   "BigRat.cos(\(q))")
-            test.eq(approx(q, BigRat.cosh,  Double.cosh),   true,   "BigRat.cosh(\(q))")
-            test.eq(approx(q, BigRat.exp,   Double.exp),    true,   "BigRat.exp(\(q))")
-            test.eq(approx(q, BigRat.log,   Double.log),    true,   "BigRat.log(\(q))")
-            test.eq(approx(q, BigRat.sin,   Double.sin),    true,   "BigRat.sin(\(q))")
-            test.eq(approx(q, BigRat.sinh,  Double.sinh),   true,   "BigRat.sinh(\(q))")
-            test.eq(approx(q, BigRat.sqrt,  Double.sqrt),   true,   "BigRat.sqrt(\(q))")
-            test.eq(approx(q, BigRat.tan,   Double.tan),    true,   "BigRat.tan(\(q))")
-            test.eq(approx(q, BigRat.tanh,  Double.tanh),   true,   "BigRat.tanh(\(q))")
+            testBigRat(q)
             let f = BigFloat(q)
-            test.eq(approx(f, BigFloat.acos,    Double.acos),   true,   "BigFloat.acos(\(f))")
-            test.eq(approx(f, BigFloat.acosh,   Double.acosh),  true,   "BigFloat.acosh(\(f))")
-            test.eq(approx(f, BigFloat.asin,    Double.asin),   true,   "BigFloat.asin(\(f))")
-            test.eq(approx(f, BigFloat.asinh,   Double.asinh),  true,   "BigFloat.asinh(\(f))")
-            test.eq(approx(f, BigFloat.atan,    Double.atan),   true,   "BigFloat.atan(\(f))")
-            test.eq(approx(f, BigFloat.atanh,   Double.atanh),  true,   "BigFloat.atanh(\(f))")
-            test.eq(approx(f, BigFloat.cos,     Double.cos),    true,   "BigFloat.cos(\(f))")
-            test.eq(approx(f, BigFloat.cosh,    Double.cosh),   true,   "BigFloat.cosh(\(f))")
-            test.eq(approx(f, BigFloat.exp,     Double.exp),    true,   "BigFloat.exp(\(f))")
-            test.eq(approx(f, BigFloat.log,     Double.log),    true,   "BigFloat.log(\(f))")
-            test.eq(approx(f, BigFloat.sin,     Double.sin),    true,   "BigFloat.sin(\(f))")
-            test.eq(approx(f, BigFloat.sinh,    Double.sinh),   true,   "BigFloat.sinh(\(f))")
-            test.eq(approx(f, BigFloat.sqrt,    Double.sqrt),   true,   "BigFloat.sqrt(\(f))")
-            test.eq(approx(f, BigFloat.tan,     Double.tan),    true,   "BigFloat.tan(\(f))")
-            test.eq(approx(f, BigFloat.tanh,    Double.tanh),   true,   "BigFloat.tanh(\(f))")
-        }
+            testBigFloat(f)
+         }
     }
+//    for d in [+DBL_MIN] {
+//        testBigFloat(BigFloat(d))
+//    }
     for y in [-1.0, -0.0, +0.0, +1.0] {
         for x in [-1.0, -0.0, +0.0, +1.0] {
             let qx = BigRat(x)

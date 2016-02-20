@@ -1,18 +1,20 @@
 //: [Previous](@previous)
 import PONS
 
-BigFloat.pi(1024)
-
-({ x in
-    let d = Double(x)
-    Double.frexp(d).1
-    BigFloat.sin(BigFloat(d))
-    //BigRat.sin(BigRat(d)).toFPString()
-    Double.sin(d)
-})(0x1.ffffffffp1023)
+BigFloat.sqrt(2,precision:128)
 
 
 /*
+BigFloat.pi(1024)
+
+({ x in
+let d = Double(x)
+Double.frexp(d).1
+BigFloat.sin(BigFloat(d))
+//BigRat.sin(BigRat(d)).toFPString()
+Double.sin(d)
+})(0x1.ffffffffp1023)
+
 10000000000000000
 */
 
