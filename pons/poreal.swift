@@ -316,7 +316,7 @@ public extension POReal {
         if x.isZero || 1 < x.abs {
             return Self(Double.asin(x.toDouble()))
         }
-        let a = x / (1 + sqrt(1 - x * x, precision:px))
+        let a = x.divide(1 + sqrt(1 - x * x, precision:px), precision:px)
         return 2 * atan(a, precision:px)
     }
     /// Arc tangent
