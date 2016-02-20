@@ -229,14 +229,15 @@ public extension POReal {
         }
         #endif
         let ln2 = getSetConstant("log", 2, px, setter:inner_log)
-        let il = x.toMixed().0.msbAt
-        let fl = x.divide(Self(BigFloat(significand:1, exponent:il)), precision:px)
+        let xx = x < 1 ? 1/x : x
+        let il = xx.toMixed().0.msbAt
+        let fl = xx * Self(BigFloat(significand:1, exponent:-il))
         let ir = il == 0 ? 0 : ln2 * Self(il)
         let fr = fl == 1 ? 0 : inner_log(fl, px)
         var r =  ir + fr
         //print("ln(\(x.toDouble())) =~ ln(\(Double.ldexp(1.0,il)))+ln(\(fl.toDouble()))"
         //    + " = \(ir.toDouble())+\(fr.toDouble()) = \(r.toDouble())")
-        return r.truncate(px)
+        return x < 1 ? -r.truncate(px) : +r.truncate(px)
     }
     ///
     public static func log10(x:Self, precision px:Int = 64)->Self {
