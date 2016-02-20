@@ -1,10 +1,23 @@
 //: [Previous](@previous)
 import PONS
 
-BigFloat.sqrt(2,precision:128)
-
-
 /*
+({ x in
+let d = Double(x)
+Double.frexp(d).1
+BigFloat.sqrt(BigFloat(d))
+BigRat.sqrt(BigRat(d)).toFPString()
+Double.sqrt(d)
+})(25)
+
+
+({ x in
+    let d = Double(x)
+    Double.frexp(d).1
+    BigFloat.atan(BigFloat(d)).toDouble()
+    Double.atan(d)
+})(1e300)
+
 BigFloat.pi(1024)
 
 ({ x in

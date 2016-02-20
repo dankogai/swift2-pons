@@ -217,14 +217,11 @@ public func ^(lhs:BigUInt, rhs:BigUInt)->BigUInt {
 public func ^=(inout lhs:BigUInt, rhs:BigUInt) {
     lhs = lhs ^ rhs
 }
-public func <<(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    return BigUInt.bitShiftL(lhs, rhs)
-}
 public func <<=(inout lhs:BigUInt, rhs:BigUInt) {
     // lhs = lhs << rhs; return // turns out to be too naive
     if lhs == 0 { return }
     let (index, offset) = (rhs / 32, rhs.asUInt32! % 32)
-    while lhs.digits.count <= index.asInt {
+    while lhs.digits.count <= Int(index) {
         lhs.digits.insert(0, atIndex:0)
     }
     if offset == 0 { return }
@@ -237,6 +234,28 @@ public func <<=(inout lhs:BigUInt, rhs:BigUInt) {
         carry = tmp
     }
     if carry != 0 { lhs.digits.append(carry) }
+}
+public func <<(lhs:BigUInt, rhs:BigUInt)->BigUInt {
+    return BigUInt.bitShiftL(lhs, rhs)
+}
+public func >>=(inout lhs:BigUInt, rhs:BigUInt) {
+    if lhs == 0 { return }
+    let (index, offset) = (rhs / 32, rhs.asUInt32! % 32)
+    if lhs.digits.count <= Int(index) {
+        lhs = 0
+    }
+    lhs.digits.removeFirst(Int(index))
+    if offset == 0 { return }
+    let e = 0
+    let b = lhs.digits.count
+    let ol = offset
+    let oh = 32 - ol
+    let mask = ~0 >> oh
+    lhs.digits.append(0) // add sentinel
+    for i in e..<b {
+        lhs.digits[i] = ((lhs.digits[i+1] & mask) << oh) | (lhs.digits[i] >> ol)
+    }
+    lhs.trim()
 }
 public func >>(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.bitShiftR(lhs, rhs)
@@ -286,6 +305,7 @@ public func +=(inout lhs:BigUInt, rhs:BigUInt) {
         carry >>= 32
     }
     if carry != 0 { lhs.digits.append(UInt32(carry & 0xffff_ffff)) }
+    lhs.trim()
 }
 public prefix func +(bs:BigUInt)->BigUInt {
     return bs
@@ -312,9 +332,6 @@ public func -=(inout lhs:BigUInt, rhs:BigUInt) {
         carry >>= 32
     }
     lhs.trim()
-}
-public prefix func -(bs:BigUInt)->BigUInt {
-    return 0 - bs
 }
 // multiplication
 public extension BigUInt {
