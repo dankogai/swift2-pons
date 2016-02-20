@@ -147,7 +147,9 @@ public extension POComplexReal {
     }
     /// absolute value of `self`
     public var abs:RealType {
-        get { return RealType.hypot(re, im) }
+        get {
+            return RealType.hypot(re, im)
+        }
         set {
             let r = newValue / abs
             (re, im) = (re * r, im * r)

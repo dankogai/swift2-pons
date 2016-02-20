@@ -366,7 +366,9 @@ public extension POInt {
         return sizeof(Self) * 8 - 1
     }
     /// Default isSignMinus
-    public var isSignMinus:Bool { return self < 0 }
+    public var isSignMinus:Bool {
+        return self < 0
+    }
     /// Default toUIntMax
     public func toUIntMax()->UIntMax {
         return UIntMax(self.toIntMax())

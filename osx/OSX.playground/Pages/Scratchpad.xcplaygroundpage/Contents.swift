@@ -1,12 +1,14 @@
 //: [Previous](@previous)
 import PONS
+/*
 
 ({ r in
-    BigFloat.log(BigFloat(r))
-    BigRat.log(BigRat(r)).toDouble()
+BigFloat.log(BigFloat(r))
+BigRat.log(BigRat(r)).toDouble()
 })(10)
 
-/*
+Double.hypot(8.0, 6.0).toFPString()
+
 
 
 ({ theta in

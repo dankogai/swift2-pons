@@ -22,8 +22,8 @@ func testComplex(test:TAP) {
         test.eq(z0 + z0, z0 * 2    , "z + z = z0*2")
         var z1 = z0; z1 *= z1;
         test.eq(z1, z0*z0  , "var z1=z0; z1*=z1; z1==z0*z0")
-        test.eq(z1.abs, z0.abs ** 2  , "z1.abs == z0.abs * z0.abs")
-        test.eq(z1.arg, z0.arg *  2  , "z1.arg == z0.abs + z0.arg")
+        test.eq(z1.abs, z0.abs * z0.abs, "z1.abs == z0.abs * z0.abs")
+        test.eq(z1.arg, z0.arg + z0.arg, "z1.arg == z0.abs + z0.arg")
         z1 /= z0;
         test.eq(z1, z0, "z1 /= z0; z1==z0")
     })()
