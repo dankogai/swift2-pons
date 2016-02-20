@@ -1,5 +1,13 @@
 //: [Previous](@previous)
 import PONS
+
+BigFloat.sqrt(2)
+BigFloat(Double(1.0/4096))
+BigFloat(Double(42.195))
+Double(1.0/4096)
+
+
+
 /*
 
 ({ r in
