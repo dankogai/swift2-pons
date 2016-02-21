@@ -81,6 +81,8 @@ func testBigFloat(f:BigFloat) {
     test.eq(approx(f, BigFloat.tanh,    Double.tanh),   true,   "BigFloat.tanh(\(f.toDouble()))")
 }
 func testMath(test:TAP, num:Int=1, den:Int=4) {
+    let DBL_MAX = 0x1.fffffffffffffp+1023
+    // let DBL_MIN = 0x1p-1022
     //  -DBL_MIN, +DBL_MIN cannot be decently tested w/ the script above
     for d in [-Double.infinity, -DBL_MAX, -0.0, +0.0, +DBL_MAX, +Double.infinity] {
         let q = BigRat(d)
