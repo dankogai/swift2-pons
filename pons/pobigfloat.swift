@@ -138,6 +138,13 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
     public func toDouble()->Double {
         if self.isNaN { return Double.NaN }
         if self.isInfinite { return self.isSignMinus ? -Double.infinity : +Double.infinity }
+        if 1023 < exponent {
+            return self.isSignMinus ? -Double.infinity : +Double.infinity
+        }
+        if exponent < -1074 {
+            return self.isSignMinus ? -0.0 : +0.0
+        }
+        // print("toDouble():", self.significand, self.exponent)
         return Double.ldexp(significand.toDouble(), exponent)
     }
     public mutating func truncate(bits:Int)->BigFloat {
@@ -253,14 +260,11 @@ public prefix func -(bf:BigFloat)->BigFloat {
 public func +(lhs:BigFloat, rhs:BigFloat)->BigFloat {
    // print("\(lhs.toDouble()) + \(rhs.toDouble())")
     if lhs.isNaN || rhs.isNaN { return BigFloat.NaN }
-    if lhs.isInfinite {
-        // print("∞ + \(rhs)")
-        return Bool.xor(lhs.isSignMinus, rhs.isSignMinus) ? BigFloat.NaN : lhs
+    if lhs.isInfinite && rhs.isInfinite {
+        Bool.xor(lhs.isSignMinus, rhs.isSignMinus) ? BigFloat.NaN : lhs
     }
-    if rhs.isInfinite {
-        // print("\(lhs) + ∞")
-        return Bool.xor(lhs.isSignMinus, rhs.isSignMinus) ? BigFloat.NaN : rhs
-    }
+    if lhs.isInfinite { return lhs }
+    if rhs.isInfinite { return rhs }
     var (ls, rs) = (lhs.significand, rhs.significand)
     let dx = lhs.exponent - rhs.exponent
     // print("dx = ", dx)
@@ -282,5 +286,12 @@ public extension POReal {
     init (_ r:BigFloat) {
         // print("\(__FILE__):\(__LINE__): \(Self.self)(\(r) as \(BigFloat.self))")
         self.init(r.toDouble())
+    }
+    ///
+    public var asBigFloat:BigFloat? {
+        if let r = self as? BigFloat { return r }
+        if let q = self as? BigRat { return q.asBigFloat }
+        if let d = self as? Double { return BigFloat(d) }
+        return BigFloat(self.toDouble())
     }
 }

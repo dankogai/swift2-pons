@@ -1,12 +1,42 @@
 //: [Previous](@previous)
 import PONS
+import Foundation
+Double.log(-1.79769313486232e+308)
+
+BigFloat.sqrt(1 + BigFloat(DBL_MIN))
+BigFloat.sqrt(1 + BigFloat(DBL_MIN))
+
+
+DBL_MIN.divide(1 + sqrt(1 - DBL_MIN * DBL_MIN))
+var x = BigFloat(BigRat(DBL_MIN))
+x.divide(1 + BigFloat.sqrt(1 - x*x), precision:128).toDouble()
+
+DBL_MIN
+/*
+
+({ x in
+let d = Double(x)
+Double.frexp(d).1
+BigFloat.exp(BigFloat(d))
+//BigRat.exp(BigRat(d)).toFPString()
+Double.exp(d)
+})(10000)
+
+import Foundation
+String(format:"%a",log(DBL_MAX))
+0x1.ffffffffffffp1023
 
 //Double.exp(1e3)
 //BigFloat.exp(1e2)
 
-BigFloat.infinity * BigFloat(-1)
+// BigFloat.infinity * BigFloat(-1)
 
-/*
+Double.asinh(-DBL_MAX)
+Double.log(-DBL_MAX)
+BigFloat.asinh(BigFloat(-DBL_MAX))
+BigRat.asinh(BigRat(-DBL_MAX))
+
+
 ({ x in
 let d = Double(x)
 Double.frexp(d).1

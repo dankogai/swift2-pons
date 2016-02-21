@@ -82,17 +82,22 @@ func testBigFloat(f:BigFloat) {
 }
 import Foundation
 func testMath(test:TAP, num:Int=1, den:Int=4) {
-    for i in 0...(num*den) {
-        for s in [-1.0, 1.0] {
-            let q = BigInt(s*Double(i)).over(BigInt(den))
+    //  -DBL_MIN, +DBL_MIN cannot be decently tested w/ the script above
+    for d in [-Double.infinity, -DBL_MAX, -0.0, +0.0, +DBL_MAX, +Double.infinity] {
+        let q = BigRat(d)
+        // testBigRat(q)    // Takes too long for +-DBL_MAX.
+        let r = BigFloat(q)
+        testBigFloat(r)
+    }
+    //
+    for i in 0...8 {
+        for s in [-1.0, +1.0] {
+            let q = BigRat(s * Double.pow(2, Double(i-4)))
             testBigRat(q)
             let f = BigFloat(q)
             testBigFloat(f)
-         }
+        }
     }
-//    for d in [-DBL_MAX] {
-//        testBigFloat(BigFloat(d))
-//    }
     for y in [-1.0, -0.0, +0.0, +1.0] {
         for x in [-1.0, -0.0, +0.0, +1.0] {
             let qx = BigRat(x)

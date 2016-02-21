@@ -134,7 +134,13 @@ public extension PORational {
     public func divide(by:Self, precision:Int=64)->Self { return self / by }
     public static func multiplyWithOverflow(lhs:Self, _ rhs:Self)->(Self, overflow:Bool) {
         typealias U = IntType.UIntType
-        if lhs.isZero || rhs.isZero { return (zero, false) }
+        if rhs.isZero { // +-infinity
+            var n = lhs
+            n.num = 1
+            n.den = 0
+            return (n, false)
+        }
+        if lhs.isZero { return (zero, false) }
         var ln = lhs.num, ld = lhs.den, rn = rhs.num, rd = rhs.den;
         let gn = U.gcd(ln, rd), gd = U.gcd(ld, rn);
         ln /= gn; rn /= gd;
@@ -340,5 +346,12 @@ public extension POReal {
     public init (_ q:BigRat) {
         // print("\(__FILE__):\(__LINE__): \(Self.self)(\(q) as \(BigRat.self))")
         self.init(q.toDouble())
+    }
+    ///
+    public var asBigRat:BigRat? {
+        if let q = self as? BigRat { return q }
+        if let b = self as? BigFloat { return b.asBigRat }
+        if let d = self as? Double { return BigRat(d) }
+        return BigRat(self.toDouble())
     }
 }

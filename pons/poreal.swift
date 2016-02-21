@@ -41,13 +41,6 @@ public extension POReal {
         return self.isSignMinus ? -self : self
     }
     ///
-    public var asBigRat:BigRat? {
-        if let q = self as? BigRat { return q }
-        if let b = self as? BigFloat { return b.asBigRat }
-        if let d = self as? Double { return BigRat(d) }
-        return BigRat(self.toDouble())
-    }
-    ///
     public static func getSetConstant(
         name:String, _ arg:Self, _ precision:Int, setter:(Self, Int)->Self
         )->Self
@@ -170,7 +163,9 @@ public extension POReal {
     ///
     public static func exp(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.exp(dx)) }
-        if x.isZero { return 1 }
+        if x.isZero || x.isInfinite {
+            return Self(Double.exp(x.toDouble()))
+        }
         let (ix, fx) = x.abs.toMixed() //toIntMax().asInt!
         let inner_exp:(Self, Int)->Self = { x, px in
             var (r, n, d) = (Self(1), Self(1), Self(1))
@@ -197,10 +192,9 @@ public extension POReal {
     ///
     public static func log(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.log(dx)) }
-        if x.isSignMinus || x.isZero || x == 1 {
+        if x.isSignMinus || x.isZero || x.isInfinite {
             return Self(Double.log(x.toDouble()))
         }
-        
         let epsilon = Self(BigFloat(significand:1, exponent:-px))
         #if true    // euler
         let inner_log:(Self, Int)->Self = { x , px in
@@ -265,8 +259,8 @@ public extension POReal {
     /// - returns: `(sin(x), cos(x))`
     public static func sincos(x:Self, precision px:Int = 64)->(sin:Self, cos:Self) {
         if let dx = x as? Double { return (Self(Double.sin(dx)), Self(Double.cos(dx)))}
-        if x.isZero {
-            return (Self(Double.sin(x.toDouble())), +1)
+        if !x.isZero || x.isInfinite || x.isNaN {
+            return (Self(Double.sin(x.toDouble())), Self(Double.cos(x.toDouble())))
         }
         let atan1   = pi_4(px)
         let sqrt1_2 = sqrt2(px)/2
@@ -313,11 +307,14 @@ public extension POReal {
     ///
     public static func tan(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.tan(dx)) }
-        if x.isZero {
+        if x.isZero || x.isNaN {
             return Self(Double.tan(x.toDouble()))
         }
         let (s, c) = sincos(x, precision:px)
-        return (s / c)
+        if s.isNaN || s.isInfinite || c.isNaN || c.isInfinite {
+            return Self(Double.tan(x.toDouble()))
+        }
+        return s.divide(c, precision:px)
         // return sin(x, precision:px) / cos(x, precision:px)
     }
     ///
@@ -326,6 +323,7 @@ public extension POReal {
         if (x - 1).isZero || 1 < x.abs {
             return Self(Double.acos(x.toDouble()))
         }
+        // print("acos:", x)
         return pi(px)/2 - asin(x, precision:px)
     }
     ///
@@ -334,8 +332,10 @@ public extension POReal {
         if x.isZero || 1 < x.abs {
             return Self(Double.asin(x.toDouble()))
         }
-        var a = x.divide(1 + sqrt(1 - x * x, precision:px), precision:px)
-        return 2 * atan(a.truncate(px), precision:px)
+        var a = x.divide(1 + sqrt(1 - x * x, precision:px+16), precision:px+16)
+        a.truncate(px)
+        // print("asin:", a.precision, a.toFPString(16))
+        return 2 * atan(a, precision:px)
     }
     /// Arc tangent
     ///
@@ -410,7 +410,8 @@ public extension POReal {
             return Self(Double.sinh(x.toDouble()))
         }
         let epx = exp(+x, precision:px)
-        return (epx - 1/epx) / 2
+        let enx = Self(1).divide(epx, precision:px)
+        return (epx - enx) / 2
     }
     ///
     public static func tanh(x:Self, precision px:Int = 64)->Self   {
@@ -419,7 +420,7 @@ public extension POReal {
             return Self(Double.tanh(x.toDouble()))
         }
         let epx = exp(+x, precision:px)
-        let enx = 1/epx
+        let enx = Self(1).divide(epx, precision:px)
         return (epx - enx).divide(enx + epx, precision:px)
     }
     ///

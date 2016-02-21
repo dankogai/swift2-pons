@@ -324,7 +324,7 @@ public extension POComplexReal {
     public static func asinh(r:R, precision p:Int=64) -> Self { return asinh(Self(r, 0), precision:p) }
     /// - returns: inverse hyperbolic tangent of z in Complex
     public static func atanh(z:Self, precision p:Int=64) -> Self {
-        return log((1 + z) / (1 - z)) / 2
+        return (log(1 + z) - log(1 - z)) / 2
     }
     public static func atanh(r:R, precision p:Int=64) -> Self { return atanh(Self(r, 0), precision:p) }
 }
