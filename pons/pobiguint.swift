@@ -242,7 +242,9 @@ public func >>=(inout lhs:BigUInt, rhs:BigUInt) {
     if lhs == 0 { return }
     let (index, offset) = (rhs / 32, rhs.asUInt32! % 32)
     if lhs.digits.count <= Int(index) {
-        lhs = 0
+        // lhs.digits = [0]
+        lhs.digits.removeAll()
+        lhs.digits.append(0)
     }
     lhs.digits.removeFirst(Int(index))
     if offset == 0 { return }

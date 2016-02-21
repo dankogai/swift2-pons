@@ -394,7 +394,8 @@ public extension POReal {
     ///
     public static func cosh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.cosh(dx)) }
-        return (exp(+x, precision:px) + exp(-x, precision:px)) / 2
+        let epx = exp(+x, precision:px)
+        return (epx + 1/epx) / 2
     }
     ///
     public static func sinh(x:Self, precision px:Int = 64)->Self   {
@@ -402,7 +403,8 @@ public extension POReal {
         if x.isZero || x.isInfinite {
             return Self(Double.sinh(x.toDouble()))
         }
-        return (exp(+x, precision:px) - exp(-x, precision:px)) / 2
+        let epx = exp(+x, precision:px)
+        return (epx - 1/epx) / 2
     }
     ///
     public static func tanh(x:Self, precision px:Int = 64)->Self   {
@@ -411,7 +413,7 @@ public extension POReal {
             return Self(Double.tanh(x.toDouble()))
         }
         let epx = exp(+x, precision:px)
-        let enx = exp(-x, precision:px)
+        let enx = 1/epx
         return (epx - enx).divide(enx + epx, precision:px)
     }
     ///
