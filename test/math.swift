@@ -6,79 +6,78 @@
 //  Copyright © 2016 Dan Kogai. All rights reserved.
 //
 
-// Approximation tests for resulting doubles
-func approx(qd:Double, _ dd:Double)->Bool {
-    if qd.isNaN {
-        if dd.isNaN { return true }
-        print("approx: qd = \(qd), dd=\(dd)")
+extension TAP {
+    /// ok if `actual` is close enough to `expected`
+    func like<R:POReal>(actual:R, _ expected:R, _ message:String = "")->Bool {
+        if expected.isNaN {
+            return self.ok(actual.isNaN, message)
+        }
+        if expected.isInfinite  {
+            return self.ok(actual.isInfinite, message)
+        }
+        if actual == expected {
+            return self.ok(actual == expected, message)
+        }
+        let epsilon = R(0x1p-52)
+        let error = Swift.abs(actual - expected) / Swift.abs(actual + expected)
+        if error <= epsilon {
+            return self.ok(error <= epsilon, message)
+        }
+        print("#       got: \(actual)")
+        print("#  expected: \(expected)")
+        print("#     error: \(error)")
         return false
     }
-    if qd.isInfinite  {
-        if dd.isInfinite && qd.isSignMinus == dd.isSignMinus { return true }
-        print("approx: qd = \(qd), dd=\(dd)")
-        return false
+    func check<R:POReal>(q:R,
+        _ fr:(R, precision:Int)->R, _ fd:(Double, precision:Int)->Double,
+        name:String)->Bool {
+        let vq = fr(q,precision:64)
+        let vd = fd(q.toDouble(),precision:Double.precision)
+        return self.like(vq.toDouble(), vd, "\(R.self).\(name)(\(q.toDouble())) => \(vq)")
     }
-    if qd.isZero  {
-        if dd.isZero && qd.isSignMinus == dd.isSignMinus { return true }
-        print("approx: qd = \(qd), dd=\(dd)")
-        return false
+    func check<R:POReal>(l:R, _ r:R, _
+        fr:(R, R, precision:Int)->R, _ fd:(Double, Double, precision:Int)->Double,
+        name:String)->Bool {
+        let vq = fr(l, r, precision:64)
+        let vd = fd(l.toDouble(), r.toDouble(), precision:Double.precision)
+        return self.like(vq.toDouble(), vd, "\(R.self).\(name)(\(l.toDouble()), \(r.toDouble())) => \(vq)")
     }
-    if qd == dd { return true }
-    let diff = Swift.abs(qd - dd) / Swift.abs(qd + dd)
-    if diff > 0x2p-52 {
-        print("approx: qd = \(qd), dd=\(dd), diff=\(diff) > \(0x2p-52)")
-        return false
-    }
-    return true
 }
-// Approximation tests for unary functions
-func approx<R:POReal>(q:R, _ fq:(R,precision:Int)->R, _ fd:(Double,precision:Int)->Double)->Bool {
-    // print(fq(q,precision:64).toDouble() - fd(q.toDouble()))
-    let qd = fq(q,precision:64).toDouble()
-    let dd = fd(q.toDouble(),precision:Double.precision)
-    return approx(qd, dd)
+func testBigRat(test:TAP, _ v:BigRat) {
+    test.check(v, BigRat.sqrt,  Double.sqrt,    name:"sqrt")
+    test.check(v, BigRat.exp,   Double.exp,     name:"exp")
+    test.check(v, BigRat.log,   Double.log,     name:"log")
+    test.check(v, BigRat.log10, Double.log10,   name:"log10")
+    test.check(v, BigRat.cos,   Double.cos,     name:"acos")
+    test.check(v, BigRat.sin,   Double.sin,     name:"asin")
+    test.check(v, BigRat.tan,   Double.tan,     name:"atan")
+    test.check(v, BigRat.acos,  Double.acos,    name:"acos")
+    test.check(v, BigRat.asin,  Double.asin,    name:"asin")
+    test.check(v, BigRat.atan,  Double.atan,    name:"atan")
+    test.check(v, BigRat.cosh,  Double.cosh,    name:"cosh")
+    test.check(v, BigRat.sinh,  Double.sinh,    name:"sinh")
+    test.check(v, BigRat.tanh,  Double.tanh,    name:"tanh")
+    test.check(v, BigRat.acosh, Double.acosh,   name:"acosh")
+    test.check(v, BigRat.asinh, Double.asinh,   name:"asinh")
+    test.check(v, BigRat.atanh, Double.atanh,   name:"atanh")
 }
-// Approximation tests for binary functions
-func approx<R:POReal>(q:R, _ r:R, _ fq:(R,R,precision:Int)->R, _ fd:(Double,Double,precision:Int)->Double)->Bool {
-    // print(fq(q,precision:64).toDouble() - fd(q.toDouble()))
-    let qd = fq(q,r, precision:64).toDouble()
-    let dd = fd(q.toDouble(),r.toDouble(), precision:Double.precision)
-    return approx(qd, dd)
-}
-// math
-func testBigRat(q:BigRat) {
-    test.eq(approx(q, BigRat.acos,  Double.acos),   true,   "BigRat.acos(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.acosh, Double.acosh),  true,   "BigRat.acosh(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.asin,  Double.asin),   true,   "BigRat.asin(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.asinh, Double.asinh),  true,   "BigRat.asinh(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.atan,  Double.atan),   true,   "BigRat.atan(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.atanh, Double.atanh),  true,   "BigRat.atanh(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.cos,   Double.cos),    true,   "BigRat.cos(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.cosh,  Double.cosh),   true,   "BigRat.cosh(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.exp,   Double.exp),    true,   "BigRat.exp(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.log,   Double.log),    true,   "BigRat.log(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.sin,   Double.sin),    true,   "BigRat.sin(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.sinh,  Double.sinh),   true,   "BigRat.sinh(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.sqrt,  Double.sqrt),   true,   "BigRat.sqrt(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.tan,   Double.tan),    true,   "BigRat.tan(\(q.toDouble()))")
-    test.eq(approx(q, BigRat.tanh,  Double.tanh),   true,   "BigRat.tanh(\(q.toDouble()))")
-}
-func testBigFloat(f:BigFloat) {
-    test.eq(approx(f, BigFloat.acos,    Double.acos),   true,   "BigFloat.acos(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.acosh,   Double.acosh),  true,   "BigFloat.acosh(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.asin,    Double.asin),   true,   "BigFloat.asin(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.asinh,   Double.asinh),  true,   "BigFloat.asinh(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.atan,    Double.atan),   true,   "BigFloat.atan(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.atanh,   Double.atanh),  true,   "BigFloat.atanh(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.cos,     Double.cos),    true,   "BigFloat.cos(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.cosh,    Double.cosh),   true,   "BigFloat.cosh(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.exp,     Double.exp),    true,   "BigFloat.exp(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.log,     Double.log),    true,   "BigFloat.log(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.sin,     Double.sin),    true,   "BigFloat.sin(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.sinh,    Double.sinh),   true,   "BigFloat.sinh(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.sqrt,    Double.sqrt),   true,   "BigFloat.sqrt(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.tan,     Double.tan),    true,   "BigFloat.tan(\(f.toDouble()))")
-    test.eq(approx(f, BigFloat.tanh,    Double.tanh),   true,   "BigFloat.tanh(\(f.toDouble()))")
+func testBigFloat(test:TAP, _ v:BigFloat) {
+    test.check(v, BigFloat.sqrt,    Double.sqrt,    name:"sqrt")
+    test.check(v, BigFloat.exp,     Double.exp,     name:"exp")
+    test.check(v, BigFloat.log,     Double.log,     name:"log")
+    test.check(v, BigFloat.log10,   Double.log10,   name:"log10")
+    test.check(v, BigFloat.cos,     Double.cos,     name:"acos")
+    test.check(v, BigFloat.sin,     Double.sin,     name:"asin")
+    test.check(v, BigFloat.tan,     Double.tan,     name:"atan")
+    test.check(v, BigFloat.acos,    Double.acos,    name:"acos")
+    test.check(v, BigFloat.asin,    Double.asin,    name:"asin")
+    test.check(v, BigFloat.atan,    Double.atan,    name:"atan")
+    test.check(v, BigFloat.cosh,    Double.cosh,    name:"cosh")
+    test.check(v, BigFloat.sinh,    Double.sinh,    name:"sinh")
+    test.check(v, BigFloat.tanh,    Double.tanh,    name:"tanh")
+    test.check(v, BigFloat.acosh,   Double.acosh,   name:"acosh")
+    test.check(v, BigFloat.asinh,   Double.asinh,   name:"asinh")
+    test.check(v, BigFloat.atanh,   Double.atanh,   name:"atanh")
 }
 func testMath(test:TAP, num:Int=1, den:Int=4) {
     let DBL_MAX = 0x1.fffffffffffffp+1023
@@ -88,25 +87,25 @@ func testMath(test:TAP, num:Int=1, den:Int=4) {
         let q = BigRat(d)
         // testBigRat(q)    // Takes too long for +-DBL_MAX.
         let r = BigFloat(q)
-        testBigFloat(r)
+        testBigFloat(test, r)
     }
     //
     for i in 0...8 {
         for s in [-1.0, +1.0] {
             let q = BigRat(s * Double.pow(2, Double(i-4)))
-            testBigRat(q)
+            testBigRat(test, q)
             let f = BigFloat(q)
-            testBigFloat(f)
+            testBigFloat(test, f)
         }
     }
     for y in [-1.0, -0.0, +0.0, +1.0] {
         for x in [-1.0, -0.0, +0.0, +1.0] {
             let qx = BigRat(x)
             let qy = BigRat(y)
-            test.eq(approx(qy, qx, BigRat.atan2,    Double.atan2), true, "BigRat.atan2(\(y), \(x))")
+            test.check(qy, qx, BigRat.atan2, Double.atan2, name:"atan2")
             let rx = BigFloat(x)
             let ry = BigFloat(y)
-            test.eq(approx(ry, rx, BigFloat.atan2,  Double.atan2), true,  "BigFloat.atan2(\(y), \(x))")
+            test.check(ry, rx, BigFloat.atan2,  Double.atan2, name:"atan2")
         }
     }
 }

@@ -172,7 +172,7 @@ public extension POReal {
             for i in 1...px {
                 n *= x
                 d *= Self(i)
-                r += n / d
+                r += n.divide(d, precision:px)
                 if px < d.precision { break }
             }
             return r
@@ -259,7 +259,7 @@ public extension POReal {
     /// - returns: `(sin(x), cos(x))`
     public static func sincos(x:Self, precision px:Int = 64)->(sin:Self, cos:Self) {
         if let dx = x as? Double { return (Self(Double.sin(dx)), Self(Double.cos(dx)))}
-        if !x.isZero || x.isInfinite || x.isNaN {
+        if x.isInfinite || x.isNaN {
             return (Self(Double.sin(x.toDouble())), Self(Double.cos(x.toDouble())))
         }
         let atan1   = pi_4(px)
