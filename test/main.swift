@@ -12,15 +12,16 @@
 //    return lhs.0 == rhs.0 && lhs.1 == rhs.1
 //}
 
+let test = TAP()
+
 #if true
-    let test = TAP()
     testInteger (test)
     testReal    (test)
     testComplex (test)
     testPrime   (test)
     testMath    (test, num:4, den:4)
     testXtra    (test)
-    print(POUtil.constants)
+    // print(POUtil.constants)
     test.done()
 #else
 
@@ -53,4 +54,8 @@
 //print(BigFloat.sin(BigFloat.pi()))
 //print(BigFloat.sin(BigFloat.pi(96)))
 //print(BigFloat.sin(BigFloat.pi(128)))
+import Foundation
+print(BigFloat.exp(BigFloat(-DBL_MAX)))
+    
+    
 #endif

@@ -213,13 +213,30 @@ public func <(lhs:BigFloat, rhs:BigFloat)->Bool {
     return (lhs - rhs).isSignMinus
 }
 public func *(lhs:BigFloat, rhs:BigFloat)->BigFloat {
-    // if lhs == 0 || rhs == 0 { return 0 }
+    if lhs.isNaN || rhs.isNaN { return BigFloat.NaN }
+    if lhs.isInfinite {
+        // print("∞ * \(rhs)")
+        return rhs.isZero ? BigFloat.NaN
+            : Bool.xor(lhs.isSignMinus, rhs.isSignMinus) ? -BigFloat.infinity : +BigFloat.infinity
+    }
+    if rhs.isInfinite {
+        // print("\(lhs) * ∞")
+        return lhs.isZero ? BigFloat.NaN
+            : Bool.xor(lhs.isSignMinus, rhs.isSignMinus) ? -BigFloat.infinity : +BigFloat.infinity
+    }
     let xl = lhs.exponent + lhs.significand.msbAt
     let xr = rhs.exponent + rhs.significand.msbAt
     let sig = lhs.significand * rhs.significand
     let shift  = sig.msbAt - (lhs.significand.msbAt + rhs.significand.msbAt)
+    let (xlr, of) = Int.addWithOverflow(xl, xr)
+    if of {
+        // print("xl=\(xl) + xr=\(xr) overflows")
+        return Bool.xor(xl.isSignMinus, xr.isSignMinus)
+            ? Bool.xor(lhs.isSignMinus, rhs.isSignMinus) ? -0 : +0
+            : Bool.xor(lhs.isSignMinus, rhs.isSignMinus) ? -BigFloat.infinity : BigFloat.infinity
+    }
     // print("shift=\(shift),xl=\(xl), xr=\(xr), sig=\(sig)")
-    return BigFloat(significand:sig, exponent: xl + xr - sig.msbAt + shift)
+    return BigFloat(significand:sig, exponent: xlr - sig.msbAt + shift)
 }
 public func /(lhs:BigFloat, rhs:BigFloat)->BigFloat {
     return lhs.divide(rhs)
@@ -234,8 +251,19 @@ public prefix func -(bf:BigFloat)->BigFloat {
     return BigFloat(significand:-bf.significand, exponent:bf.exponent)
 }
 public func +(lhs:BigFloat, rhs:BigFloat)->BigFloat {
+   // print("\(lhs.toDouble()) + \(rhs.toDouble())")
+    if lhs.isNaN || rhs.isNaN { return BigFloat.NaN }
+    if lhs.isInfinite {
+        // print("∞ + \(rhs)")
+        return Bool.xor(lhs.isSignMinus, rhs.isSignMinus) ? BigFloat.NaN : lhs
+    }
+    if rhs.isInfinite {
+        // print("\(lhs) + ∞")
+        return Bool.xor(lhs.isSignMinus, rhs.isSignMinus) ? BigFloat.NaN : rhs
+    }
     var (ls, rs) = (lhs.significand, rhs.significand)
     let dx = lhs.exponent - rhs.exponent
+    // print("dx = ", dx)
     if dx < 0  {
         rs <<= BigInt(-dx)
     } else if dx > 0  {

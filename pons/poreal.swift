@@ -183,8 +183,11 @@ public extension POReal {
             return r
         }
         let e = getSetConstant("exp", Self(1), px, setter:inner_exp)
-        let ir = ix == 0 ? Self(1) : IntType.power(e, ix, op:*)
-        let fr = fx == 0 ? Self(1) : inner_exp(fx, px)
+        let ir = ix == 0 ? Self(1) : IntType.power(e, ix) {
+            var r = $0 * $1
+            return r.truncate(px)
+        }
+        let fr = fx.isZero ? Self(1) : inner_exp(fx, px)
         var r = ir * fr
         return x.isSignMinus ? 1/r.truncate(px) : r.truncate(px)
     }
@@ -235,8 +238,6 @@ public extension POReal {
         let ir = il == 0 ? 0 : ln2 * Self(il)
         let fr = fl == 1 ? 0 : inner_log(fl, px)
         var r =  ir + fr
-        //print("ln(\(x.toDouble())) =~ ln(\(Double.ldexp(1.0,il)))+ln(\(fl.toDouble()))"
-        //    + " = \(ir.toDouble())+\(fr.toDouble()) = \(r.toDouble())")
         return x < 1 ? -r.truncate(px) : +r.truncate(px)
     }
     ///
@@ -322,7 +323,7 @@ public extension POReal {
     ///
     public static func acos(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.acos(dx)) }
-        if x == 1 || 1 < x.abs {
+        if (x - 1).isZero || 1 < x.abs {
             return Self(Double.acos(x.toDouble()))
         }
         return pi(px)/2 - asin(x, precision:px)
@@ -333,8 +334,8 @@ public extension POReal {
         if x.isZero || 1 < x.abs {
             return Self(Double.asin(x.toDouble()))
         }
-        let a = x.divide(1 + sqrt(1 - x * x, precision:px), precision:px)
-        return 2 * atan(a, precision:px)
+        var a = x.divide(1 + sqrt(1 - x * x, precision:px), precision:px)
+        return 2 * atan(a.truncate(px), precision:px)
     }
     /// Arc tangent
     ///
@@ -385,8 +386,10 @@ public extension POReal {
         if x.isZero || y.isZero || x.isInfinite || y.isInfinite {
             return Self(Double.atan2(y.toDouble(), x.toDouble()))
         }
+        let y_x = y.divide(x, precision:px)
+        // print("\(Self.self).atan2: y/x =\(y)/\(x)=\(y_x)")
         if x < 0 {
-            return atan(y/x, precision:px) + (y < 0 ? -pi(px) : +pi(px))
+            return atan(y_x, precision:px) + (y < 0 ? -pi(px) : +pi(px))
         } else {
             return atan(y/x, precision:px)
         }
@@ -394,6 +397,9 @@ public extension POReal {
     ///
     public static func cosh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.cosh(dx)) }
+        if x.isZero || x.isInfinite {
+            return Self(Double.cosh(x.toDouble()))
+        }
         let epx = exp(+x, precision:px)
         return (epx + 1/epx) / 2
     }
@@ -431,9 +437,7 @@ public extension POReal {
         if x.isZero || x.isInfinite {
             return Self(Double.asinh(x.toDouble()))
         }
-        // let a = x + sqrt(x * x + 1, precision:px)
-        let a = x + hypot(x, 1, precision:px)
-        return log(a, precision:px)
+        return log(x + hypot(x, 1, precision:px), precision:px)
     }
     ///
     public static func atanh(x:Self, precision px:Int = 64)->Self   {

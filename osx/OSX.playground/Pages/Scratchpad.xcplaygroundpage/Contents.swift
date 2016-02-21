@@ -1,6 +1,11 @@
 //: [Previous](@previous)
 import PONS
 
+//Double.exp(1e3)
+//BigFloat.exp(1e2)
+
+BigFloat.infinity * BigFloat(-1)
+
 /*
 ({ x in
 let d = Double(x)
