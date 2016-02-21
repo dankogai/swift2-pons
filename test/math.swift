@@ -80,7 +80,6 @@ func testBigFloat(f:BigFloat) {
     test.eq(approx(f, BigFloat.tan,     Double.tan),    true,   "BigFloat.tan(\(f.toDouble()))")
     test.eq(approx(f, BigFloat.tanh,    Double.tanh),   true,   "BigFloat.tanh(\(f.toDouble()))")
 }
-import Foundation
 func testMath(test:TAP, num:Int=1, den:Int=4) {
     //  -DBL_MIN, +DBL_MIN cannot be decently tested w/ the script above
     for d in [-Double.infinity, -DBL_MAX, -0.0, +0.0, +DBL_MAX, +Double.infinity] {
