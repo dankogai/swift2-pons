@@ -24,19 +24,21 @@ public protocol POReal : POSignedNumber {
     mutating func truncate(_:Int)->Self
     func divide(_:Self, precision:Int)->Self
     func toMixed()->(IntType, Self)
-    func frexp()->(Self, Int)
-    func ldexp(_:Int)->Self
-    //
     init (_:BigRat)
     var asBigRat:BigRat? { get }
     init (_:BigFloat)
     var asBigFloat:BigFloat? { get }
+    var debugDescription:String { get }
 }
 public extension POReal {
     public var isFinite:Bool { return !isInfinite }
 }
 public protocol POFloat : POReal {
     // static var EPSILON:Self { get }
+    func frexp()->(Self, Int)
+    func ldexp(_:Int)->Self
+    static var precision:Int { get }
+    static var maxExponent:Int { get }
 }
 public extension POReal {
     /// slightly different from POSignedNumber.abs for using .isSignMinus
@@ -150,7 +152,6 @@ public extension POReal {
         if x.isZero || x.isInfinite {
             return Self(Double.exp(x.toDouble()))
         }
-        let (ix, fx) = x.abs.toMixed() //toIntMax().asInt!
         let inner_exp:(Self, Int)->Self = { x, px in
             var (r, n, d) = (Self(1), Self(1), Self(1))
             for i in 1...px {
@@ -162,6 +163,9 @@ public extension POReal {
             return r
         }
         let e = getSetConstant("exp", Self(1), px, setter:inner_exp)
+        if x.abs == 1 { return x.isSignMinus ? 1/e : e }
+        let (ix, fx) = x.abs.toMixed() //toIntMax().asInt!
+        // print("\(Self.self).exp: ix = \(ix), fx = \(fx)")
         let ir = ix == 0 ? Self(1) : IntType.power(e, ix) {
             var r = $0 * $1
             return r.truncate(px)
@@ -326,9 +330,9 @@ public extension POReal {
             return Self(Double.asin(x.toDouble()))
         }
         let epsilon = Self(BigFloat(significand:1, exponent:-px))
-        var a = x.divide(1 + sqrt(1 - x * x, precision:px+16), precision:px+16)
-        if a < epsilon { return x }
-        a.truncate(px)
+        let a = x.divide(1 + sqrt(1 - x * x, precision:px), precision:px)
+        if a.abs < epsilon { return x }
+        // a.truncate(px)
         return 2 * atan(a, precision:px)
     }
     /// Arc tangent
@@ -390,6 +394,50 @@ public extension POReal {
         } else {
             return atan(y/x, precision:px)
         }
+    }
+    /// - returns: `(sin(x), cos(x))`
+    public static func sinhcosh(x:Self, precision px:Int = 64)->(sin:Self, cos:Self) {
+        if let dx = x as? Double { return (Self(Double.sinh(dx)), Self(Double.cosh(dx)))}
+        if x.isZero || x.isInfinite || x.isNaN {
+            return (Self(Double.sin(x.toDouble())), Self(Double.cos(x.toDouble())))
+        }
+        let atan1   = pi_4(px)
+        let sqrt1_2 = sqrt2(px)/2
+        let epsilon = Self(BigFloat(significand:1, exponent:-px))
+        func inner_cossin(x:Self)->(Self, Self) {
+            if x * x <= epsilon {
+                return (1, x)   // sin(x) == x below this point
+            }
+            if 1 < x.abs {  // use double-angle formula to reduce x
+                let (c, s) = inner_cossin(x/2)
+                if c == s { return (0, 1) } // prevent error accumulation
+                return (c*c - s*s, 2 * s * c)
+            }
+            if x.abs == atan1 {
+                return (x.isSignMinus ? -sqrt1_2 : +sqrt1_2, +sqrt1_2)
+            }
+            var (c, s) = (Self(0), Self(0))
+            var (n, d) = (Self(1), Self(1))
+            for i in 0...px {
+                var t = n.divide(d, precision:px)
+                t.truncate(px)
+                if i & 1 == 0 {
+                    c += i & 2 == 2 ? -t : +t
+                    c.truncate(px)
+                } else {
+                    s += i & 2 == 2 ? -t : +t
+                    s.truncate(px)
+                }
+                if px < d.precision { break }
+                n *= x
+                d *= Self(i+1)
+            }
+            
+            return (c, s)
+            // return c < s ? (sqrt(1 - c*c, precision:px+16), s) : (c, sqrt(1 - s*s, precision:px+16))
+        }
+        var (c, s) = inner_cossin(x.abs < 8 ? x : wrapAngle(x, precision:px))
+        return (s.truncate(px), c.truncate(px))
     }
     ///
     public static func cosh(x:Self, precision px:Int = 64)->Self   {
@@ -556,11 +604,57 @@ public extension POFloat {
     public func toString(base:Int = 10)->String {
         return self.toFPString(base)
     }
+    public func toHexString()->String {
+        if self.isNaN || self.isInfinite { return self.toDouble().description }
+        let (s, e) = self.frexp()
+        return [
+            (s.isSignMinus ? "-0x" : "+0x"),
+            (2*s.abs).toString(16),
+            "p",
+            (e < 1 ? "" : "+"),
+            "\(e - 1)"
+        ].joinWithSeparator("")
+    }
     public var description:String {
         return self.toString()
     }
     public var debugDescription:String {
-        return self.toString(16)
+        return self.toHexString()
+    }
+    public static var expMax:Self { return Self(639_3154_3226_0132_7829) }
+    /// uses .frexp and .ldexp
+    public static func exp(x:Self, precision px:Int = 64)->Self {
+        if let dx = x as? Double { return Self(Double.exp(dx)) }
+        if x.isZero || x.isInfinite {
+            return Self(Double.exp(x.toDouble()))
+        }
+        let inner_exp:(Self, Int)->Self = { x, px in
+            var (r, n, d) = (Self(1), Self(1), Self(1))
+            for i in 1...px {
+                n *= x
+                d *= Self(i)
+                r += n.divide(d, precision:px)
+                if px < d.precision { break }
+            }
+            return r
+        }
+        let emax = Self(Self.maxExponent) * log(2)
+        if x < -emax {
+            print("\(Self.self).exp: \(x) < -\(emax)")
+            return x.isSignMinus ? -0 : +0
+        }
+        if +emax < x {
+            print("\(Self.self).exp: +\(emax) < \(x)")
+            return x.isSignMinus ? -Self.infinity : +Self.infinity
+        }
+        let e = getSetConstant("exp", Self(1), px, setter:inner_exp)
+        if x.abs == 1 { return x.isSignMinus ? 1/e : e }
+        let ln2 = log(2, precision:px)
+        let ex  = (x.divide(ln2, precision:px)).toMixed().0.asInt!
+        let sig = x - Self(ex)*ln2
+        // print("\(Self.self).exp: sig =", sig, ", ex = ", ex)
+        var r = (x.isSignMinus ? 1/inner_exp(sig.abs, px) : inner_exp(sig.abs, px)).ldexp(ex)
+        return r.truncate(px)
     }
 }
 extension Double : POFloat {
@@ -574,7 +668,10 @@ extension Double : POFloat {
         return (IntType(self), self % 1.0)
     }
     /// number of significant bits == 53
-    public static let precision = 53
+    public static let precision = Int(DBL_MANT_DIG)
+    ///
+    public static let maxExponent = Int(DBL_MAX_EXP)
+    ///
     public var precision:Int { return Double.precision }
     public func truncate(bits:Int)->Double { return self }
     public func divide(by:Double, precision:Int=53)->Double { return self / by }
@@ -590,7 +687,10 @@ extension Float : POFloat {
         return (IntType(self), self % 1.0)
     }
     /// number of significant bits == 23
-    public static let precision = 24
+    public static let precision = Int(FLT_MANT_DIG)
+    ///
+    public static let maxExponent = Int(FLT_MAX_EXP)
+    ///
     public var precision:Int { return Float.precision }
     public func truncate(bits:Int)->Float { return self }
     public func divide(by:Float, precision:Int=24)->Float { return self / by }

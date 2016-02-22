@@ -105,6 +105,10 @@ public extension PORational {
     public var description:String {
         return self.toString()
     }
+    public var debugDescription:String {
+        let s = sgn ? "-" : "+"
+        return "\(s)(0x\(num.toString(16))/0x\(den.toString(16)))"
+    }
     public var hashValue:Int {
         let bits = sizeof(Int) * 4
         return (sgn ? -1 : 1) * (((num.hashValue >> bits) << bits) | (den.hashValue >> bits))
@@ -207,6 +211,9 @@ public struct Rational<I:POInt> : PORational, FloatLiteralConvertible {
         return I.self == BigInt.self
             ? Swift.max(32, max(num.msbAt, den.msbAt) + 1)
             : Swift.min(32, den.msbAt + 1)
+    }
+    public static var precision:Int {
+        return IntType.precision
     }
     public init(_ s:Bool, _ n:I.UIntType, _ d:I.UIntType, isNormal:Bool = false) {
         // print("\(__FILE__):\(__LINE__): n=\(n),d=\(d),isNormal=\(isNormal)")

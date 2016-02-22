@@ -19,20 +19,52 @@ public class PiHex : SequenceType {
     }
 }
 
+DBL_MIN.debugDescription
+BigRat(DBL_MAX).debugDescription
+BigRat(DBL_MIN).debugDescription
+
+BigFloat(DBL_MIN).toHexString()
+BigFloat(DBL_MAX).toHexString()
+let (sig, ex) = BigFloat(7).frexp()
+sig
+ex
+
+log(DBL_MAX)
+Double(DBL_MAX.frexp().1) * log(2.0)
+
 ({ d in
-    let (m, e)  = Double.frexp(d)
-    m
-    e
-    BigFloat(d).frexp().0
-    BigRat(d).frexp().0
-    let r = BigFloat(m).ldexp(e)
-    r == BigFloat(d)
-    let q = BigRat(m).ldexp(e)
-    q == BigRat(d)
-})(Double.E)
+    Double.exp(d)
+    BigFloat.exp(BigFloat(d))
+    BigFloat.exp(BigFloat(d)).significand
+    BigFloat.exp(BigFloat(d)).exponent
+    //BigRat.exp(BigRat(d)).toFPString()
+})(709.7827128933845)
 
+BigRat.asin(-0.125)
+BigRat.asin(+0.125)
 
+log(DBL_MAX)
+1024 * log(2.0)
+log(Double(Int.max - 1))
+BigInt.precision
+Double(BigInt.precision).toHexString()
+BigFloat(Double(BigInt.precision))*BigFloat.log(2)
+BigFloat(639_3154_3226_0132_7829)
+DBL_MAX
 /*
+({ d in
+let (m, e)  = Double.frexp(d)
+m
+e
+BigFloat(d).frexp().0
+BigRat(d).frexp().0
+let r = BigFloat(m).ldexp(e)
+r == BigFloat(d)
+let q = BigRat(m).ldexp(e)
+q == BigRat(d)
+})(9.5)
+
+
 ({ d in
     let r = BigFloat(d)
     let (s, c) = BigFloat.sincos(BigFloat(d))

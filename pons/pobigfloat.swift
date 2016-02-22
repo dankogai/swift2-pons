@@ -10,6 +10,7 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
     public typealias IntType = BigInt
     public var significand:BigInt = 0
     public var exponent:Int = 0
+    public static let maxExponent = Int.max
     public init(significand:BigInt, exponent:Int) {
         self.significand = significand
         self.exponent = exponent
@@ -100,23 +101,24 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
     public var precision:Int {
         return significand.msbAt + 1
     }
+    public static let precision = BigInt.precision
     public var isSignMinus:Bool {
         return significand.isSignMinus
     }
     public var isZero:Bool {
-        return significand.unsignedValue == 0 && exponent.abs < Int.max
+        return significand.unsignedValue == 0 && exponent.abs < BigFloat.maxExponent
     }
     public var isInfinite:Bool {
-        return significand.unsignedValue == 0 && exponent.abs == Int.max
+        return significand.unsignedValue == 0 && exponent.abs == BigFloat.maxExponent
     }
     public var isFinite:Bool {
         return !self.isInfinite
     }
-    public static let infinity = BigFloat(significand:0, exponent:Int.max)
+    public static let infinity = BigFloat(significand:0, exponent:BigFloat.maxExponent)
     public var isNaN:Bool {
-        return significand.unsignedValue != 0 && exponent.abs == Int.max
+        return significand.unsignedValue != 0 && exponent.abs == BigFloat.maxExponent
     }
-    public static let NaN = BigFloat(significand:1, exponent:Int.max)
+    public static let NaN = BigFloat(significand:1, exponent:BigFloat.maxExponent)
     public static var isSignaling:Bool {
         return false
     }
@@ -201,16 +203,25 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
         return (i, self - BigFloat(i))
     }
     public func frexp()->(BigFloat, Int)   {
+        if self.isNaN || self.isInfinite {
+            return (self, 0)
+        }
         return (
             BigFloat(significand:self.significand, exponent:-(self.significand.msbAt+1)),
-            self.exponent - 1
+            self.exponent + self.significand.msbAt + 1
         )
     }
     public static func frexp(r:BigFloat)->(BigFloat, Int) {
         return r.frexp()
     }
     public func ldexp(ex:Int)->BigFloat {
-        return BigFloat(significand:self.significand, exponent:self.exponent + ex)
+        let (nex, overflow) = Int.addWithOverflow(self.exponent, ex)
+        if overflow {
+            return self.exponent < 0
+                ? self.isSignMinus ? -0 : +0
+                : self.isSignMinus ? -BigFloat.infinity : +BigFloat.infinity
+        }
+        return BigFloat(significand:self.significand, exponent:nex)
     }
     public static func ldexp(r:BigFloat, _ ex:Int)->BigFloat {
         return r.ldexp(ex)

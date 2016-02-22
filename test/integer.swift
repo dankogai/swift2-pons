@@ -20,8 +20,8 @@ func testInteger(test:TAP) {
     test.eq(UInt64.precision,   64,  "Int64.precision == 31")
     test.eq(Double.precision,   53,  "Int64.precision == 53")
     test.eq(Float.precision,    24,  "Int64.precision == 24")
-    test.eq(BigUInt.precision,  IntMax.max, "BigUInt.precison == \(IntMax.max)")
-    test.eq(BigInt.precision,   IntMax.max, "BigInt.precison == \(IntMax.max)")
+    test.eq(BigUInt.precision,  IntMax.max-1, "BigUInt.precison == \(IntMax.max-1)")
+    test.eq(BigInt.precision,   IntMax.max-1, "BigInt.precison == \(IntMax.max-1)")
     // POUInt#msbAt
     test.eq(UInt64.max.msbAt,   63, "UInt64.max.msbAt == 63")
     test.eq(UInt64.min.msbAt,   -1, "UInt64.min.msbAt == -1")

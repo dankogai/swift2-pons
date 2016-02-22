@@ -13,7 +13,7 @@ public struct BigInt {
     public typealias UIntType = BigUInt
     public var unsignedValue = BigUInt()
     public var isSignMinus = false
-    public static let precision = IntMax.max
+    public static let precision = Int.max - 1
     public init(_ bi:BigInt) {
         self.unsignedValue  = bi.unsignedValue
         self.isSignMinus    = bi.isSignMinus

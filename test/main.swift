@@ -21,7 +21,9 @@ testComplex (test)
 testPrime   (test)
 testMath    (test)
 testXtra    (test)
-print(POUtil.constants)
+for (k, v) in POUtil.constants {
+    print("\(k) = \(v)")
+}
 test.done()
 
 #else

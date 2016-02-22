@@ -23,24 +23,24 @@ extension TAP {
         }
         let epsilon = 0x1p-52
         let error = Swift.abs(actual - expected) / Swift.abs(actual + expected)
-        print("#       got: \(actual)")
-        print("#  expected: \(expected)")
-        print("#     error: \(error):", actual.isSubnormal || error <= epsilon ? "ok" : "NOT OK")
+        print("#       got: \(actual.debugDescription)")
+        print("#  expected: \(expected.debugDescription)")
+        print("#     error: \(error.debugDescription):", actual.isSubnormal || error <= epsilon ? "ok" : "NOT OK")
         return self.ok(actual.isSubnormal || error <= epsilon, message)
     }
-    func check<R:POReal>(q:R,
+    func check<R:POReal>(r:R,
         _ fr:(R, precision:Int)->R, _ fd:(Double, precision:Int)->Double,
         name:String)->Bool {
-        let vq = fr(q,precision:64)
-        let vd = fd(q.toDouble(),precision:Double.precision)
-        return self.like(vq.toDouble(), vd, "\(R.self).\(name)(\(q.toDouble())) => \(vq)")
+        let vr = fr(r,precision:64)
+        let vd = fd(r.toDouble(),precision:Double.precision)
+        return self.like(vr.toDouble(), vd, "\(R.self).\(name)(\(r.toDouble())) => \(vr.debugDescription)")
     }
     func check<R:POReal>(l:R, _ r:R, _
         fr:(R, R, precision:Int)->R, _ fd:(Double, Double, precision:Int)->Double,
         name:String)->Bool {
         let vq = fr(l, r, precision:64)
         let vd = fd(l.toDouble(), r.toDouble(), precision:Double.precision)
-        return self.like(vq.toDouble(), vd, "\(R.self).\(name)(\(l.toDouble()), \(r.toDouble())) => \(vq)")
+        return self.like(vq.toDouble(), vd, "\(R.self).\(name)(\(l.toDouble()), \(r.toDouble())) => \(vq.debugDescription)")
     }
 }
 func testBigRat(test:TAP, _ v:BigRat) {
@@ -82,8 +82,7 @@ func testBigFloat(test:TAP, _ v:BigFloat) {
 }
 func testMath(test:TAP, num:Int=8, den:Int=4) {
     // -DBL_MIN, +DBL_MIN cannot be reliably tested w/ the script above
-    //for d in [-Double.infinity, -DBL_MAX, -DBL_MIN, +DBL_MIN, -0.0, +0.0, +DBL_MAX, +Double.infinity] {
-    for d in [-DBL_MIN, +DBL_MIN] {
+    for d in [-Double.infinity, -DBL_MAX, -DBL_MIN, +DBL_MIN, -0.0, +0.0, +DBL_MAX, +Double.infinity] {
         let q = BigRat(d)
         if d.abs != DBL_MAX && d.abs != DBL_MIN {
             testBigRat(test, q) // Takes too long for +-DBL_MAX and +-DLB_MIN.
@@ -91,14 +90,14 @@ func testMath(test:TAP, num:Int=8, den:Int=4) {
         let r = BigFloat(q)
         testBigFloat(test, r)
     }
-//    for i in 0...num {
-//        for s in [-1.0, +1.0] {
-//            let q = BigRat(s * Double.pow(2, Double(i-den)))
-//            testBigRat(test, q)
-//            let f = BigFloat(q)
-//            testBigFloat(test, f)
-//        }
-//    }
+    for i in 0...num {
+        for s in [-1.0, +1.0] {
+            let q = BigRat(s * Double.pow(2, Double(i-den)))
+            testBigRat(test, q)
+            let f = BigFloat(q)
+            testBigFloat(test, f)
+        }
+    }
     for y in [-1.0, -0.0, +0.0, +1.0] {
         for x in [-1.0, -0.0, +0.0, +1.0] {
             let qx = BigRat(x)
