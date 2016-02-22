@@ -65,6 +65,9 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
             }
         }
     }
+    public var asBigFloat:BigFloat? {
+        return self
+    }
     public var asBigRat:BigRat? {
         if self.isNaN { return BigRat.NaN }
         if self.isInfinite { return self.isSignMinus ? -BigRat.infinity : BigRat.infinity }
@@ -289,9 +292,6 @@ public extension POReal {
     }
     ///
     public var asBigFloat:BigFloat? {
-        if let r = self as? BigFloat { return r }
-        if let q = self as? BigRat { return q.asBigFloat }
-        if let d = self as? Double { return BigFloat(d) }
         return BigFloat(self.toDouble())
     }
 }

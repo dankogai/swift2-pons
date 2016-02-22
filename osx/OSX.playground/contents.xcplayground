@@ -5,6 +5,7 @@
         <page name='Rationale'/>
         <page name='BigInt'/>
         <page name='Rational'/>
+        <page name='BigFloat'/>
         <page name='Complex'/>
         <page name='Prime'/>
         <page name='Scratchpad'/>

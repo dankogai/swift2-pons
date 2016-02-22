@@ -26,7 +26,9 @@ public protocol POReal : POSignedNumber {
     func toMixed()->(IntType, Self)
     //
     init (_:BigRat)
+    var asBigRat:BigRat? { get }
     init (_:BigFloat)
+    var asBigFloat:BigFloat? { get }
 }
 public extension POReal {
     public var isFinite:Bool { return !isInfinite }
@@ -34,30 +36,10 @@ public extension POReal {
 public protocol POFloat : POReal {
     // static var EPSILON:Self { get }
 }
-// public protocol POElementaryFunctional : POReal {}
 public extension POReal {
     /// slightly different from POSignedNumber.abs for using .isSignMinus
     public var abs:Self {
         return self.isSignMinus ? -self : self
-    }
-    ///
-    public static func getSetConstant(
-        name:String, _ arg:Self, _ precision:Int, setter:(Self, Int)->Self
-        )->Self
-    {
-        #if false   // to test constant cache
-            return setter(arg, precision)
-        #else
-            let key = "\(Self.self).\(name)(\(arg), precision:\(precision))"
-            // print("\(__FILE__):\(__LINE__) fetching \(key)")
-            if let value = POUtil.constants[key] {
-                return value as! Self
-            }
-            let value = setter(arg, precision)
-            // print("\(__FILE__):(__LINE__) storing \(key) => \(value)")
-            POUtil.constants[key] = value
-            return value
-        #endif
     }
     /// To floating-point string
     public func toFPString(base:Int=10, places:Int=0)->String {
@@ -526,6 +508,30 @@ public extension POReal {
     }
     public static var LOG2E:Self    { return Self(M_LOG2E) }
     public static var LOG10E:Self   { return Self(M_LOG10E) }
+    ///
+    public static func getSetConstant(
+        name:String, _ arg:Self, _ px:Int, setter:(Self, Int)->Self
+        )->Self
+    {
+        #if false   // to test constant cache
+            return setter(arg, precision)
+        #else
+            let key = "\(Self.self).\(name)(\(arg.toDouble()))"
+            // print("\(__FILE__):\(__LINE__) fetching \(key)")
+            if let value = POUtil.constants[key] as? Self {
+                if px <= value.precision {
+                    var v = Self(value)
+                    return v.truncate(px)
+                }
+                // return value as! Self
+            }
+            let value = setter(arg, px)
+            //print("\(__FILE__):\(__LINE__) storing \(key) => \(value)")
+            POUtil.constants[key] = value
+            var v = Self(value)
+            return v.truncate(px)
+        #endif
+    }
 }
 public extension POUtil {
     public static var constants = [String:Any]()

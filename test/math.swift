@@ -20,13 +20,10 @@ extension TAP {
         }
         let epsilon = R(0x1p-52)
         let error = Swift.abs(actual - expected) / Swift.abs(actual + expected)
-        if error <= epsilon {
-            return self.ok(error <= epsilon, message)
-        }
         print("#       got: \(actual)")
         print("#  expected: \(expected)")
-        print("#     error: \(error)")
-        return false
+        print("#     error: \(error):", error <= epsilon ? "ok" : "NOT OK")
+        return self.ok(error <= epsilon, message)
     }
     func check<R:POReal>(q:R,
         _ fr:(R, precision:Int)->R, _ fd:(Double, precision:Int)->Double,

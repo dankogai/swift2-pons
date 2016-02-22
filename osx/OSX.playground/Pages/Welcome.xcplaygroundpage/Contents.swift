@@ -59,7 +59,7 @@ Rational.sqrt(bq)               // (1/4294967296) == yes, works with Rational, t
 Complex.sqrt(-1)                // (0.0+1.0.i) // as it should be
 Complex.log(-1)                 // (0.0+3.14159265358979.i) // Yes, πi
 Complex.exp(Double.PI.i)        // (-1.0+1.22464679914735e-16.i) != (-1.0+0.0.i) // :(
-Complex.exp(BigFloat.pi().i)    // (-1.0+0.0.i)
-Complex.exp(BigRat.pi().i)      // (-(1/1)-(0/1).i)
+Complex.exp(BigFloat.pi().i)    // (-1.0+0.0.i)     // as it should be!
+Complex.exp(BigRat.pi().i)      // (-(1/1)-(0/1).i) // Float or Rational
 
 //: [Next](@next)

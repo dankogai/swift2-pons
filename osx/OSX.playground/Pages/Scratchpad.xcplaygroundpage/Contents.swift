@@ -1,18 +1,48 @@
 //: [Previous](@previous)
 import PONS
 import Foundation
-Double.log(-1.79769313486232e+308)
 
-BigFloat.sqrt(1 + BigFloat(DBL_MIN))
-BigFloat.sqrt(1 + BigFloat(DBL_MIN))
+public class PiHex : SequenceType {
+    public init(){}
+    public func generate()->AnyGenerator<Int> {
+        var x = BigInt(0).over(1)
+        var i = 1
+        return anyGenerator {
+            let n:BigInt = (120*i-89)*i+16
+            let d:BigInt = (((512*i-1024)*i+712)*i-206)*i+21
+            x *= BigRat(16)
+            x += n.over(d)
+            x = x % BigRat(1)
+            i += 1
+            return (BigInt(16) * x).toMixed().0.asInt
+        }
+    }
+}
+
+BigFloat.pi(128)
+BigFloat.pi(96)
+BigFloat.pi()
+BigFloat.pi(256)
+
+BigRat.pi(128)
+BigRat.pi(96)
+BigRat.pi()
+BigRat.pi(256)
 
 
-DBL_MIN.divide(1 + sqrt(1 - DBL_MIN * DBL_MIN))
-var x = BigFloat(BigRat(DBL_MIN))
-x.divide(1 + BigFloat.sqrt(1 - x*x), precision:128).toDouble()
-
-DBL_MIN
+print(POUtil.constants)
 /*
+({ x in
+let d = Double(x)
+Double.frexp(d).1
+Double.exp(d)
+BigFloat.exp(BigFloat(d))
+//BigRat.exp(BigRat(d)).toFPString()
+})(709.782712893384)
+
+1e4 * Double.log(10) / Double.log(2)
+
+BigFloat.pi(65536,verbose:true)
 
 ({ x in
 let d = Double(x)

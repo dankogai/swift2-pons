@@ -258,6 +258,9 @@ public struct Rational<I:POInt> : PORational, FloatLiteralConvertible {
             self.init( (r.significand << BigInt(r.exponent)).over(1) )
         }
     }
+    public var asBigFloat:BigFloat? {
+        return BigFloat(self.asBigRat!)
+    }
     // IntegerLiteralConvertible
     public typealias IntegerLiteralType = Int.IntegerLiteralType
     public init(integerLiteral:IntegerLiteralType) {
@@ -349,9 +352,6 @@ public extension POReal {
     }
     ///
     public var asBigRat:BigRat? {
-        if let q = self as? BigRat { return q }
-        if let b = self as? BigFloat { return b.asBigRat }
-        if let d = self as? Double { return BigRat(d) }
         return BigRat(self.toDouble())
     }
 }

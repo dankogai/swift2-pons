@@ -2,8 +2,8 @@
 use v5.18;
 use warnings;
 use Benchmark qw(:all);
-use Math::BigInt    # try => 'GMP';
-  warn Math::BigInt->config->{lib};
+use Math::BigInt # try => 'GMP';
+warn Math::BigInt->config->{lib};
 
 sub fact {
     my $result = 1;
@@ -28,6 +28,7 @@ cmpthese timethese $count => {
 };
 
 cmpthese timethese $count => {
-    '20!/19!'  => sub { bfact(20) / bfact(19) == 20   or die },
-    '100!/99!' => sub { bfact(100) / bfact(99) == 100 or die }
+    '20!/19!'    => sub { bfact(20) / bfact(19) == 20   or die },
+    '100!/99!'   => sub { bfact(100) / bfact(99) == 100 or die },
+    '1000!/999!' => sub { bfact(1000) / bfact(999) == 1000 or die }
 };

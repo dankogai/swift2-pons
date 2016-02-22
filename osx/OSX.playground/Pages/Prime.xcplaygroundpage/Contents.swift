@@ -18,10 +18,10 @@ UIntMax.max.isPrime
 (BigInt(1)<<89-1).isPrime   // M89
 //: ## self.nextPrime and self.prevPrime
 2.prevPrime                         // no prime before 2
-2.nextPrime
+2.nextPrime                         // trivial
 UIntMax.max.prevPrime               // the largest prime possible for built-in number type
 UIntMax.max.nextPrime               // no more for UIntMax
-UIntMax.max.asBigUInt!.nextPrime    // but you can go beyond that with PONS
+UIntMax.max.asBigUInt!.nextPrime    // With PONS, you can go beyond that!
 //: ## Extra: Mersenne Prime Search
 func mersenneNumber(n:Int)->BigInt {
     return 1.asBigInt! << n.asBigInt! - 1
