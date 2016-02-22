@@ -219,6 +219,9 @@ public extension POReal {
     ///
     public static func log10(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.log10(dx)) }
+        if x.isSignMinus || x.isZero || x.isInfinite {
+            return Self(Double.log10(x.toDouble()))
+        }
         return log(x, precision:px) / ln10(px)
     }
     ///
@@ -241,7 +244,7 @@ public extension POReal {
     /// - returns: `(sin(x), cos(x))`
     public static func sincos(x:Self, precision px:Int = 64)->(sin:Self, cos:Self) {
         if let dx = x as? Double { return (Self(Double.sin(dx)), Self(Double.cos(dx)))}
-        if x.isInfinite || x.isNaN {
+        if x.isZero || x.isInfinite || x.isNaN {
             return (Self(Double.sin(x.toDouble())), Self(Double.cos(x.toDouble())))
         }
         let atan1   = pi_4(px)
@@ -311,12 +314,11 @@ public extension POReal {
     ///
     public static func asin(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.asin(dx)) }
-        if x.isZero || 1 < x.abs {
+        if x.isZero || 1 < x.abs || x.isInfinite {
             return Self(Double.asin(x.toDouble()))
         }
         var a = x.divide(1 + sqrt(1 - x * x, precision:px+16), precision:px+16)
         a.truncate(px)
-        // print("asin:", a.precision, a.toFPString(16))
         return 2 * atan(a, precision:px)
     }
     /// Arc tangent
@@ -326,6 +328,9 @@ public extension POReal {
     /// ![](https://upload.wikimedia.org/math/8/2/a/82a9938b7482d8d2ac5b2d7f3bce11fe.png)
     public static func atan(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.atan(dx)) }
+        if x.isInfinite || x.isNaN || x.isZero {
+            return Self(Double.atan(x.toDouble()))
+        }
         let atan1 = pi_4(px)
         let epsilon = Self(BigFloat(significand:1, exponent:-px))
         #if true    // Euler's formula

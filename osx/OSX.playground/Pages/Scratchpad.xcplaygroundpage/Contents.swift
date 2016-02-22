@@ -29,6 +29,7 @@ BigRat.pi(96)
 BigRat.pi()
 BigRat.pi(256)
 
+BigRat(1.0/0.0).isInfinite
 
 print(POUtil.constants)
 /*

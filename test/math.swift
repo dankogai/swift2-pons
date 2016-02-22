@@ -45,9 +45,9 @@ func testBigRat(test:TAP, _ v:BigRat) {
     test.check(v, BigRat.exp,   Double.exp,     name:"exp")
     test.check(v, BigRat.log,   Double.log,     name:"log")
     test.check(v, BigRat.log10, Double.log10,   name:"log10")
-    test.check(v, BigRat.cos,   Double.cos,     name:"acos")
-    test.check(v, BigRat.sin,   Double.sin,     name:"asin")
-    test.check(v, BigRat.tan,   Double.tan,     name:"atan")
+    test.check(v, BigRat.cos,   Double.cos,     name:"cos")
+    test.check(v, BigRat.sin,   Double.sin,     name:"sin")
+    test.check(v, BigRat.tan,   Double.tan,     name:"tan")
     test.check(v, BigRat.acos,  Double.acos,    name:"acos")
     test.check(v, BigRat.asin,  Double.asin,    name:"asin")
     test.check(v, BigRat.atan,  Double.atan,    name:"atan")
@@ -76,20 +76,19 @@ func testBigFloat(test:TAP, _ v:BigFloat) {
     test.check(v, BigFloat.asinh,   Double.asinh,   name:"asinh")
     test.check(v, BigFloat.atanh,   Double.atanh,   name:"atanh")
 }
-func testMath(test:TAP, num:Int=1, den:Int=4) {
+func testMath(test:TAP, num:Int=8, den:Int=4) {
     let DBL_MAX = 0x1.fffffffffffffp+1023
     // let DBL_MIN = 0x1p-1022
     //  -DBL_MIN, +DBL_MIN cannot be decently tested w/ the script above
     for d in [-Double.infinity, -DBL_MAX, -0.0, +0.0, +DBL_MAX, +Double.infinity] {
         let q = BigRat(d)
-        // testBigRat(q)    // Takes too long for +-DBL_MAX.
+        if d.abs != DBL_MAX { testBigRat(test, q) } // Takes too long for +-DBL_MAX.
         let r = BigFloat(q)
         testBigFloat(test, r)
     }
-    //
-    for i in 0...8 {
+    for i in 0...num {
         for s in [-1.0, +1.0] {
-            let q = BigRat(s * Double.pow(2, Double(i-4)))
+            let q = BigRat(s * Double.pow(2, Double(i-den)))
             testBigRat(test, q)
             let f = BigFloat(q)
             testBigFloat(test, f)
