@@ -82,7 +82,7 @@ func testBigFloat(test:TAP, _ v:BigFloat) {
 }
 func testMath(test:TAP, num:Int=8, den:Int=4) {
     // -DBL_MIN, +DBL_MIN cannot be reliably tested w/ the script above
-    for d in [-Double.infinity, -DBL_MAX, -DBL_MIN, +DBL_MIN, -0.0, +0.0, +DBL_MAX, +Double.infinity] {
+    for d in [-Double.infinity, -DBL_MAX, -DBL_MIN, -0.0, +0.0, +DBL_MIN, +DBL_MAX, +Double.infinity] {
         let q = BigRat(d)
         if d.abs != DBL_MAX && d.abs != DBL_MIN {
             testBigRat(test, q) // Takes too long for +-DBL_MAX and +-DLB_MIN.

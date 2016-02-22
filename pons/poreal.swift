@@ -396,25 +396,20 @@ public extension POReal {
         }
     }
     /// - returns: `(sin(x), cos(x))`
-    public static func sinhcosh(x:Self, precision px:Int = 64)->(sin:Self, cos:Self) {
+    public static func sinhcosh(x:Self, precision px:Int = 64)->(sinh:Self, cosh:Self) {
         if let dx = x as? Double { return (Self(Double.sinh(dx)), Self(Double.cosh(dx)))}
-        if x.isZero || x.isInfinite || x.isNaN {
-            return (Self(Double.sin(x.toDouble())), Self(Double.cos(x.toDouble())))
+        if x.isZero || x.isInfinite {
+            return (Self(Double.sinh(x.toDouble())), Self(Double.cosh(x.toDouble())))
         }
-        let atan1   = pi_4(px)
-        let sqrt1_2 = sqrt2(px)/2
+        if 1 < x.abs {
+            let ep = exp(x)
+            let em = 1/ep
+            return ((ep - em)/2, (ep + em)/2)
+        }
         let epsilon = Self(BigFloat(significand:1, exponent:-px))
-        func inner_cossin(x:Self)->(Self, Self) {
+        func inner_coshsinh(x:Self)->(Self, Self) {
             if x * x <= epsilon {
-                return (1, x)   // sin(x) == x below this point
-            }
-            if 1 < x.abs {  // use double-angle formula to reduce x
-                let (c, s) = inner_cossin(x/2)
-                if c == s { return (0, 1) } // prevent error accumulation
-                return (c*c - s*s, 2 * s * c)
-            }
-            if x.abs == atan1 {
-                return (x.isSignMinus ? -sqrt1_2 : +sqrt1_2, +sqrt1_2)
+                return (1, x)   // sinh(x) == x below this point
             }
             var (c, s) = (Self(0), Self(0))
             var (n, d) = (Self(1), Self(1))
@@ -422,42 +417,28 @@ public extension POReal {
                 var t = n.divide(d, precision:px)
                 t.truncate(px)
                 if i & 1 == 0 {
-                    c += i & 2 == 2 ? -t : +t
-                    c.truncate(px)
+                    c += t
                 } else {
-                    s += i & 2 == 2 ? -t : +t
-                    s.truncate(px)
+                    s += t
                 }
                 if px < d.precision { break }
                 n *= x
                 d *= Self(i+1)
             }
-            
             return (c, s)
-            // return c < s ? (sqrt(1 - c*c, precision:px+16), s) : (c, sqrt(1 - s*s, precision:px+16))
         }
-        var (c, s) = inner_cossin(x.abs < 8 ? x : wrapAngle(x, precision:px))
+        var (c, s) = inner_coshsinh(x)
         return (s.truncate(px), c.truncate(px))
     }
     ///
     public static func cosh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.cosh(dx)) }
-        if x.isZero || x.isInfinite {
-            return Self(Double.cosh(x.toDouble()))
-        }
-        let epx = exp(+x, precision:px)
-        let enx = Self(1).divide(epx, precision:px)
-        return (epx + enx) / 2
+        return sinhcosh(x, precision:px).1
     }
     ///
     public static func sinh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.sinh(dx)) }
-        if x.isZero || x.isInfinite {
-            return Self(Double.sinh(x.toDouble()))
-        }
-        let epx = exp(+x, precision:px)
-        let enx = Self(1).divide(epx, precision:px)
-        return (epx - enx) / 2
+        return sinhcosh(x, precision:px).0
     }
     ///
     public static func tanh(x:Self, precision px:Int = 64)->Self   {
@@ -465,9 +446,8 @@ public extension POReal {
         if x.isZero || x.isInfinite {
             return Self(Double.tanh(x.toDouble()))
         }
-        let epx = exp(+x, precision:px)
-        let enx = Self(1).divide(epx, precision:px)
-        return (epx - enx).divide(enx + epx, precision:px)
+        let (s, c) = sinhcosh(x, precision:px)
+        return s.divide(c, precision:px)
     }
     ///
     public static func acosh(x:Self, precision px:Int = 64)->Self   {
@@ -621,7 +601,6 @@ public extension POFloat {
     public var debugDescription:String {
         return self.toHexString()
     }
-    public static var expMax:Self { return Self(639_3154_3226_0132_7829) }
     /// uses .frexp and .ldexp
     public static func exp(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.exp(dx)) }

@@ -19,6 +19,18 @@ public class PiHex : SequenceType {
     }
 }
 
+({ d in
+    let r = BigFloat(d)
+    Double.cosh(d).toHexString()
+    BigFloat.cosh(r).toHexString()
+    Double.sinh(d).toHexString()
+    BigFloat.sinh(r).toHexString()
+    Double.tanh(d).toHexString()
+    BigFloat.tanh(r).toHexString()
+})(DBL_MIN)
+
+
+/*
 DBL_MIN.debugDescription
 BigRat(DBL_MAX).debugDescription
 BigRat(DBL_MIN).debugDescription
@@ -33,11 +45,11 @@ log(DBL_MAX)
 Double(DBL_MAX.frexp().1) * log(2.0)
 
 ({ d in
-    Double.exp(d)
-    BigFloat.exp(BigFloat(d))
-    BigFloat.exp(BigFloat(d)).significand
-    BigFloat.exp(BigFloat(d)).exponent
-    //BigRat.exp(BigRat(d)).toFPString()
+Double.exp(d)
+BigFloat.exp(BigFloat(d))
+BigFloat.exp(BigFloat(d)).significand
+BigFloat.exp(BigFloat(d)).exponent
+//BigRat.exp(BigRat(d)).toFPString()
 })(709.7827128933845)
 
 BigRat.asin(-0.125)
@@ -51,7 +63,6 @@ Double(BigInt.precision).toHexString()
 BigFloat(Double(BigInt.precision))*BigFloat.log(2)
 BigFloat(639_3154_3226_0132_7829)
 DBL_MAX
-/*
 ({ d in
 let (m, e)  = Double.frexp(d)
 m
