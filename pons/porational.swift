@@ -271,6 +271,31 @@ public struct Rational<I:POInt> : PORational, FloatLiteralConvertible {
     public init(floatLiteral:FloatLiteralType) {
         self.init(floatLiteral)
     }
+    public func frexp()->(Rational<I>, Int)   {
+        var (n, d) = (num, den)
+        let e = n.msbAt + 1 - d.msbAt
+        if e < 0 {
+            n <<= I.UIntType(-e)
+        } else {
+            d <<= I.UIntType(+e)
+        }
+        return (Rational<I>(self.sgn, n, d), e)
+    }
+    public static func frexp(q:Rational<I>)->(Rational<I>, Int) {
+        return q.frexp()
+    }
+    public func ldexp(ex:Int)->Rational<I> {
+        var (n, d) = (num, den)
+        if ex < 0 {
+            d <<= I.UIntType(-ex)
+        } else {
+            n <<= I.UIntType(+ex)
+        }
+        return Rational<I>(self.sgn, n, d)
+    }
+    public static func ldexp(q:Rational<I>, _ ex:Int)->Rational<I> {
+        return q.ldexp(ex)
+    }
 }
 public func ==<Q:PORational>(lhs:Q, rhs:Q) -> Bool {
     return !lhs.isNaN && !rhs.isNaN

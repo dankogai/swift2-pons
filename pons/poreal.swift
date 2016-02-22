@@ -24,6 +24,8 @@ public protocol POReal : POSignedNumber {
     mutating func truncate(_:Int)->Self
     func divide(_:Self, precision:Int)->Self
     func toMixed()->(IntType, Self)
+    func frexp()->(Self, Int)
+    func ldexp(_:Int)->Self
     //
     init (_:BigRat)
     var asBigRat:BigRat? { get }
@@ -202,7 +204,7 @@ public extension POReal {
                 var t = Self(2) * (x - ex)/(x + ex)
                 y += t.truncate(px)
                 // print("log: i=\(i), y=\(y.toFPString()), t=\(t.toDouble())")
-                if (t < 0 ? -t : t) < epsilon { break }
+                if t.abs < epsilon { break }
             }
             return y
         }
@@ -249,7 +251,11 @@ public extension POReal {
         }
         let atan1   = pi_4(px)
         let sqrt1_2 = sqrt2(px)/2
+        let epsilon = Self(BigFloat(significand:1, exponent:-px))
         func inner_cossin(x:Self)->(Self, Self) {
+            if x * x <= epsilon {
+                return (1, x)   // sin(x) == x below this point
+            }
             if 1 < x.abs {  // use double-angle formula to reduce x
                 let (c, s) = inner_cossin(x/2)
                 if c == s { return (0, 1) } // prevent error accumulation
@@ -258,21 +264,23 @@ public extension POReal {
             if x.abs == atan1 {
                 return (x.isSignMinus ? -sqrt1_2 : +sqrt1_2, +sqrt1_2)
             }
-            var (c, s) = (Self(0), Self(0))
+                        var (c, s) = (Self(0), Self(0))
             var (n, d) = (Self(1), Self(1))
             for i in 0...px {
                 var t = n.divide(d, precision:px)
                 t.truncate(px)
                 if i & 1 == 0 {
                     c += i & 2 == 2 ? -t : +t
+                    c.truncate(px)
                 } else {
                     s += i & 2 == 2 ? -t : +t
+                    s.truncate(px)
                 }
-                // print("inner_cossin:i=\(i), px=\(px), d.precision=:\(d.precision)")
                 if px < d.precision { break }
                 n *= x
                 d *= Self(i+1)
             }
+
             return (c, s)
             // return c < s ? (sqrt(1 - c*c, precision:px+16), s) : (c, sqrt(1 - s*s, precision:px+16))
         }
@@ -317,7 +325,9 @@ public extension POReal {
         if x.isZero || 1 < x.abs || x.isInfinite {
             return Self(Double.asin(x.toDouble()))
         }
+        let epsilon = Self(BigFloat(significand:1, exponent:-px))
         var a = x.divide(1 + sqrt(1 - x * x, precision:px+16), precision:px+16)
+        if a < epsilon { return x }
         a.truncate(px)
         return 2 * atan(a, precision:px)
     }
@@ -388,7 +398,8 @@ public extension POReal {
             return Self(Double.cosh(x.toDouble()))
         }
         let epx = exp(+x, precision:px)
-        return (epx + 1/epx) / 2
+        let enx = Self(1).divide(epx, precision:px)
+        return (epx + enx) / 2
     }
     ///
     public static func sinh(x:Self, precision px:Int = 64)->Self   {
@@ -556,6 +567,8 @@ extension Double : POFloat {
     public typealias IntType = Int
     public func toDouble()->Double { return self }
     public func toIntMax()->IntMax { return IntMax(self) }
+    public func frexp()->(Double, Int)  { return Double.frexp(self) }
+    public func ldexp(e:Int)->Double    { return Double.ldexp(self, e) }
     public var asIntType:IntType? { return IntType(self) }
     public func toMixed()->(IntType, Double) {
         return (IntType(self), self % 1.0)
@@ -570,6 +583,8 @@ extension Float : POFloat {
     public typealias IntType = Int
     public func toDouble()->Double { return Double(self) }
     public func toIntMax()->IntMax { return IntMax(self) }
+    public func frexp()->(Float, Int)  { return Float.frexp(self) }
+    public func ldexp(e:Int)->Float    { return Float.ldexp(self, e) }
     public var asIntType:IntType? { return IntType(self) }
     public func toMixed()->(IntType, Float) {
         return (IntType(self), self % 1.0)
@@ -658,4 +673,28 @@ public extension Double {
     public static var LOG10E  = M_LOG10E
     public static var SQRT1_2 = M_SQRT1_2
     public static var SQRT2   = M_SQRT2
+}
+public extension Float {
+    #if os(Linux)
+    public static func frexp(d:Float)->(Float, Int) {
+        // return Glibc.frexp(f)
+        var e:Int32 = 0
+        let m = Glibc.frexpf(f, &e)
+        return (m, Int(e))
+    }
+    public static func ldexp(m:Float, _ e:Int)->Float {
+        // return Glibc.ldexp(m, e)
+        return Glibc.ldexpf(m, Int32(e))
+    }
+    public static func ceil(x:Float)->Float       { return Glibc.ceilf(x) }
+    public static func floor(x:Float)->Float      { return Glibc.floorf(x) }
+    public static func round(x:Float)->Float      { return Glibc.roundf(x) }
+    //
+    #else
+    public static func frexp(f:Float)->(Float, Int)   { return Darwin.frexp(f) }
+    public static func ldexp(m:Float, _ e:Int)->Float { return Darwin.ldexp(m, e) }
+    public static func ceil(x:Float)->Float       { return Darwin.ceilf(x) }
+    public static func floor(x:Float)->Float      { return Darwin.floorf(x) }
+    public static func round(x:Float)->Float      { return Darwin.roundf(x) }
+    #endif
 }

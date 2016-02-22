@@ -19,20 +19,38 @@ public class PiHex : SequenceType {
     }
 }
 
-BigFloat.pi(128)
-BigFloat.pi(96)
-BigFloat.pi()
-BigFloat.pi(256)
+({ d in
+    let (m, e)  = Double.frexp(d)
+    m
+    e
+    BigFloat(d).frexp().0
+    BigRat(d).frexp().0
+    let r = BigFloat(m).ldexp(e)
+    r == BigFloat(d)
+    let q = BigRat(m).ldexp(e)
+    q == BigRat(d)
+})(Double.E)
 
-BigRat.pi(128)
-BigRat.pi(96)
-BigRat.pi()
-BigRat.pi(256)
 
-BigRat(1.0/0.0).isInfinite
+/*
+({ d in
+    let r = BigFloat(d)
+    let (s, c) = BigFloat.sincos(BigFloat(d))
+    d
+    Double.sin(d)
+    s.toDouble()
+    Double.cos(d)
+    c
+    Double.cosh(d)
+    BigFloat.cosh(r)
+    Double.sinh(d)
+    BigFloat.sinh(r)
+    Double.tanh(d)
+    BigFloat.tanh(r)
+})(DBL_MIN)
 
 print(POUtil.constants)
-/*
+
 ({ x in
 let d = Double(x)
 Double.frexp(d).1

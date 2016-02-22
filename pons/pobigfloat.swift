@@ -200,6 +200,22 @@ public struct BigFloat : POFloat, FloatLiteralConvertible {
         let i = BigInt(self)
         return (i, self - BigFloat(i))
     }
+    public func frexp()->(BigFloat, Int)   {
+        return (
+            BigFloat(significand:self.significand, exponent:-(self.significand.msbAt+1)),
+            self.exponent - 1
+        )
+    }
+    public static func frexp(r:BigFloat)->(BigFloat, Int) {
+        return r.frexp()
+    }
+    public func ldexp(ex:Int)->BigFloat {
+        return BigFloat(significand:self.significand, exponent:self.exponent + ex)
+    }
+    public static func ldexp(r:BigFloat, _ ex:Int)->BigFloat {
+        return r.ldexp(ex)
+    }
+    // public static func ldexp(m:Double, _ e:Int)->Double { return Darwin.ldexp(m, e) }
 }
 public extension BigInt {
     public init(_ bf:BigFloat) {
