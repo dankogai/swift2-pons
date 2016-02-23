@@ -49,7 +49,7 @@ public extension PONumber {
     public var hashValue : Int {    // slow but steady
         return self.description.hashValue
     }
- }
+}
 /// Equatable by default but you should override this!
 public func ==<T:PONumber>(lhs:T, rhs:T)->Bool {
     return lhs.toIntMax() == rhs.toIntMax()
@@ -79,6 +79,7 @@ public protocol POComparableNumber : PONumber, Comparable {
 public protocol POSignedNumber : POComparableNumber, SignedNumberType
 {
     var isSignMinus:Bool { get }
+    // prefix func +(_:Self)->Self
     prefix func -(_:Self)->Self
     func -(_:Self, _:Self)->Self
     var abs:Self { get }

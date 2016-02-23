@@ -281,9 +281,9 @@ public func /(lhs:BigFloat, rhs:BigFloat)->BigFloat {
 public func %(lhs:BigFloat, rhs:BigFloat)->BigFloat {
     return lhs.remainder(rhs)
 }
-public prefix func +(bf:BigFloat)->BigFloat {
-    return bf
-}
+//public prefix func +(bf:BigFloat)->BigFloat {
+//    return bf
+//}
 public prefix func -(bf:BigFloat)->BigFloat {
     return BigFloat(significand:-bf.significand, exponent:bf.exponent)
 }

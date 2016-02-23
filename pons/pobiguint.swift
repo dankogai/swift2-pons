@@ -11,7 +11,7 @@
 ///
 public struct BigUInt {
     public typealias DigitType = UInt32
-    var digits = [DigitType]()  // Base 2**32 = 4294967296
+    public var digits = [DigitType]()  // Base 2**32 = 4294967296
     public static let precision = Int.max - 1
     public init(_ s:BigUInt) {  // demanded by PONumber
         self.digits = s.digits
@@ -493,7 +493,7 @@ public extension POUInt {
         if b == 0 { return 0 }
         var r:Self = 0;
         while a > 0 {
-            if a & 1 == 1 { r = (r &+ b) % m }
+            if a & 1 == 1 { r = Self.addWithOverflow(r, b).0 % m }
             a >>= 1
             b = (b << 1) % m
         }
@@ -502,9 +502,10 @@ public extension POUInt {
     }
     // powmod related codes //
     public static func pow(lhs:Self, _ rhs:Self, mod:Self=Self(1))->Self {
-        return rhs < Self(1) ? Self(1)
-            // : mod == L(1) ? power(lhs, rhs, op:&*) : power(lhs, rhs){ ($0 &* $1) % mod }
-            : mod == Self(1) ? power(lhs, rhs, op:&*) : power(lhs, rhs){ powmod($0, $1, mod:mod) }
+        let op = mod == Self(1)
+            ? { Self.multiplyWithOverflow($0, $1).0 }
+            : { powmod($0, $1, mod:mod) }
+        return rhs < Self(1) ? Self(1) : power(lhs, rhs, op:op)
     }
     /// modular reciprocal of `self`
     public var modinv:Self {
@@ -555,7 +556,7 @@ public extension POUInt {
         let r2 = Self.mulmod(r1, r1, m)
         let innerRedc:Self->Self = { n in
             // print("\(__FILE__):\(__LINE__): n=\(n),bits=\(bits), minv=\(minv)")
-            let t = (n + ((n &* minv) & mask) * m) >> bits
+            let t = (n + (Self.multiplyWithOverflow(n, minv).0 & mask) * m) >> bits
             return t >= m ? t - m : t
         }
         let innerMulMod:(Self,Self)->Self = { (a, b) in

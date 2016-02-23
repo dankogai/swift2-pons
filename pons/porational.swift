@@ -319,9 +319,9 @@ public func ==<Q:PORational>(lhs:Q, rhs:Q) -> Bool {
 public func < <Q:PORational>(lhs:Q, rhs:Q) -> Bool {
     return (lhs - rhs).sgn
 }
-public prefix func +<Q:PORational>(q:Q) -> Q {
-    return q
-}
+//public prefix func +<Q:PORational>(q:Q) -> Q {
+//    return q
+//}
 public prefix func -<Q:PORational>(q:Q) -> Q {
     return Q(!q.sgn, q.num, q.den, isNormal:true)
 }

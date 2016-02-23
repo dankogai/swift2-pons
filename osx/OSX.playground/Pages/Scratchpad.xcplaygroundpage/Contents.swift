@@ -19,21 +19,21 @@ public class PiHex : SequenceType {
     }
 }
 
-({ d in
-    let r = BigFloat(d)
-    let q = BigRat(d)
-    Double.atan(d).toHexString()
-    BigFloat.atan(r).toHexString()
-    (BigRat(q)-BigRat.atan(q)).debugDescription
-    
-})(DBL_MIN)
-
-0.isPowerOf2
-1.isPowerOf2
-2.isPowerOf2
-3.isPowerOf2
+Float.pi().toHexString()
+Double.pi().toHexString()
+BigFloat.pi(64).toHexString()
+Float.exp(FLT_MIN)
 
 /*
+
+({ d in
+let r = BigFloat(d)
+let q = BigRat(d)
+Double.atan(d).toHexString()
+BigFloat.atan(r).toHexString()
+(BigRat(q)-BigRat.atan(q)).debugDescription
+
+})(DBL_MIN)
 
 ({ d in
 let r = BigFloat(d)

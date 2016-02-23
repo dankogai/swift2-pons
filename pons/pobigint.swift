@@ -131,9 +131,9 @@ public func <(lhs:BigInt, rhs:BigInt)->Bool {
 public prefix func -(bi:BigInt)->BigInt {
     return BigInt(unsignedValue:bi.unsignedValue, isSignMinus:!bi.isSignMinus)
 }
-public prefix func +(bi:BigInt)->BigInt {
-    return bi
-}
+//public prefix func +(bi:BigInt)->BigInt {
+//    return bi
+//}
 // Bitwise ops
 public prefix func ~(bs:BigInt)->BigInt {
     return BigInt(unsignedValue: ~bs.unsignedValue)

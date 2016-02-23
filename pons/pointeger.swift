@@ -76,15 +76,15 @@ public func %<I:POInteger>(lhs:I, rhs:I)->I {
     return result
 }
 // give away &op
-public func &+<I:POInteger>(lhs:I, rhs:I)->I {
-    return I.addWithOverflow(lhs, rhs).0
-}
-public func &-<I:POInteger>(lhs:I, rhs:I)->I {
-    return I.subtractWithOverflow(lhs, rhs).0
-}
-public func &*<I:POInteger>(lhs:I, rhs:I)->I {
-    return I.multiplyWithOverflow(lhs, rhs).0
-}
+//public func &+<I:POInteger>(lhs:I, rhs:I)->I {
+//    return I.addWithOverflow(lhs, rhs).0
+//}
+//public func &-<I:POInteger>(lhs:I, rhs:I)->I {
+//    return I.subtractWithOverflow(lhs, rhs).0
+//}
+//public func &*<I:POInteger>(lhs:I, rhs:I)->I {
+//    return I.multiplyWithOverflow(lhs, rhs).0
+//}
 // give away op=
 public func %=<I:POInteger>(inout lhs:I, rhs:I) {
     lhs = lhs % rhs
@@ -347,7 +347,7 @@ public extension POUInt {
     /// note only `rhs` must be an integer.
     ///
     public static func pow<L:POUInt>(lhs:L, _ rhs:Self)->L {
-        return rhs < Self(1) ? L(1) : power(lhs, rhs, op:&*)
+        return rhs < Self(1) ? L(1) : power(lhs, rhs){ L.multiplyWithOverflow($0, $1).0 }
 
     }
     /// true if self is power of 2
@@ -528,7 +528,7 @@ public extension POInt {
     ///     pow(2,   -2) // 1
     ///     pow(2.0, -2) // 0.25
     public static func pow<L:POInt>(lhs:L, _ rhs:Self)->L {
-        return rhs < 1 ? 1 : power(lhs, rhs, op:&*)
+        return rhs < 1 ? 1 : power(lhs, rhs){ L.multiplyWithOverflow($0, $1).0 }
     }
     /// - returns: `lhs ** rhs`
     public static func pow<L:POReal>(lhs:L, _ rhs:Self)->L {
