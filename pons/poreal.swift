@@ -152,20 +152,24 @@ public extension POReal {
         if x.isZero || x.isInfinite {
             return Self(Double.exp(x.toDouble()))
         }
+        let epsilon = Self(BigFloat(significand:1, exponent:-px))
         let inner_exp:(Self, Int)->Self = { x, px in
             var (r, n, d) = (Self(1), Self(1), Self(1))
             for i in 1...px {
                 n *= x
                 d *= Self(i)
-                r += n.divide(d, precision:px)
-                if px < d.precision { break }
+                let t = n.divide(d, precision:px)
+                r += t
+                // print("\(Self.self).exp: i = \(i), r = \(r.debugDescription)")
+                // if px < d.precision { break }
+                if t < epsilon { break }
             }
             return r
         }
         let e = getSetConstant("exp", Self(1), px, setter:inner_exp)
         if x.abs == 1 { return x.isSignMinus ? 1/e : e }
         let (ix, fx) = x.abs.toMixed() //toIntMax().asInt!
-        // print("\(Self.self).exp: ix = \(ix), fx = \(fx)")
+        // print("\(Self.self).exp: ix = \(ix), fx = \(fx.debugDescription)")
         let ir = ix == 0 ? Self(1) : IntType.power(e, ix) {
             var r = $0 * $1
             return r.truncate(px)
@@ -253,13 +257,13 @@ public extension POReal {
         if x.isZero || x.isInfinite || x.isNaN {
             return (Self(Double.sin(x.toDouble())), Self(Double.cos(x.toDouble())))
         }
+        let epsilon = Self(BigFloat(significand:1, exponent:-px))
+        if x * x <= epsilon {
+            return (x, 1)   // sin(x) == x below this point
+        }
         let atan1   = pi_4(px)
         let sqrt1_2 = sqrt2(px)/2
-        let epsilon = Self(BigFloat(significand:1, exponent:-px))
         func inner_cossin(x:Self)->(Self, Self) {
-            if x * x <= epsilon {
-                return (1, x)   // sin(x) == x below this point
-            }
             if 1 < x.abs {  // use double-angle formula to reduce x
                 let (c, s) = inner_cossin(x/2)
                 if c == s { return (0, 1) } // prevent error accumulation
@@ -268,23 +272,23 @@ public extension POReal {
             if x.abs == atan1 {
                 return (x.isSignMinus ? -sqrt1_2 : +sqrt1_2, +sqrt1_2)
             }
-                        var (c, s) = (Self(0), Self(0))
+            var (c, s) = (Self(0), Self(0))
             var (n, d) = (Self(1), Self(1))
             for i in 0...px {
                 var t = n.divide(d, precision:px)
                 t.truncate(px)
                 if i & 1 == 0 {
                     c += i & 2 == 2 ? -t : +t
-                    c.truncate(px)
+                    // c.truncate(px)
                 } else {
                     s += i & 2 == 2 ? -t : +t
-                    s.truncate(px)
+                    // s.truncate(px)
                 }
                 if px < d.precision { break }
+                // if t.abs < epsilon { break }
                 n *= x
                 d *= Self(i+1)
             }
-
             return (c, s)
             // return c < s ? (sqrt(1 - c*c, precision:px+16), s) : (c, sqrt(1 - s*s, precision:px+16))
         }
@@ -347,6 +351,9 @@ public extension POReal {
         }
         let atan1 = pi_4(px)
         let epsilon = Self(BigFloat(significand:1, exponent:-px))
+//        if x * x <= epsilon {
+//            return 1    // atan(x) == x below this point
+//        }
         #if true    // Euler's formula
             let inner_atan:(Self)->Self = { x in
                 let x2 = x*x
@@ -357,6 +364,7 @@ public extension POReal {
                     t.truncate(px)
                     r += t
                     r.truncate(px)
+                    // print("\(Self.self).inner_atan: r=\(r.debugDescription)")
                     if t < epsilon { break }
                 }
                 return r * x / x2p1
@@ -378,6 +386,7 @@ public extension POReal {
         let ax = x.abs
         if ax == 1 { return  x.isSignMinus ? -atan1 : atan1 }
         var r = ax < 1 ? inner_atan(ax) : 2 * atan1 - inner_atan(1/ax)
+        // print("\(Self.self).atan: r=\(r.debugDescription)")
         return x.isSignMinus ? -r.truncate(px) : r.truncate(px)
     }
     public static func atan2(y:Self, _ x:Self, precision px:Int = 64)->Self {
@@ -586,6 +595,9 @@ public extension POFloat {
     }
     public func toHexString()->String {
         if self.isNaN || self.isInfinite { return self.toDouble().description }
+        if self.isZero {
+            return self.isSignMinus ? "-0x0p+0" : "+0x0p+0"
+        }
         let (s, e) = self.frexp()
         return [
             (s.isSignMinus ? "-0x" : "+0x"),

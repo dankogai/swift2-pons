@@ -302,6 +302,10 @@ public extension POUInt {
         return rhs < Self(1) ? L(1) : power(lhs, rhs, op:&*)
 
     }
+    /// true if self is power of 2
+    public var isPowerOf2:Bool {
+        return self != 0 && self & (self - 1) == 0
+    }
 }
 extension UInt64:   POUInt {
     public typealias IntType = Int64
@@ -445,6 +449,10 @@ public extension POInt {
     /// - returns: `lhs ** rhs`
     public static func pow<L:POReal>(lhs:L, _ rhs:Self)->L {
         return L.pow(lhs, L(rhs.toDouble()))
+    }
+    /// true if self is power of 2
+    public var isPowerOf2:Bool {
+        return self.abs.asUnsigned!.isPowerOf2
     }
 }
 extension Int64:    POInt {

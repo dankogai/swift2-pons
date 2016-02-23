@@ -21,16 +21,30 @@ public class PiHex : SequenceType {
 
 ({ d in
     let r = BigFloat(d)
-    Double.cosh(d).toHexString()
-    BigFloat.cosh(r).toHexString()
-    Double.sinh(d).toHexString()
-    BigFloat.sinh(r).toHexString()
-    Double.tanh(d).toHexString()
-    BigFloat.tanh(r).toHexString()
+    let q = BigRat(d)
+    Double.atan(d).toHexString()
+    BigFloat.atan(r).toHexString()
+    (BigRat(q)-BigRat.atan(q)).debugDescription
+    
 })(DBL_MIN)
 
+0.isPowerOf2
+1.isPowerOf2
+2.isPowerOf2
+3.isPowerOf2
 
 /*
+
+({ d in
+let r = BigFloat(d)
+Double.cosh(d).toHexString()
+BigFloat.cosh(r).toHexString()
+Double.sinh(d).toHexString()
+BigFloat.sinh(r).toHexString()
+Double.tanh(d).toHexString()
+BigFloat.tanh(r).toHexString()
+})(DBL_MIN)
+
 DBL_MIN.debugDescription
 BigRat(DBL_MAX).debugDescription
 BigRat(DBL_MIN).debugDescription

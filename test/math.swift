@@ -25,7 +25,11 @@ extension TAP {
         let error = Swift.abs(actual - expected) / Swift.abs(actual + expected)
         print("#       got: \(actual.debugDescription)")
         print("#  expected: \(expected.debugDescription)")
-        print("#     error: \(error.debugDescription):", actual.isSubnormal || error <= epsilon ? "ok" : "NOT OK")
+        if actual.isSubnormal {
+            print("# subnormal: true so ok")
+        } else {
+            print("#     error: \(error.debugDescription):", error <= epsilon ? "ok" : "NOT OK")
+        }
         return self.ok(actual.isSubnormal || error <= epsilon, message)
     }
     func check<R:POReal>(r:R,
@@ -82,10 +86,11 @@ func testBigFloat(test:TAP, _ v:BigFloat) {
 }
 func testMath(test:TAP, num:Int=8, den:Int=4) {
     // -DBL_MIN, +DBL_MIN cannot be reliably tested w/ the script above
+    // for d in [-DBL_MAX, -DBL_MIN, +DBL_MIN, +DBL_MAX] {
     for d in [-Double.infinity, -DBL_MAX, -DBL_MIN, -0.0, +0.0, +DBL_MIN, +DBL_MAX, +Double.infinity] {
         let q = BigRat(d)
         if d.abs != DBL_MAX && d.abs != DBL_MIN {
-            testBigRat(test, q) // Takes too long for +-DBL_MAX and +-DLB_MIN.
+            testBigRat(test, q) // Takes too long for +-DBL_MAX; irrelevant for +-DBL_MIN
         }
         let r = BigFloat(q)
         testBigFloat(test, r)

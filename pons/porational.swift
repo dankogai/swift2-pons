@@ -114,24 +114,32 @@ public extension PORational {
         return (sgn ? -1 : 1) * (((num.hashValue >> bits) << bits) | (den.hashValue >> bits))
     }
     public mutating func truncate(bits:Int)->Self {
+        typealias U = IntType.UIntType
         if num == 0 {
             den = den == 0 ? 0 : 1
-        } else if bits < self.precision + 1 {
-            num <<= IntType.UIntType(bits)
-            let (q, r) = IntType.UIntType.divmod(num, den)
-            num = q
-            if r * 2 >= den {  // round up
-                num += IntType.UIntType(1)
-            }
-            if num == 0 {
-                den = 1
-            } else {
-                den = IntType.UIntType(1) << IntType.UIntType(bits)
-                while num & 1 == 0 {    // reduce if necessary
-                    num >>= 1
-                    den >>= 1
+        } else if num != 1 && bits < self.precision + 1 {
+            if num.isPowerOf2 {         // truncate denominator
+                var q = self.reciprocal
+                q.truncate(bits)
+                num = q.den
+                den = q.num
+            } else {                    // truncate numerator
+                num <<= IntType.UIntType(bits)
+                let (q, r) = IntType.UIntType.divmod(num, den)
+                num = q
+                if r * 2 >= den {  // round up
+                    num += IntType.UIntType(1)
                 }
-            }
+                if num == 0 {
+                    den = 1
+                } else {
+                    den = IntType.UIntType(1) << IntType.UIntType(bits)
+                    while num & 1 == 0 {    // reduce if necessary
+                        num >>= 1
+                        den >>= 1
+                    }
+                }
+           }
         }
         return self
     }
