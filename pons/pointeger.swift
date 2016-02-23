@@ -49,6 +49,32 @@ public protocol POInteger : POComparableNumber,
     var asInt8:Int8?     { get }
     var asInt:Int?       { get }
 }
+// give away arithmetic operators
+public func +<I:POInteger>(lhs:I, rhs:I)->I {
+    let (result, overflow) = I.addWithOverflow(lhs, rhs)
+    if overflow { fatalError("overflow: \(lhs) + \(rhs)") }
+    return result
+}
+public func -<I:POInteger>(lhs:I, rhs:I)->I {
+    let (result, overflow) = I.subtractWithOverflow(lhs, rhs)
+    if overflow { fatalError("overflow: \(lhs) - \(rhs)") }
+    return result
+}
+public func *<I:POInteger>(lhs:I, rhs:I)->I {
+    let (result, overflow) = I.multiplyWithOverflow(lhs, rhs)
+    if overflow { fatalError("overflow: \(lhs) * \(rhs)") }
+    return result
+}
+public func /<I:POInteger>(lhs:I, rhs:I)->I {
+    let (result, overflow) = I.divideWithOverflow(lhs, rhs)
+    if overflow { fatalError("overflow: \(lhs) / \(rhs)") }
+    return result
+}
+public func %<I:POInteger>(lhs:I, rhs:I)->I {
+    let (result, overflow) = I.remainderWithOverflow(lhs, rhs)
+    if overflow { fatalError("overflow: \(lhs) % \(rhs)") }
+    return result
+}
 // give away &op
 public func &+<I:POInteger>(lhs:I, rhs:I)->I {
     return I.addWithOverflow(lhs, rhs).0
@@ -187,6 +213,28 @@ public extension POUInt {
     /// Returns the index of the most significant bit of `self`
     /// or `-1` if `self == 0`
     public var msbAt:Int { return self.toUIntMax().msbAt }
+    //
+    // from IntegerArithmeticType
+    public static func addWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool) {
+        let (result, overflow) = UInt.addWithOverflow(lhs.asUInt!, rhs.asUInt!)
+        return (Self(result), overflow)
+    }
+    public static func subtractWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool) {
+        let (result, overflow) = UInt.subtractWithOverflow(lhs.asUInt!, rhs.asUInt!)
+        return (Self(result), overflow)
+    }
+    public static func multiplyWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool) {
+        let (result, overflow) = UInt.multiplyWithOverflow(lhs.asUInt!, rhs.asUInt!)
+        return (Self(result), overflow)
+    }
+    public static func divideWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool) {
+        let (result, overflow) = UInt.divideWithOverflow(lhs.asUInt!, rhs.asUInt!)
+        return (Self(result), overflow)
+    }
+    public static func remainderWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool) {
+        let (result, overflow) = UInt.remainderWithOverflow(lhs.asUInt!, rhs.asUInt!)
+        return (Self(result), overflow)
+    }
     // POInteger conformance
     public var asUInt64:UInt64? { return UInt64(self.toUIntMax()) }
     public var asUInt32:UInt32? { return UInt32(self.toUIntMax()) }
@@ -307,6 +355,23 @@ public extension POUInt {
         return self != 0 && self & (self - 1) == 0
     }
 }
+//
+//public func &<U:POUInt>(lhs:U, rhs:U)->U {
+//    return U(lhs.toUIntMax() & rhs.toUIntMax())
+//}
+//public func |<U:POUInt>(lhs:U, rhs:U)->U {
+//    return U(lhs.toUIntMax() | rhs.toUIntMax())
+//}
+//public func ^<U:POUInt>(lhs:U, rhs:U)->U {
+//    return U(lhs.toUIntMax() ^ rhs.toUIntMax())
+//}
+//public func << <U:POUInt>(lhs:U, rhs:U)->U {
+//    return U(lhs.toUIntMax() << rhs.toUIntMax())
+//}
+//public func >> <U:POUInt>(lhs:U, rhs:U)->U {
+//    return U(lhs.toUIntMax() << rhs.toUIntMax())
+//}
+//
 extension UInt64:   POUInt {
     public typealias IntType = Int64
     public var msbAt:Int {
@@ -337,7 +402,6 @@ extension UInt:     POUInt {
 }
 
 public typealias POSwiftInt = SignedIntegerType
-
 ///
 /// Protocol-oriented signed integer.  All built-ins already conform to this.
 ///
@@ -357,6 +421,26 @@ public extension POInt {
     /// number of significant bits ==  sizeof(Self) * 8 - 1
     public static var precision:Int {
         return sizeof(Self) * 8 - 1
+    }
+    public static func addWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool) {
+        let (result, overflow) = Int.addWithOverflow(lhs.asInt!, rhs.asInt!)
+        return (Self(result), overflow)
+    }
+    public static func subtractWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool) {
+        let (result, overflow) = Int.subtractWithOverflow(lhs.asInt!, rhs.asInt!)
+        return (Self(result), overflow)
+    }
+    public static func multiplyWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool) {
+        let (result, overflow) = Int.multiplyWithOverflow(lhs.asInt!, rhs.asInt!)
+        return (Self(result), overflow)
+    }
+    public static func divideWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool) {
+        let (result, overflow) = Int.divideWithOverflow(lhs.asInt!, rhs.asInt!)
+        return (Self(result), overflow)
+    }
+    public static func remainderWithOverflow(lhs: Self, _ rhs: Self) -> (Self, overflow: Bool) {
+        let (result, overflow) = Int.remainderWithOverflow(lhs.asInt!, rhs.asInt!)
+        return (Self(result), overflow)
     }
     /// Default isSignMinus
     public var isSignMinus:Bool {
@@ -455,6 +539,23 @@ public extension POInt {
         return self.abs.asUnsigned!.isPowerOf2
     }
 }
+//
+//public func &<I:POInt>(lhs:I, rhs:I)->I {
+//    return I(lhs.toIntMax() & rhs.toIntMax())
+//}
+//public func |<I:POInt>(lhs:I, rhs:I)->I {
+//    return I(lhs.toIntMax() | rhs.toIntMax())
+//}
+//public func ^<I:POInt>(lhs:I, rhs:I)->I {
+//    return I(lhs.toIntMax() ^ rhs.toIntMax())
+//}
+//public func << <I:POInt>(lhs:I, rhs:I)->I {
+//    return I(lhs.toIntMax() << rhs.toIntMax())
+//}
+//public func >> <I:POInt>(lhs:I, rhs:I)->I {
+//    return I(lhs.toIntMax() << rhs.toIntMax())
+//}
+//
 extension Int64:    POInt {
     public typealias UIntType = UInt64
     public var asUnsigned:UIntType? { return self < 0 ? nil : UIntType(self) }

@@ -71,13 +71,31 @@ public struct BigInt {
     }
     // no overflow for BigInt, period.
     public static func addWithOverflow(lhs:BigInt, _ rhs:BigInt)->(BigInt, overflow:Bool) {
-        return (lhs + rhs, false)
+        //return (lhs + rhs, false)
+        if lhs.isSignMinus != rhs.isSignMinus {
+            let unsignedValue = lhs.unsignedValue < rhs.unsignedValue
+                ?   rhs.unsignedValue - lhs.unsignedValue
+                :   lhs.unsignedValue - rhs.unsignedValue
+            return (BigInt(
+                unsignedValue: unsignedValue,
+                isSignMinus: Bool.xor(lhs.unsignedValue < rhs.unsignedValue, lhs.isSignMinus)
+            ), false)
+        }
+        return (BigInt(
+            unsignedValue: lhs.unsignedValue + rhs.unsignedValue,
+            isSignMinus: lhs.isSignMinus
+        ), false)
     }
     public static func subtractWithOverflow(lhs:BigInt, _ rhs:BigInt)->(BigInt, overflow:Bool) {
-        return (lhs - rhs, false)
+        return addWithOverflow(lhs, -rhs)
     }
     public static func multiplyWithOverflow(lhs:BigInt, _ rhs:BigInt)->(BigInt, overflow:Bool) {
-        return (lhs * rhs, false)
+        //return (lhs * rhs, false)
+        return (BigInt(
+            unsignedValue:  lhs.abs.unsignedValue * rhs.unsignedValue,
+            isSignMinus:    Bool.xor(lhs.isSignMinus, rhs.isSignMinus)
+        ), false)
+
     }
     public static func divmod(lhs:BigInt, _ rhs:BigInt)->(BigInt, BigInt) {
         let (q, r) = BigUInt.divmod(lhs.unsignedValue, rhs.unsignedValue)
@@ -116,24 +134,6 @@ public prefix func -(bi:BigInt)->BigInt {
 public prefix func +(bi:BigInt)->BigInt {
     return bi
 }
-public func +(lhs:BigInt, rhs:BigInt)->BigInt {
-    if lhs.isSignMinus != rhs.isSignMinus {
-        let unsignedValue = lhs.unsignedValue < rhs.unsignedValue
-            ?   rhs.unsignedValue - lhs.unsignedValue
-            :   lhs.unsignedValue - rhs.unsignedValue
-        return BigInt(
-            unsignedValue: unsignedValue,
-            isSignMinus: Bool.xor(lhs.unsignedValue < rhs.unsignedValue, lhs.isSignMinus)
-        )
-    }
-    return BigInt(
-        unsignedValue: lhs.unsignedValue + rhs.unsignedValue,
-        isSignMinus: lhs.isSignMinus
-    )
-}
-public func -(lhs:BigInt, rhs:BigInt)->BigInt {
-    return lhs + (-rhs)
-}
 // Bitwise ops
 public prefix func ~(bs:BigInt)->BigInt {
     return BigInt(unsignedValue: ~bs.unsignedValue)
@@ -153,28 +153,18 @@ public func <<(lhs:BigInt, rhs:BigInt)->BigInt {
         isSignMinus:    lhs.isSignMinus
     )
 }
+//public func <<=(inout lhs:BigInt, rhs:BigInt) {
+//    lhs.unsignedValue <<= rhs.unsignedValue
+//}
 public func >>(lhs:BigInt, rhs:BigInt)->BigInt {
     return BigInt(
         unsignedValue:  lhs.unsignedValue >> rhs.unsignedValue,
         isSignMinus:    lhs.isSignMinus
     )
 }
-// arithmetic operators
-public func *(lhs:BigInt, rhs:BigInt)->BigInt {
-    return BigInt(
-        unsignedValue:  lhs.abs.unsignedValue * rhs.unsignedValue,
-        isSignMinus:    Bool.xor(lhs.isSignMinus, rhs.isSignMinus)
-    )
-}
-public func &*(lhs:BigInt, rhs:BigInt)->BigInt {
-    return lhs * rhs
-}
-public func /(lhs:BigInt, rhs:BigInt)->BigInt {
-    return BigInt.divmod(lhs, rhs).0
-}
-public func %(lhs:BigInt, rhs:BigInt)->BigInt {
-    return BigInt.divmod(lhs, rhs).1
-}
+//public func >>=(inout lhs:BigInt, rhs:BigInt) {
+//    lhs.unsignedValue >>= rhs.unsignedValue
+//}
 extension BigInt : POInt {
     public var asUnsigned:UIntType? { return self < 0 ? nil : self.unsignedValue }
     public var asBigInt:BigInt? { return self }

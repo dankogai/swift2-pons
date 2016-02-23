@@ -292,10 +292,7 @@ public extension BigUInt {
     }
 }
 public func +(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    // return BigUInt.add(lhs, rhs)
-    var l = lhs
-    l += rhs
-    return l
+    return BigUInt.addWithOverflow(lhs, rhs).0
 }
 public func +=(inout lhs:BigUInt, rhs:BigUInt) {
     // lhs = BigUInt.add(lhs, rhs); return // is too naive
@@ -365,12 +362,6 @@ public extension BigUInt {
     public static func multiplyWithOverflow(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, overflow:Bool) {
         return (multiply(lhs, rhs), overflow:false)
     }
-}
-public func *(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    return BigUInt.multiply(lhs, rhs)
-}
-public func &*(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    return BigUInt.multiplyWithOverflow(lhs, rhs).0
 }
 // before we get down to division, let's define divmod32 and divmod8
 // and use it to make it conform to CustomStringConvertible
@@ -472,12 +463,6 @@ public extension BigUInt {
     public static func remainderWithOverflow(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, overflow:Bool) {
         return (divmod(lhs, rhs).1, false)
     }
-}
-public func /(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    return BigUInt.divmod(lhs, rhs).0
-}
-public func %(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    return BigUInt.divmod(lhs, rhs).1
 }
 // Now that we are done with all requirements, Let Swift know that!
 extension BigUInt: POUInt {
