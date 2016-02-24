@@ -6,12 +6,6 @@
 //  Copyright © 2016 Dan Kogai. All rights reserved.
 //
 
-// make (T,S) equatable just for tests
-// oh... Swift 2.2 on Linux puked on this :-(
-//func ==<T:Equatable,S:Equatable>(lhs:(T,S), rhs:(T,S))->Bool {
-//    return lhs.0 == rhs.0 && lhs.1 == rhs.1
-//}
-
 #if true
 
 let test = TAP()

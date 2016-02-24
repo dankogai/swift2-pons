@@ -142,57 +142,43 @@ extension BigUInt : BitwiseOperationsType {
                 return BigUInt(rawValue:value)
             }
     }
+    private static func binopAssign(op:(DigitType,DigitType)->DigitType)->(inout BigUInt,BigUInt)->() {
+        return { lhs, rhs in
+            lhs.stretch(rhs.digits.count-1)
+            for i in 0..<lhs.digits.count {
+                lhs.digits[i] = op(lhs.digits[i], i < rhs.digits.count ? rhs.digits[i] : 0)
+            }
+        }
+    }
     /// bitwise `&` in functional form
     public static let bitAnd = BigUInt.binop(&)
+    /// bitwise `&=` in functional form
+    private static let bitAndAssign = BigUInt.binopAssign(&)
     /// bitwise `|` in functional form
     public static let bitOr  = BigUInt.binop(|)
+    /// bitwise `|=` in functional form
+    private static let bitOrAssign  = BigUInt.binopAssign(|)
     /// bitwise `^` in functional form
-    public static let bitXor = BigUInt.binop(^)
+    private static let bitXor = BigUInt.binop(^)
+    /// bitwise `^=` in functional form
+    public static let bitXorAssign = BigUInt.binopAssign(^)
     /// bitwise `~` in functional form
     public static func bitNot(bs:BigUInt)->BigUInt {
         return BigUInt(rawValue: bs.digits.map{ ~$0 } )
     }
     /// bitwise `<<` in functional form
     public static func bitShiftL(lhs:BigUInt, _ rhs:DigitType)->BigUInt {
-        if lhs == 0 { return lhs }
-        let (index, offset) = (rhs / 32, rhs % 32)
-        let blank = [DigitType](count:Int(index), repeatedValue:0)
-        if offset == 0 { return BigUInt(rawValue: blank + lhs.digits) }
-        var value = lhs.digits
-        var carry:UInt32 = 0
-        for i in 0..<value.count {
-            value[i] = carry | (value[i] << offset)
-            carry = lhs.digits[i] >> (32 - offset)
-        }
-        value.append(carry)
-        return BigUInt(rawValue:blank + value)
+        return lhs << rhs.asInt!
     }
     public static func bitShiftL(lhs:BigUInt, _ rhs:BigUInt)->BigUInt {
-        return bitShiftL(lhs, rhs.asUInt32!)
+        return lhs << rhs
     }
     /// bitwise `>>` in functional form
     public static func bitShiftR(lhs:BigUInt, _ rhs:DigitType)->BigUInt {
-        if lhs == 0 { return lhs }
-        var value = lhs.digits
-        let (index, offset) = (rhs / 32, rhs % 32)
-        if value.count <= Int(index) {
-            return 0
-        }
-        value.removeFirst(Int(index))
-        if offset == 0 { return BigUInt(rawValue:value) }
-        let e = 0
-        let b = value.count
-        let ol = offset
-        let oh = 32 - ol
-        let mask = ~0 >> oh
-        value.append(0) // add sentinel
-        for i in e..<b {
-            value[i] = ((value[i+1] & mask) << oh) | (value[i] >> ol)
-        }
-        return BigUInt(rawValue:value)
+        return lhs >> rhs.asInt!
     }
     public static func bitShiftR(lhs:BigUInt, _ rhs:BigUInt)->BigUInt {
-        return bitShiftR(lhs, rhs.asUInt32!)
+        return lhs >> rhs
     }
 }
 // Bitwise ops
@@ -202,21 +188,21 @@ public prefix func ~(bs:BigUInt)->BigUInt {
 public func &(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.bitAnd(lhs, rhs)
 }
-//public func &=(inout lhs:BigUInt, rhs:BigUInt) {
-//    lhs = lhs & rhs
-//}
+public func &=(inout lhs:BigUInt, rhs:BigUInt) {
+    BigUInt.bitAndAssign(&lhs, rhs)
+}
 public func |(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.bitOr(lhs, rhs)
 }
-//public func |=(inout lhs:BigUInt, rhs:BigUInt) {
-//    lhs = lhs | rhs
-//}
+public func |=(inout lhs:BigUInt, rhs:BigUInt) {
+    BigUInt.bitOrAssign(&lhs, rhs)
+}
 public func ^(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.bitXor(lhs, rhs)
 }
-//public func ^=(inout lhs:BigUInt, rhs:BigUInt) {
-//    lhs = lhs ^ rhs
-//}
+public func ^=(inout lhs:BigUInt, rhs:BigUInt) {
+    BigUInt.bitXorAssign(&lhs, rhs)
+}
 public func <<=(inout lhs:BigUInt, rhs:BigUInt) {
     lhs <<= rhs.asInt!
 }
@@ -239,13 +225,22 @@ public func <<=(inout lhs:BigUInt, rhs:Int) {
     if carry != 0 { lhs.digits.append(carry) }
 }
 public func <<(lhs:BigUInt, rhs:Int)->BigUInt {
-//    var result = lhs
-//    result <<= rhs
-//    return result
-    return BigUInt.bitShiftL(lhs, UInt32(rhs))
+    if lhs == 0 { return lhs }
+    let (index, offset) = (rhs / 32, BigUInt.DigitType(rhs) % 32)
+    let blank = Array<BigUInt.DigitType>(count:index, repeatedValue:0)
+    if offset == 0 { return BigUInt(rawValue: blank + lhs.digits) }
+    var value = lhs.digits
+    var carry:UInt32 = 0
+    for i in 0..<value.count {
+        value[i] = carry | (value[i] << offset)
+        carry = lhs.digits[i] >> (32 - offset)
+    }
+    value.append(carry)
+    return BigUInt(rawValue:blank + value)
 }
 public func <<(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    return BigUInt.bitShiftL(lhs, UInt32(rhs))
+    return lhs << rhs.asInt!
+    // return BigUInt.bitShiftL(lhs, UInt32(rhs))
 }
 public func >>=(inout lhs:BigUInt, rhs:BigUInt) {
     lhs >>= rhs.asInt!
@@ -291,6 +286,14 @@ public extension BigUInt {
         l += rhs
         return (l, overflow:false)  // never overlows but protocol demands this
     }
+    /// subtraction in functional form
+    public static func add(lhs:BigUInt, _ rhs:BigUInt)->BigUInt {
+        let result = addWithOverflow(lhs, rhs)
+        if result.overflow {
+            fatalError("arithmetic operation '\(lhs) + \(rhs)' (on type 'BigUInt') results in an overflow")
+        }
+        return result.0
+    }
     /// since BigUInt is unsigned, it overflows when `lhs < rhs`.
     ///
     /// - returns: (`lhs - rhs`, overflow:lhs < rhs)
@@ -298,7 +301,7 @@ public extension BigUInt {
         if rhs == 0 { return (lhs, false) }
         var l = lhs
         l -= rhs
-        return (l, overflow: lhs < rhs) // overflow when `li
+        return (l, overflow: lhs < rhs) // overflow when lhs < rhs
     }
     /// subtraction in functional form
     public static func subtract(lhs:BigUInt, _ rhs:BigUInt)->BigUInt {
@@ -309,8 +312,11 @@ public extension BigUInt {
         return result.0
     }
 }
-public func +(lhs:BigUInt, rhs:BigUInt)->BigUInt {
+public func &+(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.addWithOverflow(lhs, rhs).0
+}
+public func +(lhs:BigUInt, rhs:BigUInt)->BigUInt {
+    return BigUInt.add(lhs, rhs)
 }
 public func +=(inout lhs:BigUInt, rhs:BigUInt) {
     // lhs = BigUInt.add(lhs, rhs); return // is too naive
@@ -327,12 +333,11 @@ public func +=(inout lhs:BigUInt, rhs:BigUInt) {
 public prefix func +(bs:BigUInt)->BigUInt {
     return bs
 }
+public func &-(lhs:BigUInt, rhs:BigUInt)->BigUInt {
+    return BigUInt.subtractWithOverflow(lhs, rhs).0
+}
 public func -(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    let result = BigUInt.subtractWithOverflow(lhs, rhs)
-    if result.overflow {
-        fatalError("arithmetic operation '\(lhs) - \(rhs)' (on type 'BigUInt') results in an overflow")
-    }
-    return result.0
+    return BigUInt.subtract(lhs, rhs)
 }
 public func -=(inout lhs:BigUInt, rhs:BigUInt) {
     // lhs = lhs - rhs; return // is too naive
@@ -411,11 +416,11 @@ public extension BigUInt {
         if self.msbAt + 1 < bits {
             inv0 <<= BigUInt(bits - (self.msbAt + 1))
         }
-        var inv:BigUInt = BigUInt(1) << BigUInt(bits)
+        var inv:BigUInt = BigUInt(1) << bits
         let two = inv * inv * 2
         for _ in 0...bits {
-            inv = inv0 * (two - self * inv0)     // Newton-Raphson core
-            inv >>= BigUInt(inv.msbAt - bits)   // truncate
+            inv = inv0 * (two - self * inv0)    // Newton-Raphson core
+            inv >>= inv.msbAt - bits            // truncate
             if inv == inv0 { break }
             inv0 = inv
         }
@@ -427,7 +432,7 @@ public extension BigUInt {
     public static func divmodNR(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, BigUInt) {
         let bits = rhs.msbAt + 1
         var inv0 = rhs
-        var inv:BigUInt = BigUInt(1) << bits // BigUInt(bits)
+        var inv:BigUInt = BigUInt(1) << bits
         let two = inv * inv * 2
         for _ in 0...bits {
             inv = inv0 * (two - rhs * inv0)     // Newton-Raphson core
@@ -437,7 +442,7 @@ public extension BigUInt {
         }
         var (q, r) = (BigUInt(0), lhs)
         while r > rhs {
-            let q0 = (r * inv) >> (bits*2)  // BigUInt(bits*2)
+            let q0 = (r * inv) >> (bits*2)
             q += q0
             r -= rhs * q0
 

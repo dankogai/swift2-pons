@@ -19,6 +19,13 @@ public class PiHex : SequenceType {
     }
 }
 
+var v:BigUInt = 1 << 32 - 1
+v
+v & BigUInt(1 << 16 - 1)
+v
+v &= BigUInt(1 << 16 - 1)
+v
+/*
 Float.pi().toHexString()
 Double.pi().toHexString()
 BigFloat.pi(64).toHexString()
@@ -28,7 +35,6 @@ var v:BigUInt = 1
 v <<= 0
 
 
-/*
 
 ({ d in
 let r = BigFloat(d)
