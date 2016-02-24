@@ -659,9 +659,9 @@ extension Double : POFloat {
         return (IntType(self), self % 1.0)
     }
     /// number of significant bits == 53
-    public static let precision = Int(DBL_MANT_DIG)
+    public static let precision = 53        // Int(DBL_MANT_DIG)
     ///
-    public static let maxExponent = Int(DBL_MAX_EXP)
+    public static let maxExponent = 1024    // Int(DBL_MAX_EXP)
     ///
     public var precision:Int { return Double.precision }
     public func truncate(bits:Int)->Double { return self }
@@ -677,10 +677,10 @@ extension Float : POFloat {
     public func toMixed()->(IntType, Float) {
         return (IntType(self), self % 1.0)
     }
-    /// number of significant bits == 23
-    public static let precision = Int(FLT_MANT_DIG)
+    /// number of significant bits == 24
+    public static let precision = 24        // Int(FLT_MANT_DIG)
     ///
-    public static let maxExponent = Int(FLT_MAX_EXP)
+    public static let maxExponent = 128     // Int(FLT_MAX_EXP)
     ///
     public var precision:Int { return Float.precision }
     public func truncate(bits:Int)->Float { return self }
