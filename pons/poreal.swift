@@ -767,7 +767,7 @@ public extension Double {
 }
 public extension Float {
     #if os(Linux)
-    public static func frexp(d:Float)->(Float, Int) {
+    public static func frexp(f:Float)->(Float, Int) {
         // return Glibc.frexp(f)
         var e:Int32 = 0
         let m = Glibc.frexpf(f, &e)
