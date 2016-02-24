@@ -156,15 +156,21 @@ public func <<(lhs:BigInt, rhs:BigInt)->BigInt {
 //public func <<=(inout lhs:BigInt, rhs:BigInt) {
 //    lhs.unsignedValue <<= rhs.unsignedValue
 //}
-public func >>(lhs:BigInt, rhs:BigInt)->BigInt {
+public func >>(lhs:BigInt, rhs:Int)->BigInt {
     return BigInt(
-        unsignedValue:  lhs.unsignedValue >> rhs.unsignedValue,
+        unsignedValue:  lhs.unsignedValue >> rhs,
         isSignMinus:    lhs.isSignMinus
     )
 }
-//public func >>=(inout lhs:BigInt, rhs:BigInt) {
-//    lhs.unsignedValue >>= rhs.unsignedValue
-//}
+public func >>(lhs:BigInt, rhs:BigInt)->BigInt {
+    return lhs >> rhs.asInt!
+}
+public func >>=(inout lhs:BigInt, rhs:Int) {
+    lhs.unsignedValue >>= rhs
+}
+public func >>=(inout lhs:BigInt, rhs:BigInt) {
+    lhs.unsignedValue >>= rhs.unsignedValue
+}
 extension BigInt : POInt {
     public var asUnsigned:UIntType? { return self < 0 ? nil : self.unsignedValue }
     public var asBigInt:BigInt? { return self }

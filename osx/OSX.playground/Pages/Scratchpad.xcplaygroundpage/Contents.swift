@@ -24,6 +24,10 @@ Double.pi().toHexString()
 BigFloat.pi(64).toHexString()
 Float.exp(FLT_MIN)
 
+var v:BigUInt = 1
+v <<= 0
+
+
 /*
 
 ({ d in

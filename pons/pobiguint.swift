@@ -202,26 +202,29 @@ public prefix func ~(bs:BigUInt)->BigUInt {
 public func &(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.bitAnd(lhs, rhs)
 }
-public func &=(inout lhs:BigUInt, rhs:BigUInt) {
-    lhs = lhs & rhs
-}
+//public func &=(inout lhs:BigUInt, rhs:BigUInt) {
+//    lhs = lhs & rhs
+//}
 public func |(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.bitOr(lhs, rhs)
 }
-public func |=(inout lhs:BigUInt, rhs:BigUInt) {
-    lhs = lhs | rhs
-}
+//public func |=(inout lhs:BigUInt, rhs:BigUInt) {
+//    lhs = lhs | rhs
+//}
 public func ^(lhs:BigUInt, rhs:BigUInt)->BigUInt {
     return BigUInt.bitXor(lhs, rhs)
 }
-public func ^=(inout lhs:BigUInt, rhs:BigUInt) {
-    lhs = lhs ^ rhs
-}
+//public func ^=(inout lhs:BigUInt, rhs:BigUInt) {
+//    lhs = lhs ^ rhs
+//}
 public func <<=(inout lhs:BigUInt, rhs:BigUInt) {
+    lhs <<= rhs.asInt!
+}
+public func <<=(inout lhs:BigUInt, rhs:Int) {
     // lhs = lhs << rhs; return // turns out to be too naive
     if lhs == 0 { return }
-    let (index, offset) = (rhs / 32, rhs.asUInt32! % 32)
-    while lhs.digits.count <= Int(index) {
+    let (index, offset) = (rhs / 32, UInt32(rhs) % 32)
+    while lhs.digits.count <= index {
         lhs.digits.insert(0, atIndex:0)
     }
     if offset == 0 { return }
@@ -235,18 +238,27 @@ public func <<=(inout lhs:BigUInt, rhs:BigUInt) {
     }
     if carry != 0 { lhs.digits.append(carry) }
 }
+public func <<(lhs:BigUInt, rhs:Int)->BigUInt {
+//    var result = lhs
+//    result <<= rhs
+//    return result
+    return BigUInt.bitShiftL(lhs, UInt32(rhs))
+}
 public func <<(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    return BigUInt.bitShiftL(lhs, rhs)
+    return BigUInt.bitShiftL(lhs, UInt32(rhs))
 }
 public func >>=(inout lhs:BigUInt, rhs:BigUInt) {
+    lhs >>= rhs.asInt!
+}
+public func >>=(inout lhs:BigUInt, rhs:Int) {
     if lhs == 0 { return }
-    let (index, offset) = (rhs / 32, rhs.asUInt32! % 32)
-    if lhs.digits.count <= Int(index) {
+    let (index, offset) = (rhs / 32, UInt32(rhs) % 32)
+    if lhs.digits.count <= index {
         // lhs.digits = [0]
         lhs.digits.removeAll()
         lhs.digits.append(0)
     }
-    lhs.digits.removeFirst(Int(index))
+    lhs.digits.removeFirst(index)
     if offset == 0 { return }
     let e = 0
     let b = lhs.digits.count
@@ -259,8 +271,14 @@ public func >>=(inout lhs:BigUInt, rhs:BigUInt) {
     }
     lhs.trim()
 }
+public func >>(lhs:BigUInt, rhs:Int)->BigUInt {
+    var result = lhs
+    result >>= rhs
+    return result
+    //return BigUInt.bitShiftR(lhs, rhs)
+}
 public func >>(lhs:BigUInt, rhs:BigUInt)->BigUInt {
-    return BigUInt.bitShiftR(lhs, rhs)
+    return lhs >> rhs.asInt!
 }
 // addition and subtraction
 public extension BigUInt {
@@ -409,7 +427,7 @@ public extension BigUInt {
     public static func divmodNR(lhs:BigUInt, _ rhs:BigUInt)->(BigUInt, BigUInt) {
         let bits = rhs.msbAt + 1
         var inv0 = rhs
-        var inv:BigUInt = BigUInt(1) << BigUInt(bits)
+        var inv:BigUInt = BigUInt(1) << bits // BigUInt(bits)
         let two = inv * inv * 2
         for _ in 0...bits {
             inv = inv0 * (two - rhs * inv0)     // Newton-Raphson core
@@ -419,7 +437,7 @@ public extension BigUInt {
         }
         var (q, r) = (BigUInt(0), lhs)
         while r > rhs {
-            let q0 = (r * inv) >> BigUInt(bits*2)
+            let q0 = (r * inv) >> (bits*2)  // BigUInt(bits*2)
             q += q0
             r -= rhs * q0
 
@@ -434,7 +452,7 @@ public extension BigUInt {
         var q = BigUInt(0)
         var r = BigUInt(0)
         for i in (0...lhs.msbAt).lazy.reverse() {
-            r <<= BigUInt(1)
+            r <<= 1
             r[0] = lhs[i]
             if r >= rhs {
                 r -= rhs
