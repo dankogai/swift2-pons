@@ -111,7 +111,7 @@ public func ^(lhs:UInt128, rhs:UInt128)->UInt128 {
         lhs.value.3 | rhs.value.3
     )
 }
-#if false   // slow but steady BigInt arithmetics
+#if !os(OSX)    // slow but steady BigInt arithmetics
 public extension UInt128 {
     public static func addWithOverflow(lhs:UInt128, _ rhs:UInt128)->(UInt128, overflow:Bool) {
         let (bu, overflow) = BigUInt.addWithOverflow(lhs.inBigUInt, rhs.inBigUInt)
@@ -136,7 +136,7 @@ public func <<(lhs:UInt128, rhs:UInt128)->UInt128 {
 public func >>(lhs:UInt128, rhs:UInt128)->UInt128 {
     return UInt128( lhs.inBigUInt >> rhs.inBigUInt )
 }
-#else   // fast arithmetics via Accelerate
+#else   // fast arithmetics via Accelerate.  OS X only
 import Accelerate
 public extension UInt128 {
     public static func addWithOverflow(lhs:UInt128, _ rhs:UInt128)->(UInt128, overflow:Bool) {
