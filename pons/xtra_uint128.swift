@@ -47,7 +47,7 @@ public struct UInt128 : POUInt {
         if value.2 != 0 || value.3 != 0 {
             fatalError("\(self) > UIntMax.max = \(UIntMax.max)")
         }
-        return UIntMax(value.1 << 32 | value.0)
+        return UIntMax(value.1)<<32 | UIntMax(value.0)
     }
     public func toIntMax()->IntMax {
         return IntMax(self.toUIntMax())
