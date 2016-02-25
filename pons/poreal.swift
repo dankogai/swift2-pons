@@ -120,11 +120,12 @@ public extension POReal {
         if x.isNaN || x.isSignMinus || x.isZero || x.isInfinite {
             return Self(Double.sqrt(x.toDouble()))
         }
-        let q = x.asBigRat!
-        let n = q.numerator   << BigInt(px * 2)
-        let d = q.denominator << BigInt(px * 2)
+        let q = (x.abs < 1 ? 1/x : x).asBigRat!
+        let n = q.numerator   << (px * 2)
+        let d = q.denominator << (px * 2)
         var r = Self(BigInt.sqrt(n).over(BigInt.sqrt(d)))
-        return r.truncate(px)
+        if Self.self != BigRat.self { r.truncate(px) }
+        return x.abs < 1 ? 1/r : r
     }
     /// - returns: `sqrt(x*x + y*y)` witout overflow
     public static func hypot(x:Self, _ y:Self, precision px:Int=64)->Self {
@@ -176,7 +177,8 @@ public extension POReal {
         }
         let fr = fx.isZero ? Self(1) : inner_exp(fx, px)
         var r = ir * fr
-        return x.isSignMinus ? 1/r.truncate(px) : r.truncate(px)
+        if Self.self != BigRat.self { r.truncate(px) }
+        return x.isSignMinus ? 1/r : r
     }
     /// ![](https://upload.wikimedia.org/math/1/7/5/17534a763ff4b0fd87ce62556ebcc3d7.png)
     ///

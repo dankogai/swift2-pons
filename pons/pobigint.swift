@@ -147,15 +147,18 @@ public func |(lhs:BigInt, rhs:BigInt)->BigInt {
 public func ^(lhs:BigInt, rhs:BigInt)->BigInt {
     return BigInt(unsignedValue:lhs.unsignedValue ^ rhs.unsignedValue)
 }
+public func <<(lhs:BigInt, rhs:Int)->BigInt {
+    return BigInt(
+        unsignedValue:  lhs.unsignedValue << rhs,
+        isSignMinus:    lhs.isSignMinus
+    )
+}
 public func <<(lhs:BigInt, rhs:BigInt)->BigInt {
     return BigInt(
         unsignedValue:  lhs.unsignedValue << rhs.unsignedValue,
         isSignMinus:    lhs.isSignMinus
     )
 }
-//public func <<=(inout lhs:BigInt, rhs:BigInt) {
-//    lhs.unsignedValue <<= rhs.unsignedValue
-//}
 public func >>(lhs:BigInt, rhs:Int)->BigInt {
     return BigInt(
         unsignedValue:  lhs.unsignedValue >> rhs,

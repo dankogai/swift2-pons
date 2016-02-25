@@ -19,12 +19,6 @@ public class PiHex : SequenceType {
     }
 }
 
-var v:BigUInt = 1 << 32 - 1
-v
-v & BigUInt(1 << 16 - 1)
-v
-v &= BigUInt(1 << 16 - 1)
-v
 /*
 Float.pi().toHexString()
 Double.pi().toHexString()
