@@ -560,10 +560,10 @@ public extension POUInt {
         // return b < 1 ? 1 : power(b, x){ mulmod($0, $1, m) }
         if Self.self != BigUInt.self  { // force BigUInt to avoid overflow
             let totalbits = (b.msbAt + 1) + (x.msbAt + 1) + (m.msbAt + 1)
-            if 64 <= totalbits {
-                return Self(BigUInt.powmod(b.asBigUInt!, x.asBigUInt!, mod:m.asBigUInt!).asUInt64!)
+            if Self.precision <= totalbits {
+                return Self(BigUInt.powmod(b.asBigUInt!, x.asBigUInt!, mod:m.asBigUInt!))
             }
-            if Self.precision < 64 {
+            if Self.precision < UIntMax.precision {
                 return Self(UIntMax.powmod(b.asUInt64!, x.asUInt64!, mod:m.asUInt64!))
             }
         }
