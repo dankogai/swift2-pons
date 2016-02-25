@@ -148,76 +148,76 @@ public func ^(lhs:UInt256, rhs:UInt256)->UInt256 {
         lhs.value.7 ^ rhs.value.7
     )
 }
-#if false    // slow but steady BigInt arithmetics
-    public extension UInt256 {
-        public static func addWithOverflow(lhs:UInt256, _ rhs:UInt256)->(UInt256, overflow:Bool) {
-            let (bu, overflow) = BigUInt.addWithOverflow(lhs.inBigUInt, rhs.inBigUInt)
-            return (UInt256(bu), overflow || bu.digits.count > 8)
-        }
-        public static func subtractWithOverflow(lhs:UInt256, _ rhs:UInt256)->(UInt256, overflow:Bool) {
-            let (bu, overflow) = BigUInt.subtractWithOverflow(lhs.inBigUInt, rhs.inBigUInt)
-            return (UInt256(bu), overflow || bu.digits.count > 8)
-        }
-        public static func multiplyWithOverflow(lhs:UInt256, _ rhs:UInt256)->(UInt256, overflow:Bool) {
-            let (bu, overflow) = BigUInt.multiplyWithOverflow(lhs.inBigUInt, rhs.inBigUInt)
-            return (UInt256(bu), overflow || bu.digits.count > 8)
-        }
-        public static func divmod(lhs:UInt256, _ rhs:UInt256)->(UInt256, UInt256) {
-            let (q, r) = BigUInt.divmod(lhs.inBigUInt, rhs.inBigUInt)
-            return (UInt256(q), UInt256(r))
-        }
+#if !os(OSX)    // slow but steady BigInt arithmetics
+public extension UInt256 {
+    public static func addWithOverflow(lhs:UInt256, _ rhs:UInt256)->(UInt256, overflow:Bool) {
+        let (bu, overflow) = BigUInt.addWithOverflow(lhs.inBigUInt, rhs.inBigUInt)
+        return (UInt256(bu), overflow || bu.digits.count > 8)
     }
-    public func <<(lhs:UInt256, rhs:UInt256)->UInt256 {
-        return UInt256( lhs.inBigUInt << rhs.inBigUInt )
+    public static func subtractWithOverflow(lhs:UInt256, _ rhs:UInt256)->(UInt256, overflow:Bool) {
+        let (bu, overflow) = BigUInt.subtractWithOverflow(lhs.inBigUInt, rhs.inBigUInt)
+        return (UInt256(bu), overflow || bu.digits.count > 8)
     }
-    public func >>(lhs:UInt256, rhs:UInt256)->UInt256 {
-        return UInt256( lhs.inBigUInt >> rhs.inBigUInt )
+    public static func multiplyWithOverflow(lhs:UInt256, _ rhs:UInt256)->(UInt256, overflow:Bool) {
+        let (bu, overflow) = BigUInt.multiplyWithOverflow(lhs.inBigUInt, rhs.inBigUInt)
+        return (UInt256(bu), overflow || bu.digits.count > 8)
     }
+    public static func divmod(lhs:UInt256, _ rhs:UInt256)->(UInt256, UInt256) {
+        let (q, r) = BigUInt.divmod(lhs.inBigUInt, rhs.inBigUInt)
+        return (UInt256(q), UInt256(r))
+    }
+}
+public func <<(lhs:UInt256, rhs:UInt256)->UInt256 {
+    return UInt256( lhs.inBigUInt << rhs.inBigUInt )
+}
+public func >>(lhs:UInt256, rhs:UInt256)->UInt256 {
+    return UInt256( lhs.inBigUInt >> rhs.inBigUInt )
+}
 #else   // fast arithmetics via Accelerate.  OS X only
     import Accelerate
-    public extension UInt256 {
-        public static func addWithOverflow(lhs:UInt256, _ rhs:UInt256)->(UInt256, overflow:Bool) {
-            var a = unsafeBitCast((lhs, vU256()), vU512.self)
-            var b = unsafeBitCast((rhs, vU256()), vU512.self)
-            var ab = vU512()
-            vU512Add(&a, &b, &ab)
-            let (r, o) =  unsafeBitCast(ab, (UInt256, UInt256).self)
-            return (r, o != 0)
-        }
-        public static func subtractWithOverflow(lhs:UInt256, _ rhs:UInt256)->(UInt256, overflow:Bool) {
-            var a = unsafeBitCast((lhs, vU256()), vU512.self)
-            var b = unsafeBitCast((rhs, vU256()), vU512.self)
-            var ab = vU512()
-            vU512Sub(&a, &b, &ab)
-            let (r, o) =  unsafeBitCast(ab, (UInt256, UInt256).self)
-            return (r, o != 0)
-        }
-        public static func multiplyWithOverflow(lhs:UInt256, _ rhs:UInt256)->(UInt256, overflow:Bool) {
-            var a = unsafeBitCast(lhs, vU256.self)
-            var b = unsafeBitCast(rhs, vU256.self)
-            var ab = vU512()
-            vU256FullMultiply(&a, &b, &ab)
-            let (r, o) =  unsafeBitCast(ab, (UInt256, UInt256).self)
-            return (r, o != 0)
-        }
-        public static func divmod(lhs:UInt256, _ rhs:UInt256)->(UInt256, UInt256) {
-            var a = unsafeBitCast((lhs, vU256()), vU512.self)
-            var b = unsafeBitCast((rhs, vU256()), vU512.self)
-            var (q, r) = (vU512(), vU512())
-            vU512Divide(&a, &b, &q, &r)
-            return (unsafeBitCast(q, (UInt256, UInt256).self).0, unsafeBitCast(r, (UInt256, UInt256).self).0)
-        }
-    }
-    public func <<(lhs:UInt256, rhs:UInt256)->UInt256 {
+public extension UInt256 {
+    public static func addWithOverflow(lhs:UInt256, _ rhs:UInt256)->(UInt256, overflow:Bool) {
         var a = unsafeBitCast((lhs, vU256()), vU512.self)
-        var r = vU512()
-        vLL512Shift(&a, rhs.asUInt32!, &r)
-        return unsafeBitCast(r, (UInt256, UInt256).self).0
+        var b = unsafeBitCast((rhs, vU256()), vU512.self)
+        var ab = vU512()
+        vU512Add(&a, &b, &ab)
+        let (r, o) =  unsafeBitCast(ab, (UInt256, UInt256).self)
+        return (r, o != 0)
     }
-    public func >>(lhs:UInt256, rhs:UInt256)->UInt256 {
+    public static func subtractWithOverflow(lhs:UInt256, _ rhs:UInt256)->(UInt256, overflow:Bool) {
         var a = unsafeBitCast((lhs, vU256()), vU512.self)
-        var r = vU512()
-        vLR512Shift(&a, rhs.asUInt32!, &r)
-        return unsafeBitCast(r, (UInt256, UInt256).self).0
+        var b = unsafeBitCast((rhs, vU256()), vU512.self)
+        var ab = vU512()
+        vU512Sub(&a, &b, &ab)
+        let (r, o) =  unsafeBitCast(ab, (UInt256, UInt256).self)
+        return (r, o != 0)
     }
+    public static func multiplyWithOverflow(lhs:UInt256, _ rhs:UInt256)->(UInt256, overflow:Bool) {
+        var a = unsafeBitCast(lhs, vU256.self)
+        var b = unsafeBitCast(rhs, vU256.self)
+        var ab = vU512()
+        vU256FullMultiply(&a, &b, &ab)
+        let (r, o) =  unsafeBitCast(ab, (UInt256, UInt256).self)
+        return (r, o != 0)
+    }
+    public static func divmod(lhs:UInt256, _ rhs:UInt256)->(UInt256, UInt256) {
+        var a = unsafeBitCast((lhs, vU256()), vU512.self)
+        var b = unsafeBitCast((rhs, vU256()), vU512.self)
+        var (q, r) = (vU512(), vU512())
+        vU512Divide(&a, &b, &q, &r)
+        return (unsafeBitCast(q, (UInt256, UInt256).self).0, unsafeBitCast(r, (UInt256, UInt256).self).0)
+    }
+}
+public func <<(lhs:UInt256, rhs:UInt256)->UInt256 {
+    var a = unsafeBitCast((lhs, vU256()), vU512.self)
+    var r = vU512()
+    vLL512Shift(&a, rhs.asUInt32!, &r)
+    return unsafeBitCast(r, (UInt256, UInt256).self).0
+}
+public func >>(lhs:UInt256, rhs:UInt256)->UInt256 {
+    var a = unsafeBitCast((lhs, vU256()), vU512.self)
+    var r = vU512()
+    vLR512Shift(&a, rhs.asUInt32!, &r)
+    return unsafeBitCast(r, (UInt256, UInt256).self).0
+}
 #endif
