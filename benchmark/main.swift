@@ -67,18 +67,18 @@ print("fact(42 as BigInt) ==", fact(42 as BigInt))
     print("100! == \(m999 + 1) bits")
     print("bits(1000!)/bits(20!) == \( Double(m999+1)/Double(m20+1) )")
 })(100)
-print("fact(34 as BigUInt) ==", fact(34 as BigUInt))
+print("fact(34 as UInt128) ==", fact(34 as UInt128))
 ({ count in
     if count == 0 { return }
     let tu128 = timeit(count) {
      ok(fact(34 as UInt128) / fact(33 as UInt128) == 34)
     }
     let tbu   = timeit(count) {
-     ok(fact(34 as BigInt) / fact(33 as BigInt) == 34)
+     ok(fact(34 as BigUInt) / fact(33 as BigUInt) == 34)
     }
     let ou128 = Double(count)/tu128
     let obu   = Double(count)/tbu
     print("UInt128: \(ou128) ops/s (\(tu128)s for \(count)ops)")
     print("BigUInt: \(obu) ops/s (\(tbu)s for \(count)ops)")
-    print("UInt128/BigInt == \(ou128/obu)")
+    print("UInt128/BigUInt == \(ou128/obu)")
 })(1000)
