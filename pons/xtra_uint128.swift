@@ -43,6 +43,9 @@ public struct UInt128 : POUInt {
     public var inBigUInt:BigUInt {
         return BigUInt(rawValue:[value.0, value.1, value.2, value.3])
     }
+    public var asBigUInt:BigUInt? {
+        return self.inBigUInt
+    }
     public func toUIntMax()->UIntMax {
         if value.2 != 0 || value.3 != 0 {
             fatalError("\(self) > UIntMax.max = \(UIntMax.max)")

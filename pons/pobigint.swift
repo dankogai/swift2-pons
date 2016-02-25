@@ -178,9 +178,6 @@ extension BigInt : POInt {
     public var asUnsigned:UIntType? { return self < 0 ? nil : self.unsignedValue }
     public var asBigInt:BigInt? { return self }
 }
-public extension POInt {
-    public var asBigInt:BigInt? { return BigInt(self.toIntMax()) }
-}
 public extension POUInt {
     public var asBigInt:BigInt? {
         if let bu = self as? BigUInt { return bu.asSigned }

@@ -199,12 +199,18 @@ public protocol POUInt: POInteger, StringLiteralConvertible, CustomDebugStringCo
     typealias IntType:POSignedNumber    // its correspoinding singed type
     //init(_:IntType)         // must be capable of initializing from it
     var asSigned:IntType? { get }
+    var asBigUInt:BigUInt? { get }
 }
 public extension POUInt {
     public init(_ v:UInt64) { self.init(v.toUIntMax()) }
     public init(_ v:UInt32) { self.init(v.toUIntMax()) }
     public init(_ v:UInt16) { self.init(v.toUIntMax()) }
     public init(_ v:UInt8)  { self.init(v.toUIntMax()) }
+    public var asBigUInt:BigUInt? {
+        // if let bu = self as? BigUInt { return bu }
+        // print("\(__LINE__):\(__FILE__):self=\(self)")
+        return BigUInt(self.asUInt64!)
+    }
     /// number of significant bits ==  sizeof(Self) * 8
     public static var precision:Int {
         return sizeof(Self) * 8
@@ -416,6 +422,7 @@ public protocol POInt: POInteger, POSignedNumber, StringLiteralConvertible, Cust
     typealias UIntType:POUInt           // its corresponding unsinged type
     init(_:UIntType)                    // capable of initializing from it
     var asUnsigned:UIntType? { get }    // able to convert to unsigned
+    var asBigInt:BigInt?    { get }
 }
 public extension POInt {
     /// number of significant bits ==  sizeof(Self) * 8 - 1
@@ -470,6 +477,9 @@ public extension POInt {
     public var asUInt:UInt? {
         let ix = self.toIntMax()
         return ix < 0 ? nil : UInt(ix)
+    }
+    public var asBigInt:BigInt? {
+        return BigInt(self.toIntMax())
     }
     public var asInt64:Int64? { return Int64(self.toIntMax()) }
     public var asInt32:Int32? { return Int32(self.toIntMax()) }

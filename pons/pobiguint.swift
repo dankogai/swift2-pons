@@ -498,11 +498,6 @@ public extension POUInt {
     public init(_ bu:BigUInt) {
         self.init(bu.asUInt64!)
     }
-    public var asBigUInt:BigUInt? {
-        if let bu = self as? BigUInt { return bu }
-        // print("\(__LINE__):\(__FILE__):self=\(self)")
-        return BigUInt(self.asUInt64!)
-    }
     /// - returns: `(x * y) % m` witout overflow in exchange for speed
     public static func mulmod(x:Self, _ y:Self, _ m:Self)->Self {
         if (m == 0) { fatalError("modulo by zero") }
