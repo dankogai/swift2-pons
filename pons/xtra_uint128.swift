@@ -108,10 +108,10 @@ public func |(lhs:UInt128, rhs:UInt128)->UInt128 {
 }
 public func ^(lhs:UInt128, rhs:UInt128)->UInt128 {
     return UInt128(
-        lhs.value.0 | rhs.value.0,
-        lhs.value.1 | rhs.value.1,
-        lhs.value.2 | rhs.value.2,
-        lhs.value.3 | rhs.value.3
+        lhs.value.0 ^ rhs.value.0,
+        lhs.value.1 ^ rhs.value.1,
+        lhs.value.2 ^ rhs.value.2,
+        lhs.value.3 ^ rhs.value.3
     )
 }
 #if !os(OSX)    // slow but steady BigInt arithmetics
