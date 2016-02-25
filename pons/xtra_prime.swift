@@ -9,19 +9,20 @@
 public extension POUtil {
     public class Prime : SequenceType {
         public init(){}
-        public func generate()->AnyGenerator<BigInt> {
-            var currPrime = BigInt(0)
-            return anyGenerator {
-                if let nextPrime = currPrime.nextPrime {
-                    currPrime = nextPrime
-                    return currPrime
-                }
-                return nil
-            }
-        }
-    }
+     }
 }
 public extension POUtil.Prime {
+    /// stream of primes
+    public func generate()->AnyGenerator<BigInt> {
+        var currPrime = BigInt(0)
+        return anyGenerator {
+            if let nextPrime = currPrime.nextPrime {
+                currPrime = nextPrime
+                return currPrime
+            }
+            return nil
+        }
+    }
     /// primes less than 64
     public static let tinyPrimes:[Int] = {
         var ps = [2, 3]
@@ -55,6 +56,23 @@ public extension POUtil.Prime {
         3825123056546413051,    // p10  = 31
         0                       // p11  = 37; 318665857834031151167461  > UInt.max
     ]
+}
+public extension UIntMax {
+    public var isPrime:Bool {
+        if self < 2      { return false }
+        if self & 1 == 0 { return self == 2 }
+        if self % 3 == 0 { return self == 3 }
+        if self % 5 == 0 { return self == 5 }
+        if self % 7 == 0 { return self == 7 }
+        if let mp = self.isMersennePrime { return mp }
+        typealias PP = POUtil.Prime
+        for i in 0..<PP.A014233.count {
+            // print("\(__FILE__):\(__LINE__): \(self).millerRabinTest(\(PP.tinyPrimes[i]))")
+            if self.millerRabinTest(PP.tinyPrimes[i]) == false { return false }
+            if self < PP.A014233[i] { break }
+        }
+        return true
+    }
 }
 public extension POUInt {
     //
@@ -101,26 +119,9 @@ public extension POUInt {
         return s == 0
     }
     public var isPrime:Bool {
-        if let bu = self as? BigUInt {
-            if let u64 = bu.asUInt64 {
-                return u64.isPrime
-            } else {
-                return bu.isSurelyPrime.0
-            }
-        }
-        if self < 2      { return false }
-        if self & 1 == 0 { return self == 2 }
-        if self % 3 == 0 { return self == 3 }
-        if self % 5 == 0 { return self == 5 }
-        if self % 7 == 0 { return self == 7 }
-        if let mp = self.isMersennePrime { return mp }
-        typealias PP = POUtil.Prime
-        for i in 0..<PP.A014233.count {
-            // print("\(__FILE__):\(__LINE__): \(self).millerRabinTest(\(PP.tinyPrimes[i]))")
-            if self.millerRabinTest(PP.tinyPrimes[i]) == false { return false }
-            if self.asUInt64! < PP.A014233[i] { break }
-        }
-        return true
+        return Self.precision <= UIntMax.precision
+            ? self.toUIntMax().isPrime
+            : self.asBigUInt!.isSurelyPrime.0
     }
     public var nextPrime:Self? {
         if self < 2 { return 2 }

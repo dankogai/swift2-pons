@@ -82,3 +82,18 @@ print("fact(34 as UInt128) ==", fact(34 as UInt128))
     print("BigUInt: \(obu) ops/s (\(tbu)s for \(count)ops)")
     print("UInt128/BigUInt == \(ou128/obu)")
 })(1000)
+print("fact(57 as UInt256) ==", fact(57 as UInt256))
+({ count in
+    if count == 0 { return }
+    let tu256 = timeit(count) {
+     ok(fact(57 as UInt256) / fact(56 as UInt256) == 57)
+    }
+    let tbu   = timeit(count) {
+     ok(fact(57 as BigUInt) / fact(56 as BigUInt) == 57)
+    }
+    let ou256 = Double(count)/tu256
+    let obu   = Double(count)/tbu
+    print("UInt256: \(ou256) ops/s (\(tu256)s for \(count)ops)")
+    print("BigUInt: \(obu) ops/s (\(tbu)s for \(count)ops)")
+    print("UInt256/BigUInt == \(ou256/obu)")
+})(100)

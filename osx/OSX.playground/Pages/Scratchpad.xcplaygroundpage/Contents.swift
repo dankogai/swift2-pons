@@ -20,6 +20,11 @@ public class PiHex : SequenceType {
 }
 
 /*
+var v = UInt256(1)
+for i in 1...57 {
+v *= UInt256(i)
+print("\(i) == ", v)
+}
 var v:UInt128 = 1
 for i in 1...34 {
 v *= UInt128(i)

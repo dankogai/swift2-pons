@@ -23,7 +23,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		9EBF38881C7EE64D00A19CE8 /* xtra_uint128.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = xtra_uint128.swift; path = ../pons/xtra_uint128.swift; sourceTree = "<group>"; };
+		9EBF38881C7EE64D00A19CE8 /* xtra_uint128.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = xtra_uint128.swift; sourceTree = "<group>"; };
 		9ED3A7C31C7469CF00A19CE8 /* pobigfloat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = pobigfloat.swift; sourceTree = "<group>"; };
 		9EF92ABF1C6B2FCB00A19CE8 /* PONS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PONS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9EF92AC21C6B2FCB00A19CE8 /* PONS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PONS.h; sourceTree = "<group>"; };
@@ -54,7 +54,6 @@
 		9EF92AB51C6B2FCB00A19CE8 = {
 			isa = PBXGroup;
 			children = (
-				9EBF38881C7EE64D00A19CE8 /* xtra_uint128.swift */,
 				9EF92ADF1C6B313B00A19CE8 /* pons */,
 				9EF92AC11C6B2FCB00A19CE8 /* PONS */,
 				9EF92AC01C6B2FCB00A19CE8 /* Products */,
@@ -92,6 +91,7 @@
 				9EF92AE71C6B313B00A19CE8 /* poreal.swift */,
 				9EF92AE81C6B313B00A19CE8 /* xtra_operators.swift */,
 				9EF92AE91C6B313B00A19CE8 /* xtra_prime.swift */,
+				9EBF38881C7EE64D00A19CE8 /* xtra_uint128.swift */,
 			);
 			name = pons;
 			path = ../pons;

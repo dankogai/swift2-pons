@@ -200,14 +200,17 @@ public protocol POUInt: POInteger, StringLiteralConvertible, CustomDebugStringCo
     //init(_:IntType)         // must be capable of initializing from it
     var asSigned:IntType? { get }
     var asBigUInt:BigUInt? { get }
+    init(_:BigUInt)
 }
 public extension POUInt {
     public init(_ v:UInt64) { self.init(v.toUIntMax()) }
     public init(_ v:UInt32) { self.init(v.toUIntMax()) }
     public init(_ v:UInt16) { self.init(v.toUIntMax()) }
     public init(_ v:UInt8)  { self.init(v.toUIntMax()) }
+    public init(_ bu:BigUInt) {
+        self.init(bu.asUInt64!)
+    }
     public var asBigUInt:BigUInt? {
-        // if let bu = self as? BigUInt { return bu }
         // print("\(__LINE__):\(__FILE__):self=\(self)")
         return BigUInt(self.asUInt64!)
     }
