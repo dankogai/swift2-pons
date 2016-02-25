@@ -19,7 +19,31 @@ public class PiHex : SequenceType {
     }
 }
 
+import Accelerate
+
+UInt128.max
+var (v, u) = UInt128.subtractWithOverflow(UInt128.max, UInt128(1))
+v
+u
+
+UInt128.max >> 2
+UInt128(1) << 2
+
 /*
+var v:UInt128 = 1
+for i in 1...34 {
+v *= UInt128(i)
+print("\(i)! ==", v)
+}
+
+var v:UInt128 = 1
+for i in 1...34 {
+    v *= UInt128(i)
+    print("\(i)! ==", v)
+}
+
+Double.sqrt(2) - 1/Double.sqrt(0.5)
+BigFloat.sqrt(2) - 1/BigFloat.sqrt(0.5)
 Float.pi().toHexString()
 Double.pi().toHexString()
 BigFloat.pi(64).toHexString()

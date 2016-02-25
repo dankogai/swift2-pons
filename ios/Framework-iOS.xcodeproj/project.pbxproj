@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9EBF38891C7EE64D00A19CE8 /* xtra_uint128.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EBF38881C7EE64D00A19CE8 /* xtra_uint128.swift */; };
 		9ED3A7C41C7469CF00A19CE8 /* pobigfloat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9ED3A7C31C7469CF00A19CE8 /* pobigfloat.swift */; };
 		9EF92AC31C6B2FCB00A19CE8 /* PONS.h in Headers */ = {isa = PBXBuildFile; fileRef = 9EF92AC21C6B2FCB00A19CE8 /* PONS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9EF92AEA1C6B313B00A19CE8 /* pobigint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF92AE01C6B313B00A19CE8 /* pobigint.swift */; };
@@ -22,6 +23,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9EBF38881C7EE64D00A19CE8 /* xtra_uint128.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = xtra_uint128.swift; path = ../pons/xtra_uint128.swift; sourceTree = "<group>"; };
 		9ED3A7C31C7469CF00A19CE8 /* pobigfloat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = pobigfloat.swift; sourceTree = "<group>"; };
 		9EF92ABF1C6B2FCB00A19CE8 /* PONS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PONS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9EF92AC21C6B2FCB00A19CE8 /* PONS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PONS.h; sourceTree = "<group>"; };
@@ -52,6 +54,7 @@
 		9EF92AB51C6B2FCB00A19CE8 = {
 			isa = PBXGroup;
 			children = (
+				9EBF38881C7EE64D00A19CE8 /* xtra_uint128.swift */,
 				9EF92ADF1C6B313B00A19CE8 /* pons */,
 				9EF92AC11C6B2FCB00A19CE8 /* PONS */,
 				9EF92AC01C6B2FCB00A19CE8 /* Products */,
@@ -173,6 +176,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9EBF38891C7EE64D00A19CE8 /* xtra_uint128.swift in Sources */,
 				9EF92AF31C6B313B00A19CE8 /* xtra_prime.swift in Sources */,
 				9EF92AF21C6B313B00A19CE8 /* xtra_operators.swift in Sources */,
 				9EF92AEA1C6B313B00A19CE8 /* pobigint.swift in Sources */,
