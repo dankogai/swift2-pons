@@ -7,7 +7,7 @@
 //
 
 public struct UInt128 : POUInt {
-    public typealias IntType = BigInt
+    public typealias IntType = Int128
     public static let precision = 128
     public static let allZeros = UInt128(0)
     public typealias DigitType = BigUInt.DigitType
@@ -17,6 +17,9 @@ public struct UInt128 : POUInt {
     }
     public init(_ u128:UInt128) {
         self.value = u128.value
+    }
+    public init(_ i128:Int128) {
+        self.value = i128.abs.value
     }
     public init(_ bu:BigUInt) {
         let d  = bu.digits
@@ -68,7 +71,8 @@ public struct UInt128 : POUInt {
             :                      value.0.msbAt
     }
     public var asSigned:IntType? {
-        return self.inBigUInt.asSigned
+        // return self.inBigUInt.asSigned
+        return Int128(self)
     }
     public static let min = UInt128(0)
     public static let max = UInt128(BigUInt(1)<<128-1)
