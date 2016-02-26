@@ -77,6 +77,9 @@ public struct Int128 : POInt {
     public var asUnsigned:UIntType? {
         return self < 0 ? nil : UIntType(self)
     }
+    public func toString(radix:Int)->String {
+        return self.inBigInt.toString(radix)
+    }
     public var description:String {
         return self.inBigInt.description
     }
@@ -87,28 +90,6 @@ public struct Int128 : POInt {
     public static let min = Int128(minInBigInt)
     private static let maxInBigInt = +(BigInt(1)<<127 - BigInt(1))
     public static let max = Int128(maxInBigInt)
-    public static func addWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
-        let (bi, _) = BigInt.addWithOverflow(lhs.inBigInt, rhs.inBigInt)
-        return (Int128(bi), bi < minInBigInt || maxInBigInt < bi)
-    }
-    public static func subtractWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
-        let (bi, _) = BigInt.subtractWithOverflow(lhs.inBigInt, rhs.inBigInt)
-        return (Int128(bi), bi < minInBigInt || maxInBigInt < bi)
-    }
-    public static func multiplyWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
-        let (bi, _) = BigInt.multiplyWithOverflow(lhs.inBigInt, rhs.inBigInt)
-        return (Int128(bi), bi < minInBigInt || maxInBigInt < bi)
-    }
-    public static func divmod(lhs:Int128, _ rhs:Int128)->(Int128, Int128) {
-        let (q, r) = BigInt.divmod(lhs.inBigInt, rhs.inBigInt)
-        return (Int128(q), Int128(r))
-    }
-    public static func divideWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
-        return (divmod(lhs, rhs).0, false)
-    }
-    public static func remainderWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
-        return (divmod(lhs, rhs).1, false)
-    }
 }
 public prefix func -(i:Int128)->Int128 {
     var r = ~i
@@ -163,9 +144,83 @@ public func ^(lhs:Int128, rhs:Int128)->Int128 {
         lhs.value.3 ^ rhs.value.3
     )
 }
+#if !os(OSX)    // slow but steady BigInt arithmetics
+public extension Int128 {
+    public static func addWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
+        let (bi, _) = BigInt.addWithOverflow(lhs.inBigInt, rhs.inBigInt)
+        return (Int128(bi), bi < minInBigInt || maxInBigInt < bi)
+    }
+    public static func subtractWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
+        let (bi, _) = BigInt.subtractWithOverflow(lhs.inBigInt, rhs.inBigInt)
+        return (Int128(bi), bi < minInBigInt || maxInBigInt < bi)
+    }
+    public static func multiplyWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
+        let (bi, _) = BigInt.multiplyWithOverflow(lhs.inBigInt, rhs.inBigInt)
+        return (Int128(bi), bi < minInBigInt || maxInBigInt < bi)
+    }
+    public static func divmod(lhs:Int128, _ rhs:Int128)->(Int128, Int128) {
+        let (q, r) = BigInt.divmod(lhs.inBigInt, rhs.inBigInt)
+        return (Int128(q), Int128(r))
+    }
+    public static func divideWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
+        return (divmod(lhs, rhs).0, false)
+    }
+    public static func remainderWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
+        return (divmod(lhs, rhs).1, false)
+    }
+}
 public func <<(lhs:Int128, rhs:Int128)->Int128 {
     return Int128( lhs.inBigInt << rhs.inBigInt )
 }
 public func >>(lhs:Int128, rhs:Int128)->Int128 {
     return Int128( lhs.inBigInt >> rhs.inBigInt )
 }
+#else   // fast arithmetics via Accelerate.  OS X only
+import Accelerate
+public extension Int128 {
+    public static func addWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
+        var a = unsafeBitCast((lhs, vS128()), vS256.self)
+        var b = unsafeBitCast((rhs, vS128()), vS256.self)
+        var ab = vS256()
+        vS256Add(&a, &b, &ab)
+        let (r, o) =  unsafeBitCast(ab, (Int128, Int128).self)
+        return (r, o != 0 || r.isSignMinus != Bool.xor(lhs.isSignMinus, rhs.isSignMinus))
+    }
+    public static func subtractWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
+        var a = unsafeBitCast((lhs, vS128()), vS256.self)
+        var b = unsafeBitCast((rhs, vS128()), vS256.self)
+        var ab = vS256()
+        vS256Sub(&a, &b, &ab)
+        let (r, o) =  unsafeBitCast(ab, (Int128, Int128).self)
+        return (r, o != 0 || r.isSignMinus != Bool.xor(lhs.isSignMinus, rhs.isSignMinus))
+    }
+    public static func multiplyWithOverflow(lhs:Int128, _ rhs:Int128)->(Int128, overflow:Bool) {
+        var a = unsafeBitCast(lhs, vS128.self)
+        var b = unsafeBitCast(rhs, vS128.self)
+        var ab = vS256()
+        vS128FullMultiply(&a, &b, &ab)
+        let (r, o) =  unsafeBitCast(ab, (Int128, Int128).self)
+        return (r, o != 0 || r.isSignMinus != Bool.xor(lhs.isSignMinus, rhs.isSignMinus))
+    }
+    public static func divmod(lhs:Int128, _ rhs:Int128)->(Int128, Int128) {
+        var a = unsafeBitCast((lhs, vS128()), vS256.self)
+        var b = unsafeBitCast((rhs, vS128()), vS256.self)
+        var (q, r) = (vS256(), vS256())
+        vS256Divide(&a, &b, &q, &r)
+        return (unsafeBitCast(q, (Int128, Int128).self).0, unsafeBitCast(r, (Int128, Int128).self).0)
+    }
+}
+public func <<(lhs:Int128, rhs:Int128)->Int128 {
+    var a = unsafeBitCast((lhs, vS128()), vU256.self)
+    var r = vU256()
+    vLL256Shift(&a, rhs.asUInt32!, &r)
+    return unsafeBitCast(r, (Int128, Int128).self).0
+}
+public func >>(lhs:Int128, rhs:Int128)->Int128 {
+    var a = unsafeBitCast((lhs, vS128()), vS256.self)
+    var r = vS256()
+    vA256Shift(&a, rhs.asUInt32!, &r)
+    return unsafeBitCast(r, (Int128, Int128).self).0
+}
+#endif
+

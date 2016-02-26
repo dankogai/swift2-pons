@@ -6,7 +6,7 @@
 //  Copyright © 2016 Dan Kogai. All rights reserved.
 //
 
-#if true
+#if false
 
 let test = TAP()
 testInteger (test)
@@ -29,4 +29,8 @@ test.done()
 //}
 //print(4 * machin(512))
 
+
+print(Int128.min)
+print(Int128.max)
+    
 #endif
