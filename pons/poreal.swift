@@ -241,7 +241,7 @@ public extension POReal {
         var angle = x
         let onepi = pi(px)
         if angle < -2*onepi || +2*onepi < angle {
-            let precision = px + angle.toMixed().0.msbAt
+            let precision = px + angle.asBigFloat!.frexp().1 //angle.toMixed().0.msbAt
             // print("\(Self.self).wrapAngle: precision=", precision)
             let twopi = 2*pi(precision)
             // print("before:", angle)

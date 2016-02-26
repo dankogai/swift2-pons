@@ -20,6 +20,18 @@ public class PiHex : SequenceType {
 }
 
 /*
+({ x in
+let d = Double(x)
+let r = BigFloat(d)
+Double.wrapAngle(d)
+BigFloat.wrapAngle(r)
+Double.atan2(Double.cos(d), Double.sin(d))
+Double.cos(d)
+BigFloat.cos(r)
+Double.sin(d)
+BigFloat.sin(r)
+})(DBL_MAX)
+
 var v = UInt256(1)
 for i in 1...57 {
 v *= UInt256(i)
