@@ -18,7 +18,7 @@ digraph typetree {
   PONumber POComparableNumber POSignedNumber POInteger
   POUInt POInt POReal POFloat POComplex POComplexReal PORational
   node [ fillcolor = "#0000aa" style="filled"]
-  BigUInt BigInt BigFloat UInt128
+  BigUInt BigInt BigFloat UInt128 Int128
   node [ fillcolor = "#aa0000" style="filled"]
   GaussianInt Complex Rational
 
@@ -33,6 +33,7 @@ digraph typetree {
   Float -> Complex  [ color = blue ]
   Int -> BigFloat [ color = blue ]
   Int -> GaussianInt [ color = blue ]
+  Int128 -> GaussianInt [ color = blue ]
   Int16 -> GaussianInt [ color = blue ]
   Int32 -> GaussianInt [ color = blue ]
   Int64 -> GaussianInt [ color = blue ]
@@ -47,6 +48,7 @@ digraph typetree {
   POFloat -> Float
   POInt -> BigInt
   POInt -> Int
+  POInt -> Int128
   POInt -> Int16
   POInt -> Int32
   POInt -> Int64

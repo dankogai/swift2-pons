@@ -6,7 +6,7 @@
 //  Copyright © 2016 Dan Kogai. All rights reserved.
 //
 
-#if false
+#if true
 
 let test = TAP()
 testInteger (test)
@@ -28,9 +28,5 @@ test.done()
 //    return 4*BigRat.atan(BigInt(1).over(5), precision:p) - BigRat.atan(BigInt(1).over(239), precision:p)
 //}
 //print(4 * machin(512))
-
-
-print(Int128.min)
-print(Int128.max)
     
 #endif
