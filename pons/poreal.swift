@@ -269,7 +269,7 @@ public extension POReal {
             if 1 < x.abs {  // use double-angle formula to reduce x
                 let (c, s) = inner_cossin(x/2)
                 if c == s { return (0, 1) } // prevent error accumulation
-                return (c*c - s*s, 2 * s * c)
+                return (c*c - s*s, 2*s*c)
             }
             if x.abs == atan1 {
                 return (x.isSignMinus ? -sqrt1_2 : +sqrt1_2, +sqrt1_2)
@@ -353,9 +353,6 @@ public extension POReal {
         }
         let atan1 = pi_4(px)
         let epsilon = Self(BigFloat(significand:1, exponent:-px))
-//        if x * x <= epsilon {
-//            return 1    // atan(x) == x below this point
-//        }
         #if true    // Euler's formula
             let inner_atan:(Self)->Self = { x in
                 let x2 = x*x
@@ -487,7 +484,6 @@ public extension POReal {
     }
     ///
     /// π in precision `precision`
-    ///
     ///
     public static func pi_4(px:Int = 64, verbose:Bool=false)->Self {
         if Self.self == Double.self { return Self(Double.PI/4) }

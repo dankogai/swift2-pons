@@ -571,7 +571,10 @@ public extension POUInt {
         let r2 = Self.mulmod(r1, r1, m)
         let innerRedc:Self->Self = { n in
             // print("\(__FILE__):\(__LINE__): n=\(n),bits=\(bits), minv=\(minv)")
-            let t = (n + (Self.multiplyWithOverflow(n, minv).0 & mask) * m) >> bits
+            // let t = (n + (Self.multiplyWithOverflow(n, minv).0 & mask) * m) >> bits
+            let nminv =   Self.multiplyWithOverflow(n, minv).0
+            let nminvmm = Self.multiplyWithOverflow(nminv & mask, m).0
+            let t = Self.addWithOverflow(n, nminvmm).0 >> bits
             return t >= m ? t - m : t
         }
         let innerMulMod:(Self,Self)->Self = { (a, b) in
