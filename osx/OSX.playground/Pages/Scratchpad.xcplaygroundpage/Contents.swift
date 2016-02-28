@@ -19,9 +19,8 @@ public class PiHex : SequenceType {
     }
 }
 
-//UInt32.max.prevPrime
-4294967291.prevPrime
-UIntMax.max.prevPrime!.prevPrime
+
+BigInt("3317044064679887385961981").isPrime
 
 /*
 ({ x in

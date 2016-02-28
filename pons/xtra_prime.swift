@@ -165,7 +165,10 @@ public extension POInt {
     }
 }
 public extension BigUInt {
-    public static let A014233_11 = BigUInt("318665857834031151167461")
+    public static let A014233_1x:[BigUInt] = [
+        "318665857834031151167461",
+        "3317044064679887385961981"
+    ]
     public var isSurelyPrime:(Bool, surely:Bool) {   // a little more stringent tests
         if self < 2      { return (false, true) }
         if let self64 = self.asUInt64 { return (self64.isPrime, true) }
@@ -180,7 +183,13 @@ public extension BigUInt {
             if self.millerRabinTest(PP.tinyPrimes[i]) == false { return (false, true) }
             if self < BigUInt(PP.A014233[i]) { break }
         }
-        if self.millerRabinTest(37) == false { return (false, true) }   // one more thing for sure!
-        return (self.millerRabinTest(41), self <= BigUInt.A014233_11)   // no longer surely prime beyond A014233_11
+        // cf. http://arxiv.org/abs/1509.00864
+        for i in 0..<BigUInt.A014233_1x.count {
+            let j = i + 11
+            // print("\(__FILE__):\(__LINE__): \(self).millerRabinTest(\(PP.tinyPrimes[j]))")
+            if self.millerRabinTest(PP.tinyPrimes[j]) == false { return (false, true) }
+        }
+        // no longer surely prime beyond A014233_13
+        return (self.millerRabinTest(43), self <= BigUInt.A014233_1x.last!)
     }
 }
