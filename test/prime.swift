@@ -52,10 +52,11 @@ func testPrime(test:TAP) {
     [
         BigUInt(3825123056546413051):(false,true),
         BigUInt("318665857834031151167461"):(false,true),
-        BigUInt("318665857834031151167483"):(true, false)
-        ].forEach {
-            let sp = $0.0.isSurelyPrime
-            test.eq(sp.0, $0.1.0, "\($0.0) is prime? \($0.1.0)")
-            test.eq(sp.1, $0.1.1, "for sure ? \($0.1.1)")
+        BigUInt("318665857834031151167483"):(true, true),
+        BigUInt("3317044064679887385962123"):(true, false)
+    ].forEach {
+        let sp = $0.0.isSurelyPrime
+        test.eq(sp.0, $0.1.0, "\($0.0) is prime? \($0.1.0)")
+        test.eq(sp.1, $0.1.1, "for sure ? \($0.1.1)")
     }
 }

@@ -19,10 +19,9 @@ public class PiHex : SequenceType {
     }
 }
 
-
-BigInt("3317044064679887385961981").isPrime
-
 /*
+BigInt("3317044064679887385961981").nextPrime
+
 ({ x in
 let d = Double(x)
 let r = BigFloat(d)
