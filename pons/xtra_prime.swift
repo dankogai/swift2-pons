@@ -57,23 +57,6 @@ public extension POUtil.Prime {
         0                       // p11  = 37; 318665857834031151167461  > UInt.max
     ]
 }
-public extension UIntMax {
-    public var isPrime:Bool {
-        if self < 2      { return false }
-        if self & 1 == 0 { return self == 2 }
-        if self % 3 == 0 { return self == 3 }
-        if self % 5 == 0 { return self == 5 }
-        if self % 7 == 0 { return self == 7 }
-        if let mp = self.isMersennePrime { return mp }
-        typealias PP = POUtil.Prime
-        for i in 0..<PP.A014233.count {
-            // print("\(__FILE__):\(__LINE__): \(self).millerRabinTest(\(PP.tinyPrimes[i]))")
-            if self.millerRabinTest(PP.tinyPrimes[i]) == false { return false }
-            if self < PP.A014233[i] { break }
-        }
-        return true
-    }
-}
 public extension POUInt {
     //
     //  Primarity Test
@@ -118,10 +101,73 @@ public extension POUInt {
         }
         return s == 0
     }
+    public func jacobiSymbol(i:Int)->Int {
+        var m = self
+        var j = 1
+        var n = Self(i.abs)
+        if (m <= 0 || m % 2 == 0) { return 0 }
+        if (i < 0 && m % 4 == 3) { j = -j }
+        while (n != 0) {
+            while ((n % 2) == 0) {
+                n >>= 1
+                if ( (m % 8) == 3 || (m % 8) == 5 )  { j = -j }
+            }
+            (m, n) = (n, m)
+            if ( (n % 4) == 3 && (m % 4) == 3 )  { j = -j }
+            n = n % m;
+        }
+        return (m == 1) ? j : 0
+    }
+    /// https://en.wikipedia.org/wiki/Lucas_pseudoprime
+    public var isLucasProbablePrime:Bool {
+        // make sure self is not a perfect square
+        let r = Self.sqrt(self)
+        if r*r == self { return false }
+        var d = 3
+        for i in 2...1024 {
+            d = (i & 1 == 0 ? 1 : -1) * (2 * i + 1)
+            if self.jacobiSymbol(d) == -1 { break }
+        }
+        let p = 1
+        var q = BigInt(1 - d) / 4
+        // print("p = \(p), q = \(q)")
+        var n = (self.asBigInt! + 1) / 2
+        // print("n = \(n)")
+        var (u, v) = (BigInt(0), BigInt(2))
+        var (u2, v2) = (BigInt(1), p.asBigInt!)
+        var q2 = 2*q
+        let (bs, bd) = (self.asBigInt!, d.asBigInt!)
+        while 0 < n {
+            u2 = u2 * v2 % bs
+            v2 = (v2 * v2 - q2) % bs
+            if n & 1 == 1 {
+                let t = u
+                u = u2 * v + u * v2
+                u += u & 1 == 0 ? 0 : bs
+                u /= 2
+                u %= bs
+                v = (v2 * v) + (u2 * t * bd)
+                v += v & 1 == 0 ? 0 : bs
+                v /= 2
+                v %= bs
+            }
+            q = (q * q) % bs
+            q2 = q + q
+            // print(u, v)
+            n >>= 1
+        }
+        return u == 0
+    }
+    /// true if `self` is prime according to the BPSW primarity test
+    ///
+    /// https://en.wikipedia.org/wiki/Baillie–PSW_primality_test
     public var isPrime:Bool {
-        return Self.precision <= UIntMax.precision
-            ? self.toUIntMax().isPrime
-            : self.asBigUInt!.isSurelyPrime.0
+        if self < 2      { return false }
+        if self & 1 == 0 { return self == 2 }
+        if self % 3 == 0 { return self == 3 }
+        if self % 5 == 0 { return self == 5 }
+        if self % 7 == 0 { return self == 7 }
+        return self.millerRabinTest(2) && self.isLucasProbablePrime
     }
     public var nextPrime:Self? {
         if self < 2 { return 2 }
@@ -172,6 +218,10 @@ public extension BigUInt {
     public var isSurelyPrime:(Bool, surely:Bool) {   // a little more stringent tests
         if self < 2      { return (false, true) }
         if let self64 = self.asUInt64 { return (self64.isPrime, true) }
+        if BigUInt.A014233_1x.last! <= self {
+            let isPrime = self.isPrime
+            return (isPrime, !isPrime)
+        }
         if self & 1 == 0 { return (self == 2, true) }
         if self % 3 == 0 { return (self == 3, true) }
         if self % 5 == 0 { return (self == 5, true) }
@@ -181,23 +231,17 @@ public extension BigUInt {
         for i in 0..<PP.A014233.count {
             // print("\(__FILE__):\(__LINE__): \(self).millerRabinTest(\(PP.tinyPrimes[i]))")
             if self.millerRabinTest(PP.tinyPrimes[i]) == false { return (false, true) }
-            if self < BigUInt(PP.A014233[i]) { break }
+            if self < BigUInt(PP.A014233[i]) { return (true, true) }
         }
         // cf. http://arxiv.org/abs/1509.00864
         for i in 0..<BigUInt.A014233_1x.count {
             let j = i + 11
             // print("\(__FILE__):\(__LINE__): \(self).millerRabinTest(\(PP.tinyPrimes[j]))")
             if self.millerRabinTest(PP.tinyPrimes[j]) == false { return (false, true) }
+            if self < BigUInt.A014233_1x.last! { return (true, true) }
         }
-        // keep performing Miller-Rabin test while n / 4**k > 1
-        //  <=> n > 2*(2k) <=> log2(n) > 2k
-        var k = 13, p = 43
-        while 2*k < self.msbAt + 1 {
-            // print(k, p)
-            if self.millerRabinTest(p) == false { return (false, true) }
-            k += 1
-            p = p.nextPrime!
-        }
-        return (self.millerRabinTest(p), self <= BigUInt.A014233_1x.last!)
+        // should not reach here
+        let isPrime = self.isLucasProbablePrime
+        return (isPrime, !isPrime)
     }
 }

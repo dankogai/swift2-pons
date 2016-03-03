@@ -49,6 +49,10 @@ func testPrime(test:TAP) {
     test.eq(BigInt(2).prevPrime,  nil, "BigInt(2).prevPrime is nil")
     test.eq(BigInt(0).nextPrime,    2, "BigInt(≅0).prevPrime is 2")
     test.ne(IntMax.max.asBigInt!.nextPrime,   nil, "IntMax.max.asBigInt!.nextPrime is not nil")
+    let bigc = BigInt("4547337172376300111955330758342147474062293202868155909393")
+    test.eq(bigc.isPrime, false, "\(bigc) is not prime")
+    let bigp = BigInt("4547337172376300111955330758342147474062293202868155909489")
+    test.eq(bigp.isPrime, true , "\(bigp) is prime")
     [
         BigUInt("3317044064679887385961981"):(false, true),
         BigUInt("3317044064679887385962123"):(true, false)
