@@ -49,6 +49,29 @@ func testPrime(test:TAP) {
     test.eq(BigInt(2).prevPrime,  nil, "BigInt(2).prevPrime is nil")
     test.eq(BigInt(0).nextPrime,    2, "BigInt(≅0).prevPrime is 2")
     test.ne(IntMax.max.asBigInt!.nextPrime,   nil, "IntMax.max.asBigInt!.nextPrime is not nil")
+    // Strong pseudoprimes to base 2
+    // https://oeis.org/A001262
+    [
+        2047,3277,4033,4681,8321,15841,29341,42799,49141,
+        52633,65281,74665,80581,85489,88357,90751,104653,
+        130561,196093,220729,233017,252601,253241,256999,
+        271951,280601,314821,357761,390937,458989,476971,
+        486737
+    ].forEach {
+        test.eq($0.isPrime, false, "\($0) is not prime")
+
+    }
+    // Strong Lucas pseudoprimes.
+    // https://oeis.org/A217255
+    [
+        5459,5777,10877,16109,18971,22499,24569,25199,
+        40309,58519,75077,97439,100127,113573,115639,
+        130139,155819,158399,161027,162133,176399,176471,
+        189419,192509,197801,224369,230691,231703,243629,
+        253259,268349,288919,313499,324899
+    ].forEach {
+        test.eq($0.isPrime, false, "\($0) is not prime")
+    }
     let bigc = BigInt("4547337172376300111955330758342147474062293202868155909393")
     test.eq(bigc.isPrime, false, "\(bigc) is not prime")
     let bigp = BigInt("4547337172376300111955330758342147474062293202868155909489")

@@ -18,7 +18,9 @@ digraph typetree {
   PONumber POComparableNumber POSignedNumber POInteger
   POUInt POInt POReal POFloat POComplex POComplexReal PORational
   node [ fillcolor = "#0000aa" style="filled"]
-  BigUInt BigInt BigFloat UInt128 Int128
+  BigUInt BigInt BigFloat
+  node [ fillcolor = "#7777aa" style="filled"]
+  UInt128 Int128
   node [ fillcolor = "#aa0000" style="filled"]
   GaussianInt Complex Rational
 

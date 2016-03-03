@@ -57,11 +57,11 @@ public extension POUtil.Prime {
         0                       // p11  = 37; 318665857834031151167461  > UInt.max
     ]
 }
+//
+//  Primarity Test
+//
 public extension POUInt {
-    //
-    //  Primarity Test
-    //
-    /// [Miller-Rabin] test `n` for `base`
+    /// `true` if `self` passes the [Miller-Rabin] test on `base`.  `false` otherwise.
     ///
     /// [Miller-Rabin]: https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test
     public func millerRabinTest(base:Int)->Bool {
@@ -108,17 +108,19 @@ public extension POUInt {
         if (m <= 0 || m % 2 == 0) { return 0 }
         if (i < 0 && m % 4 == 3) { j = -j }
         while (n != 0) {
-            while ((n % 2) == 0) {
+            while (n % 2 == 0) {
                 n >>= 1
-                if ( (m % 8) == 3 || (m % 8) == 5 )  { j = -j }
+                if (m % 8 == 3 || m % 8 == 5 )  { j = -j }
             }
             (m, n) = (n, m)
-            if ( (n % 4) == 3 && (m % 4) == 3 )  { j = -j }
-            n = n % m;
+            if (n % 4 == 3 && m % 4 == 3)  { j = -j }
+            n = n % m
         }
         return (m == 1) ? j : 0
     }
-    /// https://en.wikipedia.org/wiki/Lucas_pseudoprime
+    /// `true` if `self` is [Lucas pseudoprime]. `false` otherwise.
+    ///
+    /// [Lucas pseudoprime]: https://en.wikipedia.org/wiki/Lucas_pseudoprime
     public var isLucasProbablePrime:Bool {
         // make sure self is not a perfect square
         let r = Self.sqrt(self)
@@ -138,7 +140,7 @@ public extension POUInt {
         var q2 = 2*q
         let (bs, bd) = (self.asBigInt!, d.asBigInt!)
         while 0 < n {
-            u2 = u2 * v2 % bs
+            u2 = (u2 * v2) % bs
             v2 = (v2 * v2 - q2) % bs
             if n & 1 == 1 {
                 let t = u
