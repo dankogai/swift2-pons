@@ -117,7 +117,7 @@ Just ignore them for the time being.  They are needed in 2.1.
 [Comparable]: http://swiftdoc.org/v2.1/protocol/Comparable/
 [AbsoluteValuable]: http://swiftdoc.org/v2.1/protocol/AbsoluteValuable/
 
-A.  I wish I could.  As a matter of fact I tried to do so when I started.  It turns out the protocol tree Swift 2.1 offers is not fit for the Protocol-Oriented Number System.  For instance, [FloatingPointType] lacks arithmetic operators.  They can be found in [IntegerArithmeticType] but it includes `%`, something that is not essential for real-number arithmetics
+A.  I wish I could simply use all those predefined protocols.  As a matter of fact I tried to do so when I started.  It turns out the protocol tree Swift 2.1 offers is not fit for the Protocol-Oriented Number System.  For instance, [FloatingPointType] lacks arithmetic operators.  They can be found in [IntegerArithmeticType] but it includes `%`, something that is not essential for real-number arithmetics
 
 Besides, where are you going to fit `Complex`?  It is the queen of the numbers but definitely not [Comparable].  It is absolute-valuable but Swift says [AbsoluteValuable] is also [Comparable].
 
