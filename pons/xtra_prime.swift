@@ -92,7 +92,7 @@ public extension POUInt {
         // print("\(__FILE__):\(__LINE__): base=\(base),\nself=\(self),\ny=\(y)\nt=\(t)")
         while t != self-1 && y != 1 && y != self-1 {
             // y = (y * y) % self
-            y = Self.mulmod(y, y, self)
+            y = Self.mulmod(y, y, mod:self)
             t <<= 1
         }
         // print("\(__FILE__):\(__LINE__): base=\(base),self=\(self),y=\(y),t=\(t)")
@@ -189,7 +189,15 @@ public extension BigUInt {
             // print("\(__FILE__):\(__LINE__): \(self).millerRabinTest(\(PP.tinyPrimes[j]))")
             if self.millerRabinTest(PP.tinyPrimes[j]) == false { return (false, true) }
         }
-        // no longer surely prime beyond A014233_13
-        return (self.millerRabinTest(43), self <= BigUInt.A014233_1x.last!)
+        // keep performing Miller-Rabin test while n / 4**k > 1
+        //  <=> n > 2*(2k) <=> log2(n) > 2k
+        var k = 13, p = 43
+        while 2*k < self.msbAt + 1 {
+            // print(k, p)
+            if self.millerRabinTest(p) == false { return (false, true) }
+            k += 1
+            p = p.nextPrime!
+        }
+        return (self.millerRabinTest(p), self <= BigUInt.A014233_1x.last!)
     }
 }

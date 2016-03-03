@@ -50,9 +50,7 @@ func testPrime(test:TAP) {
     test.eq(BigInt(0).nextPrime,    2, "BigInt(≅0).prevPrime is 2")
     test.ne(IntMax.max.asBigInt!.nextPrime,   nil, "IntMax.max.asBigInt!.nextPrime is not nil")
     [
-        BigUInt(3825123056546413051):(false,true),
-        BigUInt("318665857834031151167461"):(false,true),
-        BigUInt("318665857834031151167483"):(true, true),
+        BigUInt("3317044064679887385961981"):(false, true),
         BigUInt("3317044064679887385962123"):(true, false)
     ].forEach {
         let sp = $0.0.isSurelyPrime
