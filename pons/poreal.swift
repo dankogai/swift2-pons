@@ -111,7 +111,18 @@ public extension POReal {
     }
     ////
     public static func pow(x:Self, _ y:Self, precision px:Int = 64)->Self  {
-        return Self(Double.pow(x.toDouble(), y.toDouble()))
+        // return Self(Double.pow(x.toDouble(), y.toDouble()))
+        if let dx = x as? Double { return Self(Double.pow(dx, y as! Double)) }
+        // return exp(log(x, precision:px) * y, precision:px)
+        let (iy, fy) = y.abs.toMixed() //toIntMax().asInt!
+        let ir = iy == 0 ? Self(1) : IntType.power(x, iy) {
+            var r = $0 * $1
+            return r.truncate(px)
+        }
+        let fr = fy.isZero ? Self(1) : exp(log(x, precision:px) * fy, precision:px)
+        var r = ir * fr
+        if Self.self != BigRat.self { r.truncate(px) }
+        return y.isSignMinus ? 1/r : r
     }
     // public static func sqrt(x:Self)->Self   { return Self(Darwin.sqrt(x.toDouble())) }
     /// - returns: square root of `x` to precision `precision`
