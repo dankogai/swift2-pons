@@ -376,7 +376,7 @@ public extension POUInt {
         if k.isPrime { return result + [k] }
         var d = Self.pollardsRho(k, 2048, 3, verbose:v)
         if d == 1 {
-            d = Self.squfof(n, verbose:v)
+            d = Self.squfof(k, verbose:v)
         }
         result += d != 1 ? factor(d, verbose:v) + factor(k/d, verbose:v) : [1, k]
         result.sortInPlace(<)

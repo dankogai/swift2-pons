@@ -19,6 +19,10 @@ public class PiHex : SequenceType {
     }
 }
 
+for i in (UInt(Int32.max)<<16 - 256)...(UInt(Int32.max)<<16) {
+    print(i, "=", UInt.factor(i, verbose:true).map{$0.description}.joinWithSeparator("*"))
+}
+
 /*
 UIntMax.factor(4611685846628697223, verbose:true)
 UIntMax.factor(10023859281455311421, verbose:true)
