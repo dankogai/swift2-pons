@@ -229,9 +229,9 @@ public extension POUtil.Prime {
         // print("ks=\(ks)")
         for k in ks {
             if UIntMax.multiplyWithOverflow(n, k).overflow { continue }
-            //let g = UInt(c_squfof(UInt64(n), UInt64(k)))
+            // let g = UInt(c_squfof(UInt64(n), UInt64(k)))
             let g = squfof_one(n, k)
-            print("squof(\(n),\(k)) == \(g)")
+            // print("squof(\(n),\(k)) == \(g)")
             if g != 1 { return g }
         }
         return 1
