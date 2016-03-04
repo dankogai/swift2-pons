@@ -109,7 +109,7 @@ public extension POReal {
             return int.toString(base) + "." +  digits.map{"\(POUtil.int2char[$0])"}.joinWithSeparator("")
         }
     }
-    ////
+    //
     public static func pow(x:Self, _ y:Self, precision px:Int = 64)->Self  {
         // return Self(Double.pow(x.toDouble(), y.toDouble()))
         if let dx = x as? Double { return Self(Double.pow(dx, y as! Double)) }
@@ -124,8 +124,7 @@ public extension POReal {
         if Self.self != BigRat.self { r.truncate(px) }
         return y.isSignMinus ? 1/r : r
     }
-    // public static func sqrt(x:Self)->Self   { return Self(Darwin.sqrt(x.toDouble())) }
-    /// - returns: square root of `x` to precision `precision`
+    //
     public static func sqrt(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.sqrt(dx)) }
         if x.isNaN || x.isSignMinus || x.isZero || x.isInfinite {
@@ -138,7 +137,7 @@ public extension POReal {
         if Self.self != BigRat.self { r.truncate(px) }
         return x.abs < 1 ? 1/r : r
     }
-    /// - returns: `sqrt(x*x + y*y)` witout overflow
+    //
     public static func hypot(x:Self, _ y:Self, precision px:Int=64)->Self {
         // return Self.sqrt(x * x + y * y, precision:precision)
         if let dx = x as? Double { return Self(Double.hypot(dx, y as! Double)) }
@@ -158,7 +157,7 @@ public extension POReal {
         }
         return r.truncate(px)
     }
-    ///
+    //
     public static func exp(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.exp(dx)) }
         if x.isZero || x.isInfinite {
@@ -191,10 +190,7 @@ public extension POReal {
         if Self.self != BigRat.self { r.truncate(px) }
         return x.isSignMinus ? 1/r : r
     }
-    /// ![](https://upload.wikimedia.org/math/1/7/5/17534a763ff4b0fd87ce62556ebcc3d7.png)
-    ///
-    /// - returns: natural log of `x`
-    ///
+    //
     public static func log(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.log(dx)) }
         if x.isSignMinus || x.isZero || x.isInfinite {
@@ -239,7 +235,7 @@ public extension POReal {
         var r =  ir + fr
         return x < 1 ? -r.truncate(px) : +r.truncate(px)
     }
-    ///
+    //
     public static func log10(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.log10(dx)) }
         if x.isSignMinus || x.isZero || x.isInfinite {
@@ -247,7 +243,7 @@ public extension POReal {
         }
         return log(x, precision:px) / ln10(px)
     }
-    ///
+    /// - returns: `x` normalized to ±π
     public static func wrapAngle(x:Self, precision px:Int = 64)->Self {
         var angle = x
         let onepi = pi(px)
@@ -303,22 +299,21 @@ public extension POReal {
                 d *= Self(i+1)
             }
             return (c, s)
-            // return c < s ? (sqrt(1 - c*c, precision:px+16), s) : (c, sqrt(1 - s*s, precision:px+16))
         }
         var (c, s) = inner_cossin(x.abs < 8 ? x : wrapAngle(x, precision:px))
         return (s.truncate(px), c.truncate(px))
     }
-    ///
+    //
     public static func cos(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.cos(dx)) }
         return sincos(x, precision:px).cos
     }
-    ///
+    //
     public static func sin(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.sin(dx)) }
         return sincos(x, precision:px).sin
     }
-    ///
+    //
     public static func tan(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.tan(dx)) }
         if x.isZero || x.isNaN {
@@ -331,7 +326,7 @@ public extension POReal {
         return s.divide(c, precision:px)
         // return sin(x, precision:px) / cos(x, precision:px)
     }
-    ///
+    //
     public static func acos(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.acos(dx)) }
         if (x - 1).isZero || 1 < x.abs {
@@ -340,7 +335,7 @@ public extension POReal {
         // print("acos:", x)
         return pi(px)/2 - asin(x, precision:px)
     }
-    ///
+    //
     public static func asin(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.asin(dx)) }
         if x.isZero || 1 < x.abs || x.isInfinite {
@@ -352,11 +347,9 @@ public extension POReal {
         // a.truncate(px)
         return 2 * atan(a, precision:px)
     }
-    /// Arc tangent
-    ///
-    /// https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Infinite_series
-    ///
-    /// ![](https://upload.wikimedia.org/math/8/2/a/82a9938b7482d8d2ac5b2d7f3bce11fe.png)
+    //
+    // cf. https://en.wikipedia.org/wiki/Inverse_trigonometric_functions#Infinite_series
+    //
     public static func atan(x:Self, precision px:Int = 64)->Self {
         if let dx = x as? Double { return Self(Double.atan(dx)) }
         if x.isInfinite || x.isNaN || x.isZero {
@@ -399,6 +392,7 @@ public extension POReal {
         // print("\(Self.self).atan: r=\(r.debugDescription)")
         return x.isSignMinus ? -r.truncate(px) : r.truncate(px)
     }
+    //
     public static func atan2(y:Self, _ x:Self, precision px:Int = 64)->Self {
         if let dy = y as? Double { return Self(Double.atan2(dy, x as! Double)) }
         if x.isNaN || y.isNaN { return Self.NaN }
@@ -414,7 +408,7 @@ public extension POReal {
             return atan(y/x, precision:px)
         }
     }
-    /// - returns: `(sin(x), cos(x))`
+    /// - returns: `(sinh(x), cosh(x))`
     public static func sinhcosh(x:Self, precision px:Int = 64)->(sinh:Self, cosh:Self) {
         if let dx = x as? Double { return (Self(Double.sinh(dx)), Self(Double.cosh(dx)))}
         if x.isZero || x.isInfinite {
@@ -449,17 +443,17 @@ public extension POReal {
         var (c, s) = inner_coshsinh(x)
         return (s.truncate(px), c.truncate(px))
     }
-    ///
+    //
     public static func cosh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.cosh(dx)) }
         return sinhcosh(x, precision:px).1
     }
-    ///
+    //
     public static func sinh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.sinh(dx)) }
         return sinhcosh(x, precision:px).0
     }
-    ///
+    //
     public static func tanh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.tanh(dx)) }
         if x.isZero || x.isInfinite {
@@ -468,7 +462,7 @@ public extension POReal {
         let (s, c) = sinhcosh(x, precision:px)
         return s.divide(c, precision:px)
     }
-    ///
+    //
     public static func acosh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.acosh(dx)) }
         if x <= 1 || x.isInfinite {
@@ -477,7 +471,7 @@ public extension POReal {
         let a = x + sqrt(x * x - 1, precision:px)
         return log(a, precision:px)
     }
-    ///
+    //
     public static func asinh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.asinh(dx)) }
         if x.isZero || x.isInfinite {
@@ -485,7 +479,7 @@ public extension POReal {
         }
         return log(x + hypot(x, 1, precision:px), precision:px)
     }
-    ///
+    //
     public static func atanh(x:Self, precision px:Int = 64)->Self   {
         if let dx = x as? Double { return Self(Double.atanh(dx)) }
         if x.isZero || 1 <= x.abs {
@@ -494,7 +488,7 @@ public extension POReal {
         return (log(1 + x, precision:px) - log(1 - x, precision:px)) / 2
     }
     ///
-    /// π in precision `precision`
+    /// π/4 in precision `px`
     ///
     public static func pi_4(px:Int = 64, verbose:Bool=false)->Self {
         if Self.self == Double.self { return Self(Double.PI/4) }
@@ -548,29 +542,32 @@ public extension POReal {
             #endif
         }
     }
+    /// π/4 in precision `px`
     public static func pi(px:Int = 64, verbose:Bool=false)->Self {
         if Self.self == Double.self { return Self(Double.PI) }
         return 4 * pi_4(px, verbose:verbose)
     }
+    /// e in precision `px`
     public static func e(px:Int = 64, verbose:Bool=false)->Self {
         if Self.self == Double.self { return Self(Double.E) }
         return getSetConstant("exp", 1, px, setter:exp)
     }
+    /// log(2) in precision `px`
     public static func ln2(px:Int = 64, verbose:Bool=false)->Self {
         if Self.self == Double.self { return Self(Double.LN2) }
         return getSetConstant("log", 2, px, setter:log)
     }
+    /// log(10) in precision `px`
     public static func ln10(px:Int = 64, verbose:Bool=false)->Self {
         if Self.self == Double.self { return Self(Double.LN10) }
         return getSetConstant("log", 10, px, setter:log)
     }
+    /// sqrt(2) in precision `px`
     public static func sqrt2(px:Int = 64, verbose:Bool=false)->Self {
         if Self.self == Double.self { return Self(Double.SQRT2) }
         return getSetConstant("sqrt", 2, px, setter:sqrt)
     }
-    public static var LOG2E:Self    { return Self(M_LOG2E) }
-    public static var LOG10E:Self   { return Self(M_LOG10E) }
-    ///
+    //
     public static func getSetConstant(
         name:String, _ arg:Self, _ px:Int, setter:(Self, Int)->Self
         )->Self

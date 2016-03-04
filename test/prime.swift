@@ -89,20 +89,20 @@ func testPrime(test:TAP) {
     let i32max = UInt(Int32.max)
     let i32pmax0  = UInt(Int32.max).prevPrime!
     let i32pmax1  = i32pmax0.prevPrime!
-    let composites:[UInt:[UInt]] = [
-        two63.reduce(1,combine:*) : two63,
-        i32max*i32max       : [i32max, i32max],
-        i32pmax0*i32pmax1   : [i32pmax1, i32pmax0],
-        UInt(Int.max)       : [7,7,73,127,337,92737,649657],
-        11111111111111111   : [2071723, 5363222357],
-        614889782588491410  : [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47],
-        3369738766071892021 : [204518747, 16476429743],
-        // 10023859281455311421:[1308520867, 7660450463]
-    ]
-    for (k, v) in composites {
-        test.eq(k.primeFactors, v, "\(k).primeFactor == \(v)")
-    }
     let u32pmax0  = UInt(UInt32.max).prevPrime!
     let u32pmax1  = u32pmax0.prevPrime!
-    test.ok( (u32pmax0*u32pmax1).primeFactors.contains(1), "\(u32pmax0)*\(u32pmax1) is too large")
+    var composites:[UInt:[UInt]] = [
+        i32max*i32max           : [i32max, i32max],
+        i32pmax0*i32pmax1       : [i32pmax1, i32pmax0],
+        u32pmax0*u32pmax1       : [u32pmax1, u32pmax0],
+        UInt(Int.max)           : [7,7,73,127,337,92737,649657],
+        11111111111111111       : [2071723, 5363222357],
+        614889782588491410      : [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47],
+        3369738766071892021     : [204518747, 16476429743],
+        10023859281455311421    : [1308520867, 7660450463]
+    ]
+    composites[two63.reduce(1,combine:*)] = two63
+    for (k, v) in composites {
+        test.eq(k.primeFactors, v, "\(k).primeFactors == \(v)")
+    }
 }

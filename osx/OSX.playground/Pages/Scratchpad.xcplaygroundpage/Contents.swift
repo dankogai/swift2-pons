@@ -20,11 +20,9 @@ public class PiHex : SequenceType {
 }
 
 /*
-BigFloat.pow(2, -0.5)
-BigFloat.sqrt(2)
-
-(BigRat(2) ** BigRat(128)).toFPString()
-
+UIntMax.factor(4611685846628697223, verbose:true)
+UIntMax.factor(10023859281455311421, verbose:true)
+BigUInt.factor("63375401385616362433", verbose:true)
 
 BigInt("3317044064679887385961981").nextPrime
 BigInt("4547337172376300111955330758342147474062293202868155909393").isPrime

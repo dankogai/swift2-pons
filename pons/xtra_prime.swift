@@ -23,11 +23,11 @@ public extension POUtil.Prime {
             return nil
         }
     }
-    /// primes less than 2048
+    /// primes less than 256
     public static let tinyPrimes:[Int] = {
         var ps = [2, 3]
         var n = 5
-        while n < 2048 {
+        while n < 256 {
             for p in ps {
                 if n % p == 0 { break }
                 if p * p > n  { ps.append(n); break }
@@ -221,29 +221,14 @@ public extension POUtil.Prime {
         3*5,    3*7,    3*11,   5*7,    5*11,
         7*11,   3*5*7,  3*5*11, 3*7*11, 5*7*11, 3*5*7*11
     ]
-    /// Try to factor `n` by [SQUFOF] = Shanks' Square Forms Factorization
-    ///
-    /// [SQUFOF]: http://en.wikipedia.org/wiki/Shanks'_square_forms_factorization
-    public class func squfof(n:UIntMax)->UIntMax {
-        let ks = squfofMultipliers.filter{n < UIntMax(IntMax.max) / $0}.reverse()
-        // print("ks=\(ks)")
-        for k in ks {
-            if UIntMax.multiplyWithOverflow(n, k).overflow { continue }
-            // let g = UInt(c_squfof(UInt64(n), UInt64(k)))
-            let g = squfof_one(n, k)
-            // print("squof(\(n),\(k)) == \(g)")
-            if g != 1 { return g }
-        }
-        return 1
-    }
-    public class func squfof_one(n:UIntMax, _ k:UIntMax)->UIntMax {
+}
+public extension UIntMax {
+    public static func squfof_one(n:UIntMax, _ k:UIntMax)->UIntMax {
         // print("n=\(n),k=\(k)")
         if n < 2      { return 1 }
         if n & 1 == 0 { return 2 }
         let rn = UIntMax.sqrt(n)
         if rn * rn == n { return rn }
-        // if overflows just give up
-        if n > UIntMax(IntMax.max) { return 1 }
         let kn = IntMax(k) &* IntMax(n)
         let rkn = IntMax.sqrt(kn)
         var p0 = rkn
@@ -280,7 +265,71 @@ public extension POUtil.Prime {
         return 1
     }
 }
+public extension BigUInt {
+    public static func squfof_one(n:BigUInt, _ k:BigUInt)->BigUInt {
+        // print("n=\(n),k=\(k)")
+        if n < 2      { return 1 }
+        if n & 1 == 0 { return 2 }
+        let rn = BigUInt.sqrt(n)
+        if rn * rn == n { return rn }
+        let kn = k.asBigInt! * n.asBigInt!
+        let rkn = BigInt.sqrt(kn)
+        var p0 = rkn
+        var q0 = BigInt(1)
+        var q1 = kn - p0*p0
+        var b0, b1, p1, q2 : BigInt
+        for i in 0..<(BigInt.sqrt(2 * rkn)) {
+            // print("Stage 1: p0=\(p0), q0=\(q0), q1=\(q1)")
+            b1 = (rkn + p0) / q1
+            p1 = b1 * q1 - p0
+            q2 = q0 + b1 * (p0 - p1)
+            if i & 1 == 1 {
+                let rq = BigInt.sqrt(q1)
+                if rq * rq == q1 {
+                    //  square root found; the algorithm cannot fail now.
+                    b0 = (rkn - p0) / rq
+                    p0 = b0 * rq + p0
+                    q0 = rq
+                    q1 = (kn - p0*p0) / q0
+                    while true {
+                        // print("Stage 2: p0=\(p0), q0=\(q0), q1=\(q1)")
+                        b1 = (rkn + p0) / q1
+                        p1 = b1 * q1 - p0
+                        q2 = q0 + b1 * (p0 - p1)
+                        if p0 == p1 {
+                            return BigUInt.gcd(n.asBigUInt!, p1.asUnsigned!)
+                        }
+                        p0 = p1; q0 = q1; q1 = q2;
+                    }
+                }
+            }
+            p0 = p1; q0 = q1; q1 = q2
+        }
+        return 1
+    }
+}
 public extension POUInt {
+    /// Try to factor `n` by [SQUFOF] = Shanks' Square Forms Factorization
+    ///
+    /// [SQUFOF]: http://en.wikipedia.org/wiki/Shanks'_square_forms_factorization
+    public static func squfof(n:Self, verbose:Bool = false)->Self {
+        // if verbose { print("ks=\(ks)") }
+        let threshold = IntMax.max.asUnsigned!.asBigUInt!
+        for k in POUtil.Prime.squfofMultipliers {
+            let bn = n.asBigUInt!
+            let bk = k.asBigUInt!
+            var g:Self = 0
+            if threshold < bn * bk {
+                g = Self(BigUInt.squfof_one(bn, bk))
+                if verbose { print("BigUInt.squof(\(n),\(k)) == \(g)") }
+            } else {
+                g = Self(UIntMax.squfof_one(n.toUIntMax(), k.toUIntMax()))
+                if verbose {  print("UIntMax.squof(\(n),\(k)) == \(g)") }
+            }
+            if g != 1 { return g }
+        }
+        return 1
+    }
     /// Try to factor `n` by [Pollard's rho] algorithm
     ///
     /// [Pollard's rho]: https://en.wikipedia.org/wiki/Pollard%27s_rho_algorithm
@@ -288,13 +337,14 @@ public extension POUInt {
     /// - parameter n: the number to factor
     /// - parameter l: the number of iterations
     /// - parameter c: seed
-    public static func pollardsRho(n:Self, _ l:Self, _ c:Self)->Self {
+    public static func pollardsRho(n:Self, _ l:Self, _ c:Self, verbose:Bool=false)->Self {
         var (x, y, j) = (Self(2), Self(2), Self(2))
         for i in 1...l {
             x = mulmod(x, x, mod:n)
             x += c
-            let d  = Self.gcd(x < y ? y - x : x - y, n);
+            let d = Self.gcd(x < y ? y - x : x - y, n);
             if (d != 1) {
+                if verbose { print("pollardsRho(\(n), \(l), \(c)): i=\(i), d=\(d)") }
                 return d == n ? 1 : d
             }
             if (i % j == 0) {
@@ -302,47 +352,44 @@ public extension POUInt {
                 j += j
             }
         }
+        if verbose { print("pollardsRho(\(n), \(l), \(c)): giving up") }
         return 1
+    }
+    /// factor `n` and return prime factors of it in array.
+    ///
+    /// axiom: `self.primeFactors.reduce(1,combine:*) == self` for any `self`
+    ///
+    /// It should succeed for all `u <= UInt.max` but may fail for larger numbers.
+    /// In which case `1` is prepended to the result so the axiom still holds.
+    ///
+    /// If `verbose` is `true`, it shows the diagnostics
+    ///
+    public static func factor(n:Self, verbose v:Bool=false)->[Self] {
+        var k = n
+        if k < 2 { return [k] }
+        if k.isPrime { return [k] }
+        var result = [Self]()
+        for p in POUtil.Prime.tinyPrimes.map({Self($0)}) {
+            while k % p == 0 { result.append(p); k /= p }
+            if k == 1 { return result }
+        }
+        if k.isPrime { return result + [k] }
+        var d = Self.pollardsRho(k, 2048, 3, verbose:v)
+        if d == 1 {
+            d = Self.squfof(n, verbose:v)
+        }
+        result += d != 1 ? factor(d, verbose:v) + factor(k/d, verbose:v) : [1, k]
+        result.sortInPlace(<)
+        return result
     }
     /// factor `self` and return prime factors of it in array.
     ///
     /// axiom: `self.primeFactors.reduce(1,combine:*) == self` for any `self`
     ///
-    /// It should succeed for all `u <= Int.max` but may fail for larger UInts.
+    /// It should succeed for all `u <= UInt.max` but may fail for larger numbers.
     /// In which case `1` is prepended to the result so the axiom still holds.
     public var primeFactors:[Self] {
-        var n = self
-        if n < 2 { return [n] }
-        if n.isPrime { return [n] }
-        var result = [Self]()
-        let tinyPrimes = POUtil.Prime.tinyPrimes
-        for p in tinyPrimes[0..<83].map({Self($0)}) {
-            while n % p == 0 { result.append(p); n /= p }
-            if n == 1 { return result }
-        }
-        if n.isPrime { return result + [n] }
-        if n < Self(tinyPrimes.last! * tinyPrimes.last!) {
-            for p in tinyPrimes[83..<tinyPrimes.count].map({Self($0)}) {
-                while n % p == 0 {
-                    result.append(p)
-                    n /= p
-                }
-                if n == 1 { return result }
-            }
-            if n != 1 { result.append(n) }
-            return result
-        }
-        if n.isPrime { return result + [n] }
-        let l = Swift.min(Self.sqrt(n), 0x1_0000)
-        var d = Self.pollardsRho(n, l, 1)
-        if d == 1 {
-            if let n64 = n.asUInt64 {
-                d = Self(POUtil.Prime.squfof(n64))
-            }
-        }
-        result += d != 1 ? d.primeFactors + (n/d).primeFactors : [1, n]
-        result.sortInPlace(<)
-        return result
+        return Self.factor(self)
     }
 }
 public extension POInt {
