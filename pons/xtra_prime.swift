@@ -114,7 +114,7 @@ public extension POUInt {
             }
             (m, n) = (n, m)
             if (n % 4 == 3 && m % 4 == 3)  { j = -j }
-            n = n % m
+            n %=  m
         }
         return (m == 1) ? j : 0
     }
@@ -125,11 +125,14 @@ public extension POUInt {
         // make sure self is not a perfect square
         let r = Self.sqrt(self)
         if r*r == self { return false }
-        var d = 3
-        for i in 2...1024 {
-            d = (i & 1 == 0 ? 1 : -1) * (2 * i + 1)
-            if self.jacobiSymbol(d) == -1 { break }
-        }
+        let d:Int = {
+            var d = 1
+            for i in 2...256 {  // 256 is arbitrary
+                d = (i & 1 == 0 ? 1 : -1) * (2 * i + 1)
+                if self.jacobiSymbol(d) == -1 { return d }
+            }
+            fatalError("no such d found that self.jacobiSymbol(d) == -1")
+        }()
         let p = 1
         var q = BigInt(1 - d) / 4
         // print("p = \(p), q = \(q)")
@@ -140,21 +143,35 @@ public extension POUInt {
         var q2 = 2*q
         let (bs, bd) = (self.asBigInt!, d.asBigInt!)
         while 0 < n {
-            u2 = (u2 * v2) % bs
-            v2 = (v2 * v2 - q2) % bs
+            // u2 = (u2 * v2) % bs
+            u2 *= v2
+            u2 %= bs
+            // v2 = (v2 * v2 - q2) % bs
+            v2 *= v2
+            v2 -= q2
+            v2 %= bs
             if n & 1 == 1 {
                 let t = u
-                u = u2 * v + u * v2
+                // u = u2 * v + u * v2
+                u *= v2
+                u += u2 * v
                 u += u & 1 == 0 ? 0 : bs
+                // u = (u / 2) % bs
                 u /= 2
                 u %= bs
-                v = (v2 * v) + (u2 * t * bd)
+                // v = (v2 * v) + (u2 * t * bd)
+                v *= v2
+                v += u2 * t * bd
                 v += v & 1 == 0 ? 0 : bs
+                // v = (v / 2) % bs
                 v /= 2
                 v %= bs
             }
-            q = (q * q) % bs
-            q2 = q + q
+            // q = (q * q) % bs
+            q *= q
+            q %= bs
+            // q2 = q + q
+            q2 = q << 1
             // print(u, v)
             n >>= 1
         }
