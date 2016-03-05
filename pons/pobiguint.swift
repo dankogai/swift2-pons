@@ -513,7 +513,6 @@ public extension POUInt {
             b = (b << 1) % m
         }
         return r
-        
     }
     /// * `lhs ** rhs`
     /// * `(lhs ** rhs) % mod` if `mod` is specified

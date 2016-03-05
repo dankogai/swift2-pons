@@ -23,39 +23,6 @@ public extension POUtil.Prime {
             return nil
         }
     }
-    /// primes less than 256
-    public static let tinyPrimes:[Int] = {
-        var ps = [2, 3]
-        var n = 5
-        while n < 256 {
-            for p in ps {
-                if n % p == 0 { break }
-                if p * p > n  { ps.append(n); break }
-            }
-            n += 2
-        }
-        return ps
-    }()
-    /// ### [A014233]
-    ///
-    /// Smallest odd number for which Miller-Rabin primality test
-    /// on bases <= n-th prime does not reveal compositeness.
-    ///
-    /// [A014233]: https://oeis.org/A014233
-    public static let A014233:[UIntMax] = [
-        2047,                   // p0   = 2
-        1373653,                // p1   = 3
-        25326001,               // p2   = 5
-        3215031751,             // p3   = 7
-        2152302898747,          // p4   = 11
-        3474749660383,          // p5   = 13
-        341550071728321,        // p6   = 17
-        341550071728321,        // p7   = 19
-        3825123056546413051,    // p8   = 23
-        3825123056546413051,    // p9   = 29
-        3825123056546413051,    // p10  = 31
-        0                       // p11  = 37; 318665857834031151167461  > UInt.max
-    ]
 }
 //
 //  Primarity Test
@@ -81,10 +48,11 @@ public extension POUInt {
         // print("\(__FILE__):\(__LINE__): base=\(base),self=\(self),y=\(y),t=\(t)")
         return y == self-1 || t & 1 == 1
     }
-    /// [Lucas–Lehmer primality test] on `self`
+    /// [Lucas–Lehmer primality test] on `self`.
     ///
     /// [Lucas–Lehmer primality test]: https://en.wikipedia.org/wiki/Lucas%E2%80%93Lehmer_primality_test
-    /// - returns: `true` if Mersenne Prime, `false` if not. Oe `nil` if self is not even a Mersenne Number.
+    ///
+    /// - returns: `true` if `self` is a Mersenne prime, `false` if not. Or `nil` if self is not even a Mersenne number.
     public var isMersennePrime:Bool? {
         let p = Self(min(self.msbAt + 1, Self.precision - 1)) // mersenne number = number of bits
         // print("\(__FILE__):\(__LINE__): p = \(p), self = \(self)")
@@ -223,6 +191,7 @@ public extension POUtil.Prime {
     ]
 }
 public extension UIntMax {
+    // faster but prone to overflow
     public static func squfof_one(n:UIntMax, _ k:UIntMax)->UIntMax {
         // print("n=\(n),k=\(k)")
         if n < 2      { return 1 }
@@ -266,6 +235,7 @@ public extension UIntMax {
     }
 }
 public extension BigUInt {
+    // slower but never overflows
     public static func squfof_one(n:BigUInt, _ k:BigUInt)->BigUInt {
         // print("n=\(n),k=\(k)")
         if n < 2      { return 1 }
@@ -365,22 +335,23 @@ public extension POUInt {
     /// If `verbose` is `true`, it shows the diagnostics
     ///
     public static func factor(n:Self, verbose v:Bool=false)->[Self] {
+        if n < 2 || n.isPrime { return [n] }
         var k = n
-        if k < 2 { return [k] }
-        if k.isPrime { return [k] }
-        var result = [Self]()
-        for p in POUtil.Prime.tinyPrimes.map({Self($0)}) {
-            while k % p == 0 { result.append(p); k /= p }
-            if k == 1 { return result }
+        var ps = [Self]()
+        var p = Self(2)
+        while p < 2048 {
+            while k % p == 0 { ps.append(p); k /= p }
+            if k == 1 { return ps }
+            p = p.nextPrime!
         }
-        if k.isPrime { return result + [k] }
+        if k.isPrime { return ps + [k] }
         var d = Self.pollardsRho(k, 2048, 3, verbose:v)
         if d == 1 {
             d = Self.squfof(k, verbose:v)
         }
-        result += d != 1 ? factor(d, verbose:v) + factor(k/d, verbose:v) : [1, k]
-        result.sortInPlace(<)
-        return result
+        ps += d != 1 ? factor(d, verbose:v) + factor(k/d, verbose:v) : [1, k]
+        ps.sortInPlace(<)
+        return ps
     }
     /// factor `self` and return prime factors of it in array.
     ///
@@ -413,25 +384,53 @@ public extension POInt {
     }
     /// the prime factors of `self`
     ///
-    /// axiom: `u.primeFactors.reduce(1,*) == u` for any `u:UInt`
+    /// axiom: `self.primeFactors.reduce(1,combine:*) == self` for any `self`
     ///
-    /// It may fail for `u > Int.max`.
+    /// It may fail if `self` contains factors beyond `Int.max`.
     /// In which case `1` is prepended to the result.
-    /// For negative `self`, `-1` is prepended
+    ///
+    /// For negative `self`, `-1` is prepended so the axiom still holds.
     public var primeFactors:[Self] {
         let factors = self.abs.asUnsigned!.primeFactors.map{ Self($0) }
         return self.isSignMinus ? [-1] + factors : factors
     }
 }
 public extension BigUInt {
-    public static let A014233_1x:[BigUInt] = [
-        "318665857834031151167461",
-        "3317044064679887385961981"
+    /// ### [A014233]
+    ///
+    /// Smallest odd number for which Miller-Rabin primality test
+    /// on bases <= n-th prime does not reveal compositeness.
+    ///
+    /// [A014233]: https://oeis.org/A014233
+    public static let A014233:[BigUInt] = [
+        2047,                       // p0   = 2
+        1373653,                    // p1   = 3
+        25326001,                   // p2   = 5
+        3215031751,                 // p3   = 7
+        2152302898747,              // p4   = 11
+        3474749660383,              // p5   = 13
+        341550071728321,            // p6   = 17
+        341550071728321,            // p7   = 19
+        3825123056546413051,        // p8   = 23
+        3825123056546413051,        // p9   = 29
+        3825123056546413051,        // p10  = 31
+        "318665857834031151167461", // p11  = 37
+        "3317044064679887385961981" // p12  = 41
     ]
-    public var isSurelyPrime:(Bool, surely:Bool) {   // a little more stringent tests
+    /// - returns: (Bool, surely:Bool)
+    ///
+    /// *surely* means if the primarity test is surely prime or surely composite.
+    /// When composite it is always `true`.  When prime it is `true` up to
+    /// `3317044064679887385961981`, the last number in A014233 as of this writing.
+    ///
+    /// If `self` is a [Mersenne number], it check is if it is a Mersenne prime.
+    /// In which case it is surely a prime or a composite.
+    ///
+    /// [Mersenne number]: https://en.wikipedia.org/wiki/Mersenne_prime
+    public var isSurelyPrime:(Bool, surely:Bool) {
         if self < 2      { return (false, true) }
         if let self64 = self.asUInt64 { return (self64.isPrime, true) }
-        if BigUInt.A014233_1x.last! <= self {
+        if BigUInt.A014233.last! <= self {
             let isPrime = self.isPrime
             return (isPrime, !isPrime)
         }
@@ -440,18 +439,11 @@ public extension BigUInt {
         if self % 5 == 0 { return (self == 5, true) }
         if self % 7 == 0 { return (self == 7, true) }
         if let mp = self.isMersennePrime { return (mp, true) }
-        typealias PP = POUtil.Prime
-        for i in 0..<PP.A014233.count {
-            // print("\(__FILE__):\(__LINE__): \(self).millerRabinTest(\(PP.tinyPrimes[i]))")
-            if self.millerRabinTest(PP.tinyPrimes[i]) == false { return (false, true) }
-            if self < BigUInt(PP.A014233[i]) { return (true, true) }
-        }
-        // cf. http://arxiv.org/abs/1509.00864
-        for i in 0..<BigUInt.A014233_1x.count {
-            let j = i + 11
-            // print("\(__FILE__):\(__LINE__): \(self).millerRabinTest(\(PP.tinyPrimes[j]))")
-            if self.millerRabinTest(PP.tinyPrimes[j]) == false { return (false, true) }
-            if self < BigUInt.A014233_1x.last! { return (true, true) }
+        var p = 2
+        for i in 0..<BigUInt.A014233.count {
+            if self.millerRabinTest(p) == false { return (false, true) }
+            if self < BigUInt.A014233[i] { return (true, true) }
+            p = p.nextPrime!
         }
         // should not reach here
         let isPrime = self.isLucasProbablePrime
