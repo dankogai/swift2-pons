@@ -1,5 +1,11 @@
-#!/usr/bin/env swift
-// compile: xcrun -sdk macosx swiftc -O pons/*.swift benchmark/main.swift
+#!/usr/bin/env swift -I. -L. -lPONS
+// compile: xcrun -sdk macosx swiftc -O pons/*.swift benchmark/benchmark.swift
+//
+// or "make module" then directly run as:
+//
+// ./benchmark/benchmark.swift
+import PONS
+
 #if os(Linux)
     import Glibc
 #else

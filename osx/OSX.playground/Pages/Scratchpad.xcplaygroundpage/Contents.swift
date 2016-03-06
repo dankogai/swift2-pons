@@ -19,7 +19,6 @@ public class PiHex : SequenceType {
     }
 }
 
-POUtil.Prime.tinyPrimes.forEach{print($0)}
 /*
 
 for i in UInt(Int.max-64)...UInt(Int.max) {
