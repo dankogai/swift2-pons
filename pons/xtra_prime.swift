@@ -430,6 +430,7 @@ public extension BigUInt {
     public var isSurelyPrime:(Bool, surely:Bool) {
         if self < 2      { return (false, true) }
         if let self64 = self.asUInt64 { return (self64.isPrime, true) }
+        if let mp = self.isMersennePrime { return (mp, true) }
         if BigUInt.A014233.last! <= self {
             let isPrime = self.isPrime
             return (isPrime, !isPrime)
@@ -438,7 +439,6 @@ public extension BigUInt {
         if self % 3 == 0 { return (self == 3, true) }
         if self % 5 == 0 { return (self == 5, true) }
         if self % 7 == 0 { return (self == 7, true) }
-        if let mp = self.isMersennePrime { return (mp, true) }
         var p = 2
         for i in 0..<BigUInt.A014233.count {
             if self.millerRabinTest(p) == false { return (false, true) }
