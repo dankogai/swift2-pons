@@ -247,12 +247,12 @@ public func >>=(inout lhs:BigUInt, rhs:BigUInt) {
 }
 public func >>=(inout lhs:BigUInt, rhs:Int) {
     if lhs == 0 { return }
-    let (index, offset) = (rhs / 32, UInt32(rhs) % 32)
-    if lhs.digits.count <= index {
-        // lhs.digits = [0]
+    if lhs.msbAt + 1 <= rhs {
         lhs.digits.removeAll()
         lhs.digits.append(0)
+        return
     }
+    let (index, offset) = (rhs / 32, UInt32(rhs) % 32)
     lhs.digits.removeFirst(index)
     if offset == 0 { return }
     let e = 0
