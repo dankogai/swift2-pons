@@ -64,8 +64,14 @@ public extension POUInt {
         }
         var s:BigUInt = 4
         let d = self.asBigUInt!
+        let n = p.asBigUInt!
         for _ in 0..<(p-2) {
-            s = (s * s - 2) % d // BigUInt is used to avoid overflow at s * s
+            // s = (s * s - 2) % d  // BigUInt is used to avoid overflow at s * s
+            let s2 = s * s
+            s = (s2 & d) + (s2 >> n)
+            if d <= s { s -= d }
+            s -= 2
+            // print(i, s.toString(16))
         }
         return s == 0
     }
