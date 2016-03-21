@@ -99,14 +99,6 @@ Swift 2.2.  OSX/iOS/tvOS/Linux supported.  For Linux, make sure you use 2.2.x re
 
 Now that Xcode is 7.3 with Swift 2.2, Swift 2.1 is no longer supported.
 
-````
-pons/pocomplex.swift:13:5: warning: use of 'typealias' to declare associated types is deprecated; use 'associatedtype' instead
-    typealias RealType:POSignedNumber
-    ^~~~~~~~~
-```
-
-Just ignore them for the time being.  They are needed in 2.1.
-
 ## FAQ
 
 ### Q. Swift already has tons of protocols built-in like [IntegerType] and [FloatingPointType].  Why do you reinvent these?
