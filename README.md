@@ -95,9 +95,9 @@ make SWIFTPATH=${YOUR_SWIFT_PATH} repl # ${YOUR_SWIFT_PATH}=~/swift/usr/bin in m
 
 ## REQUIREMENT
 
-Swift 2.1 or better.  Linux supported.
+Swift 2.2.  OSX/iOS/tvOS/Linux supported.  For Linux, make sure you use 2.2.x release branch.
 
-With Swift 2.2 you get some deprecation warnings like:
+Now that Xcode is 7.3 with Swift 2.2, Swift 2.1 is no longer supported.
 
 ````
 pons/pocomplex.swift:13:5: warning: use of 'typealias' to declare associated types is deprecated; use 'associatedtype' instead
