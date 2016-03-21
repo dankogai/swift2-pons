@@ -196,7 +196,7 @@ public protocol POUInt: POInteger, StringLiteralConvertible, CustomDebugStringCo
     init (_:UInt)
     init (_:UIntMax)
     func toUIntMax()->UIntMax
-    typealias IntType:POSignedNumber    // its correspoinding singed type
+    associatedtype IntType:POSignedNumber    // its correspoinding singed type
     //init(_:IntType)         // must be capable of initializing from it
     var asSigned:IntType? { get }
     var asBigUInt:BigUInt? { get }
@@ -422,7 +422,7 @@ public protocol POInt: POInteger, POSignedNumber, StringLiteralConvertible, Cust
     ///
     /// The unsigned version of `self`
     ///
-    typealias UIntType:POUInt           // its corresponding unsinged type
+    associatedtype UIntType:POUInt           // its corresponding unsinged type
     init(_:UIntType)                    // capable of initializing from it
     var asUnsigned:UIntType? { get }    // able to convert to unsigned
     var asBigInt:BigInt?    { get }

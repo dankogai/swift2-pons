@@ -7,7 +7,7 @@ public class PiHex : SequenceType {
     public func generate()->AnyGenerator<Int> {
         var x = BigInt(0).over(1)
         var i = 1
-        return anyGenerator {
+        return AnyGenerator {
             let n:BigInt = (120*i-89)*i+16
             let d:BigInt = (((512*i-1024)*i+712)*i-206)*i+21
             x *= BigRat(16)

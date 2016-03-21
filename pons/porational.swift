@@ -49,7 +49,7 @@ public extension POInteger {
     }
 }
 public protocol PORational : POReal {
-    typealias IntType:POInt
+    associatedtype IntType:POInt
     var sgn:Bool { get set }
     var num:IntType.UIntType { get set }
     var den:IntType.UIntType { get set }

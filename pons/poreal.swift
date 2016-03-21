@@ -9,7 +9,7 @@
 public typealias POSwiftReal = FloatingPointType
 
 public protocol POReal : POSignedNumber {
-    typealias IntType:POInt
+    associatedtype IntType:POInt
     init(_:Double)
     func toDouble()->Double
     func %(_:Self, _:Self)->Self

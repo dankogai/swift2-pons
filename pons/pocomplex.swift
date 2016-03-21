@@ -10,7 +10,7 @@
 /// Complex of any POSignedNumber
 ///
 public protocol POComplex: PONumber {
-    typealias RealType:POSignedNumber
+    associatedtype RealType:POSignedNumber
     var re:RealType { get set }
     var im:RealType { get set }
     init(_:RealType, _:RealType)
@@ -139,7 +139,7 @@ public extension POInt {
 /// Complex Real
 ///
 public protocol POComplexReal : POComplex {
-    typealias RealType: POReal
+    associatedtype RealType: POReal
 }
 public extension POComplexReal {
     public init(abs:RealType, arg:RealType) {

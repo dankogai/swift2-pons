@@ -15,7 +15,7 @@ public extension POUtil.Prime {
     /// stream of primes
     public func generate()->AnyGenerator<BigInt> {
         var currPrime = BigInt(0)
-        return anyGenerator {
+        return AnyGenerator {
             if let nextPrime = currPrime.nextPrime {
                 currPrime = nextPrime
                 return currPrime

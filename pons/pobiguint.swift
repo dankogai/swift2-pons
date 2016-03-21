@@ -112,15 +112,15 @@ extension BigUInt : BitwiseOperationsType {
         self.digits = rawValue
         self.trim()
     }
-    public subscript(i:Int)->Bit {
+    public subscript(i:Int)->Int {
         get {
             let (index, offset) = (i / 32, i % 32)
-            if digits.count <= index { return .Zero }
-            return digits[index] & UInt32(1 << offset) == 0 ? .Zero : .One
+            if digits.count <= index { return 0 }
+            return digits[index] & UInt32(1 << offset) == 0 ? 0 : 1
         }
         set {
             let (index, offset) = (i / 32, i % 32)
-            if newValue == .One {
+            if newValue == 1 {
                 self.stretch(index)
                 digits[index] |= UInt32(1 << offset)
             } else {
@@ -461,7 +461,7 @@ public extension BigUInt {
             r[0] = lhs[i]
             if r >= rhs {
                 r -= rhs
-                q[i] = .One
+                q[i] = 1
             }
         }
         return (q, r)
@@ -499,7 +499,10 @@ public extension POUInt {
     public static func mulmod(x:Self, _ y:Self, mod m:Self)->Self {
         if (m == 0) { fatalError("modulo by zero") }
         if (m == 1) { return 1 }
-        if Self.self == BigUInt.self || (x.msbAt + 1) + (y.msbAt + 1) < Self.precision {
+        if Self.self == BigUInt.self {
+            return (x * y) % m  // no overflow
+        }
+        if (x.msbAt + 1) + (y.msbAt + 1) < Self.precision {
             return (x * y) % m  // no overflow
         }
         var a = x % m;
