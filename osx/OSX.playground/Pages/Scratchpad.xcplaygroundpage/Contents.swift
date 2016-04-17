@@ -19,6 +19,14 @@ public class PiHex : SequenceType {
     }
 }
 
+/*:
+ Option+Click FXX to see their types are all different.
+ 
+ Write once, run on every type!
+ 
+ And I mean every type, not just Swift-builtin.  Let's try it on `BigInt`.
+ Yes, that's part of PONS.
+ */
 /*
 
 for i in UInt(Int.max-64)...UInt(Int.max) {
