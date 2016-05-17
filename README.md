@@ -47,7 +47,7 @@ bz / bz // ((1/1)+(0/1).i)
 
 [Elementary function]s (as in `<math.h>`) are supported as static functions. 
 
-`POReal` has defalut implementations so you don't have to implement them for your new number types!
+`POReal` has default implementations so you don't have to implement them for your new number types!
 
 `Darwin` and `Glibc` implementations are attached to `Double` as static functions, too.
 
