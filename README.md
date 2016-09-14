@@ -69,6 +69,8 @@ Complex.exp(BigRat.pi(128).i)   // (-(1/1)+(0/1).i) // as it should be!
 
 ### With Playground via Workspace
 
+**Currently does not work with Xcode 8**
+
 Build the framework before having fun.
 
 ![](screenshots/select-scheme.png)
@@ -77,6 +79,8 @@ To do so, all you need is choose Framework-OSX from the scheme and build it.  Wi
 get back to the OSX playground and enjoy.
 
 ### With Your Project
+
+**Swift 2.3**
 
 0. Just copy pons/*.swift to your project
 1. Or build framework and copy it to your project
@@ -87,6 +91,8 @@ get back to the OSX playground and enjoy.
 
 Simply `make repl` in the top directory.
 
+For Xcode 8, `env TOOLCHAINS=com.apple.dt.toolchain.Swift_2_3 make repl`.
+
 #### Linux
 
 ````
@@ -95,9 +101,13 @@ make SWIFTPATH=${YOUR_SWIFT_PATH} repl # ${YOUR_SWIFT_PATH}=~/swift/usr/bin in m
 
 ## REQUIREMENT
 
-Swift 2.2.  OSX/iOS/tvOS/Linux supported.  For Linux, make sure you use 2.2.x release branch.
+Swift 2.2 or 2.3.  OSX/iOS/tvOS/Linux supported.  For Linux, make sure you use 2.2.x release branch.
 
 Now that Xcode is 7.3 with Swift 2.2, Swift 2.1 is no longer supported.
+
+Not yet compatible w/ Swift 3 since protocols have changed too
+significantly.  Maybe we should restart the project anew (PONS3,
+maybe?).
 
 ## FAQ
 
