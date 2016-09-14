@@ -35,10 +35,10 @@ public protocol PONumber :  Equatable, Hashable, CustomStringConvertible
     init(_:Self)
     init(_:Int)
     func toIntMax()->IntMax
-    func +(_:Self,_:Self)->Self
-    func -(_:Self,_:Self)->Self
-    func *(_:Self,_:Self)->Self
-    func /(_:Self,_:Self)->Self
+    static func +(_:Self,_:Self)->Self
+    static func -(_:Self,_:Self)->Self
+    static func *(_:Self,_:Self)->Self
+    static func /(_:Self,_:Self)->Self
 }
 public extension PONumber {
     /// CustomStringConvertible by Default
